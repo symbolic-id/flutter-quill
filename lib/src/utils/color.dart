@@ -123,3 +123,7 @@ Color stringToColor(String? s) {
   final val = int.parse(hex, radix: 16);
   return Color(val);
 }
+
+class SymColors {
+  static const Color lightBluePrimary = Color(0xFF4267B2);
+}

@@ -15,6 +15,7 @@ import '../models/documents/attribute.dart';
 import '../models/documents/document.dart';
 import '../models/documents/nodes/block.dart';
 import '../models/documents/nodes/line.dart';
+import 'block_button.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'default_styles.dart';
@@ -69,7 +70,7 @@ class RawEditor extends StatefulWidget {
   final ScrollController scrollController;
   final bool scrollable;
   final double scrollBottomInset;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
   final bool readOnly;
   final String? placeholder;
   final ValueChanged<String>? onLaunchUrl;
@@ -136,6 +137,7 @@ class RawEditorState extends EditorState
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
+    final containerSize = MediaQuery.of(context).size;
     _focusAttachment!.reparent();
     super.build(context);
 
@@ -160,7 +162,10 @@ class RawEditorState extends EditorState
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _handleSelectionChanged,
           scrollBottomInset: widget.scrollBottomInset,
-          padding: widget.padding,
+          padding: widget.padding ?? EdgeInsets.only(
+              left: containerSize.width * 0.2,
+              right: containerSize.width * 0.2
+          ),
           children: _buildChildren(_doc, context),
         ),
       ),
@@ -266,6 +271,7 @@ class RawEditorState extends EditorState
     );
     final editableTextLine = EditableTextLine(
         node,
+        BlockButton.basic(node.offset),
         null,
         textLine,
         0,

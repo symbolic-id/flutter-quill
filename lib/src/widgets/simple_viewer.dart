@@ -238,6 +238,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     final editableTextLine = EditableTextLine(
         node,
         null,
+        null,
         textLine,
         0,
         _getVerticalSpacingForLine(node, _styles),

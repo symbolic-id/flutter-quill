@@ -120,7 +120,6 @@ class QuillEditor extends StatefulWidget {
       required this.focusNode,
       required this.scrollController,
       required this.scrollable,
-      required this.padding,
       required this.autoFocus,
       required this.readOnly,
       required this.expands,
@@ -140,7 +139,8 @@ class QuillEditor extends StatefulWidget {
       this.onSingleLongTapStart,
       this.onSingleLongTapMoveUpdate,
       this.onSingleLongTapEnd,
-      this.embedBuilder = _defaultEmbedBuilder});
+      this.embedBuilder = _defaultEmbedBuilder,
+      this.padding,});
 
   factory QuillEditor.basic({
     required QuillController controller,
@@ -162,7 +162,7 @@ class QuillEditor extends StatefulWidget {
   final ScrollController scrollController;
   final bool scrollable;
   final double scrollBottomInset;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
   final bool autoFocus;
   final bool? showCursor;
   final bool readOnly;

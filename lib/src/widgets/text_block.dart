@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_quill/src/widgets/block_button.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -116,6 +117,7 @@ class EditableTextBlock extends StatelessWidget {
       index++;
       final editableTextLine = EditableTextLine(
           line,
+          BlockButton.basic(block.offset + line.offset),
           _buildLeading(context, line, index, indentLevelCounts, count),
           TextLine(
             line: line,
