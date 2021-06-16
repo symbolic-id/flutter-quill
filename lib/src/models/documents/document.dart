@@ -119,6 +119,33 @@ class Document {
     return delta;
   }
 
+  /* Get string from delta */
+  String getText(int index) {
+    print('LL:: ResolveLineFormatRule');
+
+    var delta = Delta()..retain(index);
+    final itr = DeltaIterator(this.toDelta())..skip(index);
+
+    Operation op;
+
+    String text = '';
+
+    while (itr.hasNext) {
+      op = itr.next();
+      final _text = op.data is String ? (op.data as String?)! : '';
+      final lineBreak = _text.indexOf('\n');
+      if (lineBreak < 0) {
+        delta.retain(op.length!);
+        print('LL:: ResolveLineFormatRule op.data : ${op.data}');
+        text = '$text${op.data}';
+        continue;
+      }
+      text = '$text${(op.data as String).substring(0, _text.indexOf('\n'))}';
+      break;
+    }
+    return text;
+  }
+
   Style collectStyle(int index, int len) {
     final res = queryChild(index);
     return (res.node as Line).collectStyle(res.offset, len);

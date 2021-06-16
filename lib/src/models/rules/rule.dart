@@ -62,6 +62,7 @@ class Rules {
       if (rule.type != ruleType) {
         continue;
       }
+      print('LL:: Rules apply : $rule : ');
       try {
         final result = rule.apply(delta, index,
             len: len, data: data, attribute: attribute);

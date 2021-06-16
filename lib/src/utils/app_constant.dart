@@ -1,0 +1,1 @@
+const PACKAGES_NAME = 'flutter_quill';

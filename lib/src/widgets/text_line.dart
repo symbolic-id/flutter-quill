@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/src/widgets/block_button.dart';
+import 'package:flutter_quill/src/widgets/block_option_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -210,6 +212,7 @@ class TextLine extends StatelessWidget {
 
 class EditableTextLine extends RenderObjectWidget {
   const EditableTextLine(
+    Key key,
     this.line,
     this.button,
     this.leading,
@@ -223,10 +226,10 @@ class EditableTextLine extends RenderObjectWidget {
     this.hasFocus,
     this.devicePixelRatio,
     this.cursorCont,
-  );
+  ): super(key: key);
 
   final Line line;
-  final BlockButton? button;
+  final BlockOptionButton? button;
   final Widget? leading;
   final Widget body;
   final double indentWidth;
@@ -324,6 +327,14 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
   void setHovered(bool isHovered) {
     if (_onHover != isHovered) {
       _onHover = isHovered;
+      markNeedsPaint();
+    }
+  }
+
+  bool _selected = false;
+  void setSelected(bool isSelected) {
+    if (_selected != isSelected) {
+      _selected = isSelected;
       markNeedsPaint();
     }
   }
@@ -807,7 +818,7 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_button != null && onHover) {
+    if (_button != null && (onHover || _selected)) {
       final parentData = _button!.parentData as BoxParentData;
       final effectiveOffset = offset + parentData.offset;
       context.paintChild(_button!, effectiveOffset);
@@ -832,8 +843,9 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
         );
         _paintSelection(context, effectiveOffset);
       }
-      if (onHover) {
-        _paintLineBody(context, effectiveOffset, Colors.amber);
+
+      if (_selected) {
+        _paintLineBody(context, effectiveOffset, SymColors.hoverColor);
       }
 
       if (hasFocus &&

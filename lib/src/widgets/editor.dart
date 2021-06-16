@@ -700,6 +700,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   @override
   void handleTapDown(TapDownDetails details) {
+    print('LL:: handleTapDown ${details.globalPosition}');
     _lastTapDownPosition = details.globalPosition;
   }
 

@@ -25,6 +25,7 @@ dependencies:
   tuple: ^2.0.0
   url_launcher: ^6.0.2
   pedantic: ^1.11.0
+  google_fonts: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -37,6 +38,19 @@ flutter:
   uses-material-design: true
   assets:
     - packages/flutter_quill/assets/icons/ic_add_block_22.png
+    - packages/flutter_quill/assets/icons/ic_more_20px.png
+    - packages/flutter_quill/assets/icons/ic_copy_18px.png
+    - packages/flutter_quill/assets/icons/ic_duplicate_18px.png
+    - packages/flutter_quill/assets/icons/ic_indent_left_active_18px.png
+    - packages/flutter_quill/assets/icons/ic_indent_right_active_18px.png
+    - packages/flutter_quill/assets/icons/ic_trash_18px.png
+    - packages/flutter_quill/assets/icons/ic_h3_18px.png
+    - packages/flutter_quill/assets/icons/ic_h2_18px.png
+    - packages/flutter_quill/assets/icons/ic_h1_18px.png
+    - packages/flutter_quill/assets/icons/ic_text_normal_18px.png
+    - packages/flutter_quill/assets/icons/ic_todo_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_numbering_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_bullet_list_18px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

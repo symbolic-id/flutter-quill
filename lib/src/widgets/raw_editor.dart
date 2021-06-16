@@ -9,13 +9,14 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_quill/src/widgets/menus/menu_block_option.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
 import '../models/documents/document.dart';
 import '../models/documents/nodes/block.dart';
 import '../models/documents/nodes/line.dart';
-import 'block_button.dart';
+import 'block_option_button.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'default_styles.dart';
@@ -226,6 +227,58 @@ class RawEditorState extends EditorState
     }
   }
 
+  Future<void> _handleBlockOptionButtonTap(int offset, GlobalKey key) async {
+    if (!widget.readOnly) {
+      // final text = widget.controller.getTextFromEditableTextLine(offset);
+      //
+      // print('LL:: _handleBlockButtonTap text: ${text}');
+
+      final box = key.currentContext!.findRenderObject()
+          as RenderEditableTextLine;
+
+      box.setSelected(true);
+
+      final Function()? action = await Navigator.push(
+          context,
+          PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) {
+                animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+                return FadeTransition(
+                  opacity: animation,
+                  child: MenuBlockOption(
+                    buttonRenderBox: box,
+                    actionListener: MenuBlockOptionActionListener(
+                        onCopy: () {
+                        },
+                        onDelete: () {},
+                        onDismiss: () {
+                          box.setSelected(false);
+                        }
+                    ),
+                    turnIntoListener: MenuBlockOptionTurnIntoListener(
+                      turnInto: (attribute) {
+                        print('LL:: turnIntoListener attribute : $attribute');
+                        Navigator.pop(context);
+                      },
+                      onDismiss: () {
+                        box.setSelected(false);
+                      }
+                    ),
+                  ),
+                );
+              },
+              fullscreenDialog: false,
+              opaque: false
+          ),
+      );
+
+      box.setSelected(false);
+      print('LL:: _handleBlockOptionButtonTap action : $action');
+      // action?.call();
+      widget.controller.document.format(offset, 0, Attribute.checked);
+    }
+  }
+
   List<Widget> _buildChildren(Document doc, BuildContext context) {
     final result = <Widget>[];
     final indentLevelCounts = <int, int>{};
@@ -252,6 +305,7 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
+          onBlockButtonTap: _handleBlockOptionButtonTap,
         );
         result.add(editableTextBlock);
       } else {
@@ -269,9 +323,12 @@ class RawEditorState extends EditorState
       embedBuilder: widget.embedBuilder,
       styles: _styles!,
     );
+    final editableTextLineKey = GlobalKey();
     final editableTextLine = EditableTextLine(
+        editableTextLineKey,
         node,
-        BlockButton.basic(node.offset),
+        BlockOptionButton.basic(
+            editableTextLineKey, node.offset, _handleBlockOptionButtonTap),
         null,
         textLine,
         0,

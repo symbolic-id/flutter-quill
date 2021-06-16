@@ -170,6 +170,11 @@ class QuillController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /* Getter entire string from selected EditableTextLine */
+  String getTextFromEditableTextLine(int index) {
+    return document.getText(index);
+  }
+
   void formatSelection(Attribute? attribute) {
     formatText(selection.start, selection.end - selection.start, attribute);
   }

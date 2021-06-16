@@ -25,19 +25,23 @@ class ResolveLineFormatRule extends FormatRule {
     if (attribute!.scope != AttributeScope.BLOCK) {
       return null;
     }
+    print('LL:: ResolveLineFormatRule');
 
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
+
     Operation op;
     for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {
       op = itr.next(len - cur);
       if (op.data is! String || !(op.data as String).contains('\n')) {
         delta.retain(op.length!);
+        print('LL:: ResolveLineFormatRule op.data: ${op.data}');
         continue;
       }
       final text = op.data as String;
       final tmp = Delta();
       var offset = 0;
+      print('LL:: ResolveLineFormatRule op.text: ${text}');
 
       for (var lineBreak = text.indexOf('\n');
           lineBreak >= 0;
@@ -55,6 +59,7 @@ class ResolveLineFormatRule extends FormatRule {
       final lineBreak = text.indexOf('\n');
       if (lineBreak < 0) {
         delta.retain(op.length!);
+        print('LL:: ResolveLineFormatRule op.data : ${op.data}');
         continue;
       }
       delta..retain(lineBreak)..retain(1, attribute.toJson());
@@ -89,9 +94,19 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
       return null;
     }
 
+    print('LL:: FormatLinkAtCaretPositionRule dela : $delta');
+
     delta..retain(beg)..retain(retain!, attribute.toJson());
     return delta;
   }
+
+  // /* Get delta by index */
+  // Delta getDelta(Delta document, int index) {
+  //   final delta = Delta();
+  //   final itr = DeltaIterator(document);
+  //
+  //
+  // }
 }
 
 class ResolveInlineFormatRule extends FormatRule {
@@ -106,6 +121,8 @@ class ResolveInlineFormatRule extends FormatRule {
 
     final delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
+
+    print('LL:: ResolveInlineFormatRule delta: $delta');
 
     Operation op;
     for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {

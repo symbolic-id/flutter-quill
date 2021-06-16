@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
@@ -71,19 +73,67 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         onKey: (event) {
           if (event.data.isControlPressed && event.character == 'b') {
-            if (_controller!
-                .getSelectionStyle()
-                .attributes
-                .keys
-                .contains('bold')) {
-              _controller!
-                  .formatSelection(Attribute.clone(Attribute.bold, null));
-            } else {
-              _controller!.formatSelection(Attribute.bold);
-            }
+            showMenu(
+              context: this.context,
+              useRootNavigator: true,
+              items: [
+                PopupMenuItem<int>(child: Text('1'), value: 0,),
+                PopupMenuItem<int>(child: Text('2'), value: 1)
+              ],
+              // position: RelativeRect.fromSize(
+              //     Offset(-23, 536.6) & Size(800, 800), Size(800, 800)),
+              position: new RelativeRect.fromLTRB(1 / math.pow(12, 100), 500, 0.0, 0.0)
+            );
+            // if (_controller!
+            //     .getSelectionStyle()
+            //     .attributes
+            //     .keys
+            //     .contains('bold')) {
+            //   _controller!
+            //       .formatSelection(Attribute.clone(Attribute.bold, null));
+            // } else {
+            //   _controller!.formatSelection(Attribute.bold);
+            // }
           }
         },
         child: _buildWelcomeEditor(context),
+        // child: Center(
+        //   child: Listener(
+        //     child: Icon(
+        //       Icons.ac_unit,
+        //       size: 40.0
+        //     ),
+        //     onPointerDown: (event) async {
+        //       if (event.kind == PointerDeviceKind.mouse &&
+        //       event.buttons == kPrimaryMouseButton) {
+        //         final overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        //         final menuItem = await showMenu<int>(
+        //             context: context,
+        //             items: [
+        //               PopupMenuItem(child: Text('Copy'), value: 1),
+        //               PopupMenuItem(child: Text('Cut'), value: 2),
+        //             ],
+        //             position: RelativeRect.fromSize(
+        //                 event.position & Size(80, 80), Size.zero));
+        //         // Check if menu item clicked
+        //         switch (menuItem) {
+        //           case 1:
+        //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //               content: Text('Copy clicket'),
+        //               behavior: SnackBarBehavior.floating,
+        //             ));
+        //             break;
+        //           case 2:
+        //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //                 content: Text('Cut clicked'),
+        //                 behavior: SnackBarBehavior.floating));
+        //             break;
+        //           default:
+        //         }
+        //       }
+        //     },
+        //   ),
+        // ),
       ),
     );
   }

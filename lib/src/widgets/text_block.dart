@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_quill/src/widgets/block_button.dart';
+import 'package:flutter_quill/src/widgets/block_option_button.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -63,6 +63,9 @@ class EditableTextBlock extends StatelessWidget {
     this.cursorCont,
     this.indentLevelCounts,
     this.onCheckboxTap,
+    {
+      required this.onBlockButtonTap,
+    }
   );
 
   final Block block;
@@ -79,6 +82,7 @@ class EditableTextBlock extends StatelessWidget {
   final CursorCont cursorCont;
   final Map<int, int> indentLevelCounts;
   final Function(int, bool) onCheckboxTap;
+  final Function(int, GlobalKey) onBlockButtonTap;
 
   @override
   Widget build(BuildContext context) {
@@ -115,9 +119,12 @@ class EditableTextBlock extends StatelessWidget {
     var index = 0;
     for (final line in Iterable.castFrom<dynamic, Line>(block.children)) {
       index++;
+      final editableTextLineKey = GlobalKey();
       final editableTextLine = EditableTextLine(
+          editableTextLineKey,
           line,
-          BlockButton.basic(block.offset + line.offset),
+          BlockOptionButton.basic(editableTextLineKey,
+              block.offset + line.offset, onBlockButtonTap),
           _buildLeading(context, line, index, indentLevelCounts, count),
           TextLine(
             line: line,
