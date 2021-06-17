@@ -25,7 +25,6 @@ class ResolveLineFormatRule extends FormatRule {
     if (attribute!.scope != AttributeScope.BLOCK) {
       return null;
     }
-    print('LL:: ResolveLineFormatRule');
 
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
@@ -35,13 +34,11 @@ class ResolveLineFormatRule extends FormatRule {
       op = itr.next(len - cur);
       if (op.data is! String || !(op.data as String).contains('\n')) {
         delta.retain(op.length!);
-        print('LL:: ResolveLineFormatRule op.data: ${op.data}');
         continue;
       }
       final text = op.data as String;
       final tmp = Delta();
       var offset = 0;
-      print('LL:: ResolveLineFormatRule op.text: ${text}');
 
       for (var lineBreak = text.indexOf('\n');
           lineBreak >= 0;
@@ -59,7 +56,6 @@ class ResolveLineFormatRule extends FormatRule {
       final lineBreak = text.indexOf('\n');
       if (lineBreak < 0) {
         delta.retain(op.length!);
-        print('LL:: ResolveLineFormatRule op.data : ${op.data}');
         continue;
       }
       delta..retain(lineBreak)..retain(1, attribute.toJson());

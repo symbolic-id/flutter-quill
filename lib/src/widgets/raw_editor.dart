@@ -9,6 +9,8 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
+import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
 import 'package:flutter_quill/src/widgets/menus/menu_block_option.dart';
 import 'package:tuple/tuple.dart';
 
@@ -227,18 +229,24 @@ class RawEditorState extends EditorState
     }
   }
 
-  Future<void> _handleBlockOptionButtonTap(int offset, GlobalKey key) async {
+  Future<void> _handleBlockOptionButtonTap(
+      int textOffset, GlobalKey key, bool turnable) async {
     if (!widget.readOnly) {
       // final text = widget.controller.getTextFromEditableTextLine(offset);
       //
       // print('LL:: _handleBlockButtonTap text: ${text}');
-
       final box = key.currentContext!.findRenderObject()
-          as RenderEditableTextLine;
+        as RenderEditableTextLine;
 
-      box.setSelected(true);
+      final boxOffset = box.localToGlobal(Offset.zero);
 
-      final Function()? action = await Navigator.push(
+      FocusScope.of(context).unfocus();
+
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        getRenderEditor()!.selectLine(boxOffset, true);
+      });
+
+      await Navigator.push(
           context,
           PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) {
@@ -248,22 +256,25 @@ class RawEditorState extends EditorState
                   child: MenuBlockOption(
                     buttonRenderBox: box,
                     actionListener: MenuBlockOptionActionListener(
-                        onCopy: () {
-                        },
+                        onCopy: () {},
                         onDelete: () {},
-                        onDismiss: () {
-                          box.setSelected(false);
-                        }
+                        onDismiss: () {}
                     ),
-                    turnIntoListener: MenuBlockOptionTurnIntoListener(
+                    turnIntoListener: turnable
+                        ? MenuBlockOptionTurnIntoListener(
                       turnInto: (attribute) {
-                        print('LL:: turnIntoListener attribute : $attribute');
-                        Navigator.pop(context);
+                        for (final attr in Attribute.blockKeysExceptIndent) {
+                          if (attr != attribute) {
+                            widget.controller.document.format(
+                                textOffset, 0, Attribute.clone(attr, null));
+                          }
+                        }
+
+                        widget.controller.document.format(
+                            textOffset, 0, attribute);
                       },
-                      onDismiss: () {
-                        box.setSelected(false);
-                      }
-                    ),
+                      onDismiss: () {}
+                    ) : null,
                   ),
                 );
               },
@@ -272,10 +283,14 @@ class RawEditorState extends EditorState
           ),
       );
 
-      box.setSelected(false);
-      print('LL:: _handleBlockOptionButtonTap action : $action');
-      // action?.call();
-      widget.controller.document.format(offset, 0, Attribute.checked);
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        print('LL:: addPostFrameCallback');
+        // widget.controller.document.format(textOffset, 0, Attribute.h1);
+        widget.controller.notifyListeners();
+        // WidgetsBinding.instance!.addPostFrameCallback((_) {
+        //   getRenderEditor()!.selectLine(boxOffset, true);
+        // });
+      });
     }
   }
 
@@ -305,7 +320,9 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
-          onBlockButtonTap: _handleBlockOptionButtonTap,
+          onBlockButtonTap: (btnOffset, btnKey, turnable) {
+            _handleBlockOptionButtonTap(btnOffset, btnKey, turnable);
+          },
         );
         result.add(editableTextBlock);
       } else {
@@ -328,7 +345,13 @@ class RawEditorState extends EditorState
         editableTextLineKey,
         node,
         BlockOptionButton.basic(
-            editableTextLineKey, node.offset, _handleBlockOptionButtonTap),
+            editableTextLineKey, node.offset,
+            (btnOffset, btnKey) {
+              final isEmbed = (node.children.first as Leaf)
+                  .value is Embeddable;
+              _handleBlockOptionButtonTap(btnOffset, btnKey, !isEmbed);
+            }
+        ),
         null,
         textLine,
         0,

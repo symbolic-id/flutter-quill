@@ -184,7 +184,7 @@ class _HomePageState extends State<HomePage> {
                 null),
             sizeSmall: const TextStyle(fontSize: 9),
           ),
-          embedBuilder: defaultEmbedBuilderWeb);
+          embedBuilder: defaultEmbedBuilderWeb,);
     }
     return SafeArea(
       child: Column(

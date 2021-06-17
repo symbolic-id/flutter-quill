@@ -8,6 +8,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/src/widgets/text_block.dart';
+import 'package:flutter_quill/src/widgets/text_line.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -383,6 +385,7 @@ class _QuillEditorSelectionGestureDetectorBuilder
   }
 
   bool _onTapping(TapUpDetails details) {
+    print('LL:: _QuillEditorSelectionGestureDetectorBuilder _onTapping');
     if (_state.widget.controller.document.isEmpty()) {
       return false;
     }
@@ -460,6 +463,7 @@ class _QuillEditorSelectionGestureDetectorBuilder
 
   @override
   void onSingleTapUp(TapUpDetails details) {
+    print('LL:: _QuillEditorSelectionGestureDetectorBuilder onSingleTapUp');
     if (_state.widget.onTapUp != null) {
       final renderEditor = getRenderEditor();
       if (renderEditor != null) {
@@ -742,6 +746,7 @@ class RenderEditor extends RenderEditableContainerBox
 
   @override
   void selectWordEdge(SelectionChangedCause cause) {
+    print('LL:: selectWordEdge : _lastTapDownPosition : $_lastTapDownPosition');
     assert(_lastTapDownPosition != null);
     final position = getPositionForOffset(_lastTapDownPosition!);
     final child = childAtPosition(position);
@@ -1034,6 +1039,30 @@ class RenderEditableContainerBox extends RenderBox
       child = childAfter(child);
     }
     throw 'No child';
+  }
+
+  RenderEditableTextLine? renderEditableTextLineAtGlobalOffset(
+      Offset globalOffset) {
+    assert(firstChild != null);
+    final localOffset = globalToLocal(globalOffset);
+
+    final closestChild = childAtOffset(localOffset);
+
+    if (closestChild is RenderEditableTextLine) {
+      return closestChild;
+    } else if (closestChild is RenderEditableTextBlock){
+      final closestChildInBlock = closestChild.childAtOffset(closestChild
+          .globalToLocal(globalOffset));
+      if (closestChildInBlock is RenderEditableTextLine) {
+        return closestChildInBlock;
+      }
+    }
+    return null;
+  }
+
+  void selectLine(Offset globalOffset, bool isSelected) {
+    renderEditableTextLineAtGlobalOffset(globalOffset)
+        ?.setLineSelected(isSelected);
   }
 
   @override

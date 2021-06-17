@@ -121,7 +121,6 @@ class Document {
 
   /* Get string from delta */
   String getText(int index) {
-    print('LL:: ResolveLineFormatRule');
 
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(this.toDelta())..skip(index);
@@ -136,7 +135,6 @@ class Document {
       final lineBreak = _text.indexOf('\n');
       if (lineBreak < 0) {
         delta.retain(op.length!);
-        print('LL:: ResolveLineFormatRule op.data : ${op.data}');
         text = '$text${op.data}';
         continue;
       }

@@ -62,11 +62,11 @@ class Rules {
       if (rule.type != ruleType) {
         continue;
       }
-      print('LL:: Rules apply : $rule : ');
       try {
         final result = rule.apply(delta, index,
             len: len, data: data, attribute: attribute);
         if (result != null) {
+          print('LL:: Rules apply ${rule}');
           return result..trim();
         }
       } catch (e) {

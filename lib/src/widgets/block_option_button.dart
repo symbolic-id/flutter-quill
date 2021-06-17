@@ -5,6 +5,9 @@ import 'package:flutter_quill/src/utils/color.dart';
 import 'package:flutter_quill/utils/assets.dart';
 
 class BlockOptionButton extends StatelessWidget {
+
+  static const buttonWidth = 32.0;
+
   const BlockOptionButton({
     required this.width,
     required this.onTap,
@@ -19,7 +22,7 @@ class BlockOptionButton extends StatelessWidget {
   ) {
     return BlockOptionButton(
       editableTextLineKey: editableTextLineKey,
-      width: 32,
+      width: buttonWidth,
       offset: offset,
       onTap: onTap,
     );

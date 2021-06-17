@@ -8,6 +8,7 @@ import 'package:flutter_quill/src/widgets/common_widgets/sym_text.dart';
 import 'package:flutter_quill/utils/assets.dart';
 
 import '../../../flutter_quill.dart';
+import '../block_option_button.dart';
 
 class MenuBlockOption extends StatefulWidget {
   final RenderBox buttonRenderBox;
@@ -33,7 +34,7 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
     bool maxBottom = false;
 
     final childOffset = widget.buttonRenderBox.localToGlobal(Offset.zero);
-    final childSize = widget.buttonRenderBox.size;
+    // final childSize = widget.buttonRenderBox.size;
 
     const preferredMenuWidth = 207.0;
     final preferredMenuHeight = widget.turnIntoListener != null ? 650.0 : 260.0;
@@ -48,10 +49,8 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
     );
     const menuMargin = 10;
     final leftOffset = childOffset.dx - menuSize.width - menuMargin;
-    var topOffset = childOffset.dy - (menuSize.height / 2) + childSize.height;
-
-    // 100 - 50 + 25 = 75
-    // 100 - 25
+    var topOffset = childOffset.dy - (menuSize.height / 2)
+        + BlockOptionButton.buttonWidth;
 
     if (topOffset + menuSize.height + menuMargin > size.height) {
       maxBottom = true;
@@ -141,12 +140,15 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
   }
 
   Widget _itemMenuContent(
-      String assetName, String text, double maxMenuWidth, {Function()? onTap}) {
+      String assetName, String text, double maxMenuWidth, {Function? onTap}) {
     return Material(
       color: Colors.white,
       child: InkWell(
         splashColor: SymColors.hoverColor,
-        onTap: onTap,
+        onTap: () {
+          onTap?.call();
+          Navigator.pop(context);
+        },
         child: Container(
           width: maxMenuWidth,
           padding: const EdgeInsets.all(8)
@@ -193,25 +195,60 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
       GapV(16),
       _titleSubMenu('Change Section Into'),
       GapV(8),
-      _itemMenuContent(Assets.TEXT_NORMAL, 'Text Biasa', maxMenuWidth),
+      _itemMenuContent(
+          Assets.TEXT_NORMAL, 'Text Biasa', maxMenuWidth,
+          onTap: () {
+              widget.turnIntoListener!.turnInto(Attribute.header);
+          }
+      ),
       _itemMenuContent(
           Assets.H1, 'Judul Besar 1', maxMenuWidth,
           onTap: () {
-            // Navigator.pop(context, onTap);
             widget.turnIntoListener!.turnInto(Attribute.h1);
-          }),
-      _itemMenuContent(Assets.H2, 'Judul Besar 2', maxMenuWidth),
-      _itemMenuContent(Assets.H3, 'Judul Besar 3', maxMenuWidth),
-      _itemMenuContent(Assets.BULLET_LIST, 'Bullet List', maxMenuWidth),
-      _itemMenuContent(Assets.NUMBERING_LIST, 'Numbering List', maxMenuWidth),
-      _itemMenuContent(
-        Assets.TODO_LIST, 'To-Do List', maxMenuWidth,
-        onTap: () {
-          widget.turnIntoListener!.turnInto(Attribute.checked);
-        }
+          }
       ),
-      _itemMenuContent(Assets.COPY, 'Code', maxMenuWidth),
-      _itemMenuContent(Assets.COPY, 'Blockquote', maxMenuWidth),
+      _itemMenuContent(
+          Assets.H2, 'Judul Besar 2', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.h2);
+          }
+      ),
+      _itemMenuContent(
+          Assets.H3, 'Judul Besar 3', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.h3);
+          }
+      ),
+      _itemMenuContent(
+          Assets.BULLET_LIST, 'Bullet List', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.ul);
+          }
+      ),
+      _itemMenuContent(
+          Assets.NUMBERING_LIST, 'Numbering List', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.ol);
+          }
+      ),
+      _itemMenuContent(
+          Assets.TODO_LIST, 'To-Do List', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.checked);
+          }
+      ),
+      _itemMenuContent(
+          Assets.COPY, 'Code', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.codeBlock);
+          }
+      ),
+      _itemMenuContent(
+          Assets.COPY, 'Blockquote', maxMenuWidth,
+          onTap: () {
+            widget.turnIntoListener!.turnInto(Attribute.blockQuote);
+          }
+      ),
     ];
   } 
   
