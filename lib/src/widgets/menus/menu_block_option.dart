@@ -179,7 +179,12 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
             widget.actionListener.onDelete();
           }
       ),
-      _itemMenuContent(Assets.COPY, 'Copy Text', maxMenuWidth),
+      _itemMenuContent(
+          Assets.COPY, 'Copy Text', maxMenuWidth,
+          onTap: () {
+            widget.actionListener.onCopy();
+          }
+      ),
       _itemMenuContent(Assets.DUPLICATE ,'Duplicate Section', maxMenuWidth),
       _itemMenuContent(Assets.INDENT_LEFT_ACTIVE ,'Indent Left', maxMenuWidth),
       _itemMenuContent(Assets.INDENT_RIGHT_ACTIVE ,'Indent Right', maxMenuWidth),

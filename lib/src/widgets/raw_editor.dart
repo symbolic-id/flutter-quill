@@ -253,7 +253,11 @@ class RawEditorState extends EditorState
                   child: MenuBlockOption(
                     buttonRenderBox: box,
                     actionListener: MenuBlockOptionActionListener(
-                        onCopy: () {},
+                        onCopy: () async {
+                          final text = widget.controller
+                              .getTextFromEditableTextLine(textIndex);
+                          await Clipboard.setData(ClipboardData(text: text));
+                        },
                         onDelete: () {
                           int textLength;
 
@@ -270,21 +274,40 @@ class RawEditorState extends EditorState
                             textLength = 1;
                           }
 
-                          widget.controller.document
-                              .delete(textIndex, textLength);
+                          if (textLength != widget.controller.document.length) {
+                            widget.controller.document
+                                .delete(textIndex, textLength);
 
-                          final lastCursorIndex = widget.controller
-                              .selection.baseOffset;
+                            final lastCursorIndex = widget.controller
+                                .selection.baseOffset;
 
-                          if (lastCursorIndex
-                              > textIndex) {
-                            final newCursorIndex = lastCursorIndex
-                                - textLength;
-                            widget.controller.updateSelection(
-                              TextSelection(
-                                  baseOffset: newCursorIndex,
-                                  extentOffset: newCursorIndex
-                              ), ChangeSource.LOCAL);
+                            if (lastCursorIndex > textIndex) {
+                              var newCursorIndex = lastCursorIndex
+                                  - textLength;
+
+                              if (newCursorIndex < 0) {
+                                newCursorIndex = 0;
+                              }
+
+                              widget.controller.updateSelection(
+                                  TextSelection(
+                                      baseOffset: newCursorIndex,
+                                      extentOffset: newCursorIndex
+                                  ), ChangeSource.LOCAL);
+                            }
+                          } else {
+                            widget.controller
+                                .replaceText(
+                                0,
+                                widget.controller
+                                    .getTextFromEditableTextLine(textIndex)
+                                    .length,
+                                '\n',
+                                const TextSelection(
+                                  baseOffset: 0,
+                                  extentOffset: 0
+                                )
+                            );
                           }
                         },
                         onDismiss: () {}
@@ -313,6 +336,7 @@ class RawEditorState extends EditorState
       );
 
       WidgetsBinding.instance!.addPostFrameCallback((_) {
+        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
         widget.controller.notifyListeners();
       });
     }
