@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
 import 'package:tuple/tuple.dart';
 
 import '../quill_delta.dart';
@@ -127,10 +128,11 @@ class Document {
 
     Operation op;
 
-    String text = '';
+    var text = '';
 
     while (itr.hasNext) {
       op = itr.next();
+
       final _text = op.data is String ? (op.data as String?)! : '';
       final lineBreak = _text.indexOf('\n');
       if (lineBreak < 0) {

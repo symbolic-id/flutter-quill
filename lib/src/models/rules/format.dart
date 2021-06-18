@@ -90,8 +90,6 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
       return null;
     }
 
-    print('LL:: FormatLinkAtCaretPositionRule dela : $delta');
-
     delta..retain(beg)..retain(retain!, attribute.toJson());
     return delta;
   }
@@ -117,8 +115,6 @@ class ResolveInlineFormatRule extends FormatRule {
 
     final delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
-
-    print('LL:: ResolveInlineFormatRule delta: $delta');
 
     Operation op;
     for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {

@@ -173,7 +173,12 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
     return [
       _titleSubMenu('Action'),
       GapV(8),
-      _itemMenuContent(Assets.TRASH, 'Delete Section', maxMenuWidth),
+      _itemMenuContent(
+          Assets.TRASH, 'Delete Section', maxMenuWidth,
+          onTap: () {
+            widget.actionListener.onDelete();
+          }
+      ),
       _itemMenuContent(Assets.COPY, 'Copy Text', maxMenuWidth),
       _itemMenuContent(Assets.DUPLICATE ,'Duplicate Section', maxMenuWidth),
       _itemMenuContent(Assets.INDENT_LEFT_ACTIVE ,'Indent Left', maxMenuWidth),

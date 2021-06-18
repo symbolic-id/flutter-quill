@@ -385,7 +385,6 @@ class _QuillEditorSelectionGestureDetectorBuilder
   }
 
   bool _onTapping(TapUpDetails details) {
-    print('LL:: _QuillEditorSelectionGestureDetectorBuilder _onTapping');
     if (_state.widget.controller.document.isEmpty()) {
       return false;
     }
@@ -463,7 +462,6 @@ class _QuillEditorSelectionGestureDetectorBuilder
 
   @override
   void onSingleTapUp(TapUpDetails details) {
-    print('LL:: _QuillEditorSelectionGestureDetectorBuilder onSingleTapUp');
     if (_state.widget.onTapUp != null) {
       final renderEditor = getRenderEditor();
       if (renderEditor != null) {
@@ -704,7 +702,6 @@ class RenderEditor extends RenderEditableContainerBox
 
   @override
   void handleTapDown(TapDownDetails details) {
-    print('LL:: handleTapDown ${details.globalPosition}');
     _lastTapDownPosition = details.globalPosition;
   }
 
@@ -746,7 +743,6 @@ class RenderEditor extends RenderEditableContainerBox
 
   @override
   void selectWordEdge(SelectionChangedCause cause) {
-    print('LL:: selectWordEdge : _lastTapDownPosition : $_lastTapDownPosition');
     assert(_lastTapDownPosition != null);
     final position = getPositionForOffset(_lastTapDownPosition!);
     final child = childAtPosition(position);

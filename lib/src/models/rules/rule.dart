@@ -66,7 +66,6 @@ class Rules {
         final result = rule.apply(delta, index,
             len: len, data: data, attribute: attribute);
         if (result != null) {
-          print('LL:: Rules apply ${rule}');
           return result..trim();
         }
       } catch (e) {

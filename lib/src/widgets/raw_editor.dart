@@ -230,11 +230,8 @@ class RawEditorState extends EditorState
   }
 
   Future<void> _handleBlockOptionButtonTap(
-      int textOffset, GlobalKey key, bool turnable) async {
+      int textIndex, GlobalKey key, bool turnable) async {
     if (!widget.readOnly) {
-      // final text = widget.controller.getTextFromEditableTextLine(offset);
-      //
-      // print('LL:: _handleBlockButtonTap text: ${text}');
       final box = key.currentContext!.findRenderObject()
         as RenderEditableTextLine;
 
@@ -257,7 +254,39 @@ class RawEditorState extends EditorState
                     buttonRenderBox: box,
                     actionListener: MenuBlockOptionActionListener(
                         onCopy: () {},
-                        onDelete: () {},
+                        onDelete: () {
+                          int textLength;
+
+                          /*
+                          Applying linebreak length (+ 1) on the text length
+                          but embeddable (image) considered only contain
+                          a linebreak
+                          */
+                          if (turnable) {
+                            textLength = widget.controller
+                                .getTextFromEditableTextLine(textIndex).length
+                                + 1;
+                          } else {
+                            textLength = 1;
+                          }
+
+                          widget.controller.document
+                              .delete(textIndex, textLength);
+
+                          final lastCursorIndex = widget.controller
+                              .selection.baseOffset;
+
+                          if (lastCursorIndex
+                              > textIndex) {
+                            final newCursorIndex = lastCursorIndex
+                                - textLength;
+                            widget.controller.updateSelection(
+                              TextSelection(
+                                  baseOffset: newCursorIndex,
+                                  extentOffset: newCursorIndex
+                              ), ChangeSource.LOCAL);
+                          }
+                        },
                         onDismiss: () {}
                     ),
                     turnIntoListener: turnable
@@ -266,12 +295,12 @@ class RawEditorState extends EditorState
                         for (final attr in Attribute.blockKeysExceptIndent) {
                           if (attr != attribute) {
                             widget.controller.document.format(
-                                textOffset, 0, Attribute.clone(attr, null));
+                                textIndex, 0, Attribute.clone(attr, null));
                           }
                         }
 
                         widget.controller.document.format(
-                            textOffset, 0, attribute);
+                            textIndex, 0, attribute);
                       },
                       onDismiss: () {}
                     ) : null,
@@ -284,12 +313,7 @@ class RawEditorState extends EditorState
       );
 
       WidgetsBinding.instance!.addPostFrameCallback((_) {
-        print('LL:: addPostFrameCallback');
-        // widget.controller.document.format(textOffset, 0, Attribute.h1);
         widget.controller.notifyListeners();
-        // WidgetsBinding.instance!.addPostFrameCallback((_) {
-        //   getRenderEditor()!.selectLine(boxOffset, true);
-        // });
       });
     }
   }

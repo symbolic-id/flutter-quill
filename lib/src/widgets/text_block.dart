@@ -129,7 +129,8 @@ class EditableTextBlock extends StatelessWidget {
               block.offset + line.offset, (btnOffset, btnKey) {
             final isEmbed = (line.children.first as Leaf).value is Embeddable;
                 onBlockButtonTap(btnOffset, btnKey, !isEmbed);
-              }),
+              }
+          ),
           _buildLeading(context, line, index, indentLevelCounts, count),
           TextLine(
             line: line,

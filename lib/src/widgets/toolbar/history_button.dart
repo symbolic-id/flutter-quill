@@ -64,9 +64,8 @@ class _HistoryButtonState extends State<HistoryButton> {
 
   void _changeHistory() {
     if (widget.undo) {
-      print('LL:: document:: ===========\n${widget.controller.document.toDelta().toJson()}');
       if (widget.controller.hasUndo) {
-        // widget.controller.undo();
+        widget.controller.undo();
       }
     } else {
       if (widget.controller.hasRedo) {
