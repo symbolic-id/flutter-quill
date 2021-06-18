@@ -1,14 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_quill/src/utils/app_constant.dart';
-import 'package:flutter_quill/src/utils/color.dart';
-import 'package:flutter_quill/src/widgets/common_widgets/gap.dart';
-import 'package:flutter_quill/src/widgets/common_widgets/sym_text.dart';
-import 'package:flutter_quill/utils/assets.dart';
 
 import '../../../flutter_quill.dart';
+import '../../../utils/assets.dart';
+import '../../utils/app_constant.dart';
+import '../../utils/color.dart';
 import '../block_option_button.dart';
+import '../common_widgets/gap.dart';
+import '../common_widgets/sym_text.dart';
 
 class MenuBlockOption extends StatefulWidget {
   final RenderBox buttonRenderBox;
@@ -29,17 +28,18 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
 
-    bool maxBottom = false;
+    var maxBottom = false;
 
     final childOffset = widget.buttonRenderBox.localToGlobal(Offset.zero);
-    // final childSize = widget.buttonRenderBox.size;
+
+    const menuMargin = 10;
 
     const preferredMenuWidth = 207.0;
     final preferredMenuHeight = widget.turnIntoListener != null ? 650.0 : 260.0;
     final maxMenuWidth = size.width * 0.3;
-    final maxMenuHeight = size.height;
+    final maxMenuHeight = size.height + 2 * menuMargin;
 
     final menuSize = Size(
         preferredMenuWidth > maxMenuWidth
@@ -47,7 +47,6 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
         preferredMenuHeight > maxMenuHeight
         ? maxMenuHeight : preferredMenuHeight
     );
-    const menuMargin = 10;
     final leftOffset = childOffset.dx - menuSize.width - menuMargin;
     var topOffset = childOffset.dy - (menuSize.height / 2)
         + BlockOptionButton.buttonWidth;
@@ -185,7 +184,12 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
             widget.actionListener.onCopy();
           }
       ),
-      _itemMenuContent(Assets.DUPLICATE ,'Duplicate Section', maxMenuWidth),
+      _itemMenuContent(
+          Assets.DUPLICATE ,'Duplicate Section', maxMenuWidth,
+          onTap: () {
+            widget.actionListener.onDuplicate();
+          }
+      ),
       _itemMenuContent(Assets.INDENT_LEFT_ACTIVE ,'Indent Left', maxMenuWidth),
       _itemMenuContent(Assets.INDENT_RIGHT_ACTIVE ,'Indent Right', maxMenuWidth),
     ];
@@ -268,20 +272,18 @@ class MenuBlockOptionActionListener {
   const MenuBlockOptionActionListener({
     required this.onCopy,
     required this.onDelete,
-    required this.onDismiss,
+    required this.onDuplicate,
   });
   
   final Function onCopy;
   final Function onDelete;
-  final Function onDismiss;
+  final Function onDuplicate;
 }
 
 class MenuBlockOptionTurnIntoListener {
   const MenuBlockOptionTurnIntoListener({
     required this.turnInto,
-    required this.onDismiss,
   });
 
   final Function(Attribute) turnInto;
-  final Function onDismiss;
 }

@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
             document: doc, selection: const TextSelection.collapsed(offset: 0));
       });
     } catch (error) {
-      final doc = Document()..insert(0, 'Empty asset');
+      final doc = Document();//..insert(0, 'Empty asset');
       setState(() {
         _controller = QuillController(
             document: doc, selection: const TextSelection.collapsed(offset: 0));
@@ -73,17 +73,6 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         onKey: (event) {
           if (event.data.isControlPressed && event.character == 'b') {
-            showMenu(
-              context: this.context,
-              useRootNavigator: true,
-              items: [
-                PopupMenuItem<int>(child: Text('1'), value: 0,),
-                PopupMenuItem<int>(child: Text('2'), value: 1)
-              ],
-              // position: RelativeRect.fromSize(
-              //     Offset(-23, 536.6) & Size(800, 800), Size(800, 800)),
-              position: new RelativeRect.fromLTRB(1 / math.pow(12, 100), 500, 0.0, 0.0)
-            );
             // if (_controller!
             //     .getSelectionStyle()
             //     .attributes
@@ -97,43 +86,6 @@ class _HomePageState extends State<HomePage> {
           }
         },
         child: _buildWelcomeEditor(context),
-        // child: Center(
-        //   child: Listener(
-        //     child: Icon(
-        //       Icons.ac_unit,
-        //       size: 40.0
-        //     ),
-        //     onPointerDown: (event) async {
-        //       if (event.kind == PointerDeviceKind.mouse &&
-        //       event.buttons == kPrimaryMouseButton) {
-        //         final overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
-        //         final menuItem = await showMenu<int>(
-        //             context: context,
-        //             items: [
-        //               PopupMenuItem(child: Text('Copy'), value: 1),
-        //               PopupMenuItem(child: Text('Cut'), value: 2),
-        //             ],
-        //             position: RelativeRect.fromSize(
-        //                 event.position & Size(80, 80), Size.zero));
-        //         // Check if menu item clicked
-        //         switch (menuItem) {
-        //           case 1:
-        //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //               content: Text('Copy clicket'),
-        //               behavior: SnackBarBehavior.floating,
-        //             ));
-        //             break;
-        //           case 2:
-        //             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //                 content: Text('Cut clicked'),
-        //                 behavior: SnackBarBehavior.floating));
-        //             break;
-        //           default:
-        //         }
-        //       }
-        //     },
-        //   ),
-        // ),
       ),
     );
   }
@@ -148,19 +100,20 @@ class _HomePageState extends State<HomePage> {
         readOnly: false,
         placeholder: 'Add content',
         expands: false,
-        customStyles: DefaultStyles(
-          h1: DefaultTextBlockStyle(
-              const TextStyle(
-                fontSize: 32,
-                color: Colors.black,
-                height: 1.15,
-                fontWeight: FontWeight.w300,
-              ),
-              const Tuple2(16, 0),
-              const Tuple2(0, 0),
-              null),
-          sizeSmall: const TextStyle(fontSize: 9),
-        ));
+        // customStyles: DefaultStyles(
+        //   h1: DefaultTextBlockStyle(
+        //       const TextStyle(
+        //         fontSize: 32,
+        //         color: Colors.black,
+        //         height: 1.15,
+        //         fontWeight: FontWeight.w300,
+        //       ),
+        //       const Tuple2(16, 0),
+        //       const Tuple2(0, 0),
+        //       null),
+        //   sizeSmall: const TextStyle(fontSize: 9),
+        // )
+    );
     if (kIsWeb) {
       quillEditor = QuillEditor(
           controller: _controller!,

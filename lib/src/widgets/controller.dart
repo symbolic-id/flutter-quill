@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_quill/src/models/documents/nodes/line.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -170,11 +171,6 @@ class QuillController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /* Getter entire string from selected EditableTextLine */
-  String getTextFromEditableTextLine(int index) {
-    return document.getText(index);
-  }
-
   void formatSelection(Attribute? attribute) {
     formatText(selection.start, selection.end - selection.start, attribute);
   }
@@ -183,6 +179,10 @@ class QuillController extends ChangeNotifier {
     _updateSelection(textSelection, source);
     notifyListeners();
   }
+
+  // void insertLine(int index, Line line) {
+  //
+  // }
 
   void compose(Delta delta, TextSelection textSelection, ChangeSource source) {
     if (delta.isNotEmpty) {

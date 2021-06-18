@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
 import 'package:tuple/tuple.dart';
 
 import '../quill_delta.dart';
@@ -13,6 +12,7 @@ import 'nodes/embed.dart';
 import 'nodes/line.dart';
 import 'nodes/node.dart';
 import 'style.dart';
+import '../../utils/iterator_ext.dart';
 
 /// The rich text document
 class Document {
@@ -69,6 +69,105 @@ class Document {
     return delta;
   }
 
+  void insertLine(int index, Line line, Attribute? blockAttr, /*int? indent*/) {
+    assert(index >= 0);
+
+    var _index = index;
+
+    if (line.nextLine == null) {
+      insert(_index, '\n');
+      _index++;
+    }
+
+    final delta = line.toDelta();
+
+    // for (final op in delta.toList()) {
+    //   final style = op.attributes != null
+    //       ? Style.fromJson(op.attributes) : null;
+    //
+    //   final data = _normalize(op.data);
+    //   _root.insert(_index, data, style);
+    //   _index += op.length!;
+    // }
+
+    final itr = DeltaIterator(delta);
+
+    Operation op;
+
+    final lastAttrKey = <String>[];
+
+    while (itr.hasNext) {
+      op = itr.next();
+      if (op.length != null) {
+        final delta = _rules.apply(
+            RuleType.INSERT, this, _index,
+            data: op.data, attribute: null);
+
+        compose(delta, ChangeSource.LOCAL);
+
+        if (op.attributes?.isNotEmpty == true) {
+          op.attributes!.entries.forEachIndexed((e, i) {
+            final formatDelta = _rules.apply(
+                RuleType.FORMAT, this, _index,
+                len: op.length,
+                attribute: Attribute(e.key, AttributeScope.INLINE, e.value)
+            );
+
+            lastAttrKey.add(e.key);
+
+            if (formatDelta.isNotEmpty) {
+              compose(formatDelta, ChangeSource.LOCAL);
+            }
+          });
+        } else if (lastAttrKey.isNotEmpty){
+          for (final attrKey in lastAttrKey) {
+            final formatDelta = _rules.apply(
+                RuleType.FORMAT, this, _index,
+                len: op.length,
+                attribute: Attribute(attrKey, AttributeScope.INLINE, null)
+            );
+
+            if (formatDelta.isNotEmpty) {
+              compose(formatDelta, ChangeSource.LOCAL);
+            }
+          };
+          lastAttrKey.clear();
+        }
+      }
+      _index = _index + op.length!;
+    }
+
+    print('LL:: lineBlockAttributes $blockAttr');
+
+    for (final blockKeys in Attribute.blockKeys.toList()) {
+      if (blockKeys != blockAttr?.key) {
+        print('LL:: not applied : ${blockKeys}');
+        final formatDelta = _rules.apply(
+            RuleType.FORMAT, this, index,
+            len: line.length - 1,
+            attribute: Attribute(
+                blockKeys, AttributeScope.BLOCK, null)
+        );
+
+        if (formatDelta.isNotEmpty) {
+          compose(formatDelta, ChangeSource.LOCAL);
+        }
+      } else {
+        print('LL:: applied : {${blockAttr?.key} : ${blockAttr?.value}}');
+        final formatDelta = _rules.apply(
+            RuleType.FORMAT, this, index,
+            len: line.length - 1,
+            attribute: blockAttr
+        );
+
+        if (formatDelta.isNotEmpty) {
+          compose(formatDelta, ChangeSource.LOCAL);
+        }
+        print('LL:: applied AFTER ===============\n${toDelta().toJson()}');
+      }
+    }
+  }
+
   Delta delete(int index, int len) {
     assert(index >= 0 && len > 0);
     final delta = _rules.apply(RuleType.DELETE, this, index, len: len);
@@ -120,11 +219,11 @@ class Document {
     return delta;
   }
 
-  /* Get string from delta */
-  String getText(int index) {
+  /* Get string from entire line by text index */
+  String getTextInLineFromTextIndex(int index) {
 
     var delta = Delta()..retain(index);
-    final itr = DeltaIterator(this.toDelta())..skip(index);
+    final itr = DeltaIterator(toDelta())..skip(index);
 
     Operation op;
 

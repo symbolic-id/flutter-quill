@@ -248,69 +248,109 @@ class RawEditorState extends EditorState
           PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) {
                 animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+                secondaryAnimation = Tween(begin: 1.0, end: 0.0)
+                    .animate(animation);
                 return FadeTransition(
                   opacity: animation,
                   child: MenuBlockOption(
                     buttonRenderBox: box,
                     actionListener: MenuBlockOptionActionListener(
-                        onCopy: () async {
-                          final text = widget.controller
-                              .getTextFromEditableTextLine(textIndex);
-                          await Clipboard.setData(ClipboardData(text: text));
-                        },
-                        onDelete: () {
-                          int textLength;
+                      onDelete: () {
+                        int textLength;
 
-                          /*
+                        /*
                           Applying linebreak length (+ 1) on the text length
                           but embeddable (image) considered only contain
                           a linebreak
                           */
-                          if (turnable) {
-                            textLength = widget.controller
-                                .getTextFromEditableTextLine(textIndex).length
-                                + 1;
-                          } else {
-                            textLength = 1;
-                          }
+                        if (turnable) {
+                          textLength = widget.controller
+                              .document
+                              .getTextInLineFromTextIndex(textIndex)
+                              .length
+                              + 1;
+                        } else {
+                          textLength = 1;
+                        }
 
-                          if (textLength != widget.controller.document.length) {
-                            widget.controller.document
-                                .delete(textIndex, textLength);
+                        if (textLength != widget.controller.document.length) {
+                          widget.controller.document
+                              .delete(textIndex, textLength);
 
-                            final lastCursorIndex = widget.controller
-                                .selection.baseOffset;
+                          final lastCursorIndex = widget.controller
+                              .selection.baseOffset;
 
-                            if (lastCursorIndex > textIndex) {
-                              var newCursorIndex = lastCursorIndex
-                                  - textLength;
+                          if (lastCursorIndex > textIndex) {
+                            var newCursorIndex = lastCursorIndex
+                                - textLength;
 
-                              if (newCursorIndex < 0) {
-                                newCursorIndex = 0;
-                              }
-
-                              widget.controller.updateSelection(
-                                  TextSelection(
-                                      baseOffset: newCursorIndex,
-                                      extentOffset: newCursorIndex
-                                  ), ChangeSource.LOCAL);
+                            if (newCursorIndex < 0) {
+                              newCursorIndex = 0;
                             }
-                          } else {
-                            widget.controller
-                                .replaceText(
-                                0,
-                                widget.controller
-                                    .getTextFromEditableTextLine(textIndex)
-                                    .length,
-                                '\n',
-                                const TextSelection(
+
+                            widget.controller.updateSelection(
+                                TextSelection(
+                                    baseOffset: newCursorIndex,
+                                    extentOffset: newCursorIndex
+                                ), ChangeSource.LOCAL);
+                          }
+                        } else {
+                          widget.controller
+                              .replaceText(
+                              0,
+                              widget.controller
+                                  .document
+                                  .getTextInLineFromTextIndex(textIndex)
+                                  .length,
+                              '\n',
+                              const TextSelection(
                                   baseOffset: 0,
                                   extentOffset: 0
-                                )
-                            );
+                              )
+                          );
+                        }
+                      },
+                      onCopy: () async {
+                        final text = widget
+                            .controller
+                            .document
+                            .getTextInLineFromTextIndex(textIndex);
+                        await Clipboard.setData(ClipboardData(text: text));
+                      },
+                      onDuplicate: () {
+                        final selectedLine = getRenderEditor()
+                          !.getLineFromGlobalOffset(boxOffset);
+
+                        final Block? selectedBlock =
+                          selectedLine?.parent is Block
+                              ? selectedLine!.parent as Block : null;
+                        if (selectedLine != null) {
+                          var newLineIndex = selectedLine.documentOffset
+                              + selectedLine.length;
+
+                          if (selectedLine.nextLine == null) {
+                            newLineIndex--;
                           }
-                        },
-                        onDismiss: () {}
+
+                          widget.controller.document.insertLine(
+                              newLineIndex,
+                              selectedLine,
+                              selectedBlock?.style
+                                  .attributes.entries.first.value);
+
+                          // final text = widget.controller
+                          //     .document
+                          //     .getTextInLineFromTextIndex(textIndex);
+
+                          // print('LL:: Duplicate  BEFORE ================\n');
+                          // print('${widget.controller.document.toDelta()}');
+                          // widget.controller.document
+                          // // .insert(newLineIndex, '\n$text');
+                          //     .insert(newLineIndex, 'THIS IS DUPLICATE${DateTime.now().millisecondsSinceEpoch}\n');
+                          // print('LL:: Duplicate  AFTER ================\n');
+                          // print('${widget.controller.document.toDelta()}');
+                        }
+                      }
                     ),
                     turnIntoListener: turnable
                         ? MenuBlockOptionTurnIntoListener(
@@ -325,7 +365,6 @@ class RawEditorState extends EditorState
                         widget.controller.document.format(
                             textIndex, 0, attribute);
                       },
-                      onDismiss: () {}
                     ) : null,
                   ),
                 );

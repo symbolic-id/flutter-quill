@@ -8,6 +8,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/src/models/documents/nodes/block.dart';
 import 'package:flutter_quill/src/widgets/text_block.dart';
 import 'package:flutter_quill/src/widgets/text_line.dart';
 import 'package:string_validator/string_validator.dart';
@@ -1037,7 +1038,7 @@ class RenderEditableContainerBox extends RenderBox
     throw 'No child';
   }
 
-  RenderEditableTextLine? renderEditableTextLineAtGlobalOffset(
+  RenderEditableTextLine? _renderEditableTextLineAtGlobalOffset(
       Offset globalOffset) {
     assert(firstChild != null);
     final localOffset = globalToLocal(globalOffset);
@@ -1056,10 +1057,57 @@ class RenderEditableContainerBox extends RenderBox
     return null;
   }
 
+  RenderEditableContainerBox? _renderEditableTextBlockAtGlobalOffset(
+      Offset globalOffset) {
+    assert(firstChild != null);
+    final localOffset = globalToLocal(globalOffset);
+
+    final closestChild = childAtOffset(localOffset);
+
+    if (closestChild is RenderEditableTextBlock) {
+      return closestChild;
+    }
+    return null;
+  }
+
   void selectLine(Offset globalOffset, bool isSelected) {
-    renderEditableTextLineAtGlobalOffset(globalOffset)
+    _renderEditableTextLineAtGlobalOffset(globalOffset)
         ?.setLineSelected(isSelected);
   }
+
+  /* get last text index (offset) in a line by global offset */
+  int? getLastTextIndexInEditableTextLineFromGlobalOffset(Offset globalOffset) {
+    assert(firstChild != null);
+
+    final line = getLineFromGlobalOffset(globalOffset);
+
+    if (line != null) {
+      final lastTextIndex = line.documentOffset + line.length - 1;
+
+      line.nextLine;
+
+
+      return lastTextIndex;
+    }
+    return null;
+  }
+
+  Line? getLineFromGlobalOffset(Offset globalOffset) {
+    return _renderEditableTextLineAtGlobalOffset(globalOffset)?.line;
+  }
+  
+  Block? getBlockFromGlobalOffset(Offset globalOffset) {
+    final blockContainer = _renderEditableTextBlockAtGlobalOffset(globalOffset)
+        ?._container;
+    if (blockContainer is Block) {
+      return blockContainer;
+    }
+    return null;
+  }
+
+  // Iterable<Attribute> getLineAttributeFromGlobalOffset(Offset globalOffset) {
+  //
+  // }
 
   @override
   void setupParentData(RenderBox child) {
