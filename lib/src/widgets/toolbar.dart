@@ -33,6 +33,7 @@ export 'toolbar/toggle_style_button.dart';
 
 typedef OnImagePickCallback = Future<String> Function(File file);
 typedef ImagePickImpl = Future<String?> Function(ImageSource source);
+typedef FilePickImpl = Future<String?> Function(BuildContext context);
 
 // The default size of the icon of a button.
 const double kDefaultIconSize = 18;
@@ -45,6 +46,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
     required this.children,
     this.toolBarHeight = 36,
     this.color,
+    this.filePickImpl,
     Key? key,
   }) : super(key: key);
 
@@ -69,6 +71,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
     bool showHistory = true,
     bool showHorizontalRule = false,
     OnImagePickCallback? onImagePickCallback,
+    FilePickImpl? filePickImpl,
     Key? key,
   }) {
     final isButtonGroupShown = [
@@ -160,6 +163,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             controller: controller,
             imageSource: ImageSource.gallery,
             onImagePickCallback: onImagePickCallback,
+            filePickImpl: filePickImpl,
           ),
         if (onImagePickCallback != null)
           ImageButton(
@@ -168,6 +172,7 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
             controller: controller,
             imageSource: ImageSource.camera,
             onImagePickCallback: onImagePickCallback,
+            filePickImpl: filePickImpl,
           ),
         if (isButtonGroupShown[0] &&
             (isButtonGroupShown[1] ||
@@ -278,6 +283,8 @@ class QuillToolbar extends StatelessWidget implements PreferredSizeWidget {
   /// Defaults to [ThemeData.canvasColor] of the current [Theme] if no color
   /// is given.
   final Color? color;
+
+  final FilePickImpl? filePickImpl;
 
   @override
   Size get preferredSize => Size.fromHeight(toolBarHeight);

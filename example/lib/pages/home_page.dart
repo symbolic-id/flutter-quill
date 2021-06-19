@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -139,6 +140,16 @@ class _HomePageState extends State<HomePage> {
           ),
           embedBuilder: defaultEmbedBuilderWeb,);
     }
+    var toolbar = QuillToolbar.basic(
+        controller: _controller!, onImagePickCallback: _onImagePickCallback);
+    final isDesktop = !kIsWeb && !Platform.isAndroid && !Platform.isIOS;
+    if (isDesktop) {
+      toolbar = QuillToolbar.basic(
+          controller: _controller!,
+          onImagePickCallback: _onImagePickCallback,
+          filePickImpl: openFileSystemPickerForDesktop);
+    }
+
     return SafeArea(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -156,17 +167,20 @@ class _HomePageState extends State<HomePage> {
                   child: Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: QuillToolbar.basic(
-                      controller: _controller!,
-                      onImagePickCallback: _onImagePickCallback),
+                  child: toolbar,
                 ))
-              : Container(
-                  child: QuillToolbar.basic(
-                      controller: _controller!,
-                      onImagePickCallback: _onImagePickCallback),
-                ),
+              : Container(child: toolbar)
         ],
       ),
+    );
+  }
+
+  Future<String?> openFileSystemPickerForDesktop(BuildContext context) async {
+    return await FilesystemPicker.open(
+      context: context,
+      rootDirectory: await getApplicationDocumentsDirectory(),
+      fsType: FilesystemType.file,
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
     );
   }
 

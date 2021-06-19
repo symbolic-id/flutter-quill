@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:path_provider/path_provider.dart';
 
 typedef DemoContentBuilder = Widget Function(
     BuildContext context, QuillController? controller);
@@ -70,9 +74,25 @@ class _DemoScaffoldState extends State<DemoScaffold> {
     }
   }
 
+  Future<String?> openFileSystemPickerForDesktop(BuildContext context) async {
+    return await FilesystemPicker.open(
+      context: context,
+      rootDirectory: await getApplicationDocumentsDirectory(),
+      fsType: FilesystemType.file,
+      fileTileSelectMode: FileTileSelectMode.wholeTile,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final actions = widget.actions ?? <Widget>[];
+    var toolbar = QuillToolbar.basic(controller: _controller!);
+    final isDesktop = !kIsWeb && !Platform.isAndroid && !Platform.isIOS;
+    if (isDesktop) {
+      toolbar = QuillToolbar.basic(
+          controller: _controller!,
+          filePickImpl: openFileSystemPickerForDesktop);
+    }
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -88,9 +108,7 @@ class _DemoScaffoldState extends State<DemoScaffold> {
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: _loading || widget.showToolbar == false
-            ? null
-            : QuillToolbar.basic(controller: _controller!),
+        title: _loading || !widget.showToolbar ? null : toolbar,
         actions: actions,
       ),
       floatingActionButton: widget.floatingActionButton,

@@ -89,7 +89,11 @@ The `QuillToolbar` class lets you customise which formatting options are availab
 
 For web development, use `flutter config --enable-web` for flutter and use [ReactQuill] for React.
 
-It is required to provide EmbedBuilder, e.g. [defaultEmbedBuilderWeb](https://github.com/singerdmx/flutter-quill/blob/master/example/lib/universal_ui/universal_ui.dart#L28).
+It is required to provide `EmbedBuilder`, e.g. [defaultEmbedBuilderWeb](https://github.com/singerdmx/flutter-quill/blob/master/example/lib/universal_ui/universal_ui.dart#L28).
+
+## Desktop
+
+It is required to provide `filePickImpl` for toolbar image button, e.g. [Sample Page](https://github.com/singerdmx/flutter-quill/blob/master/example/lib/pages/home_page.dart#L149).
 
 ## Migrate Zefyr Data
 
