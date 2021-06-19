@@ -110,7 +110,9 @@ class TextLine extends StatelessWidget {
 
     final block = line.style.getBlockExceptHeader();
     TextStyle? toMerge;
-    if (block == Attribute.blockQuote) {
+    if (block?.key == Attribute.indent.key) {
+      toMerge = null;
+    } else if (block == Attribute.blockQuote) {
       toMerge = defaultStyles.quote!.style;
     } else if (block == Attribute.codeBlock) {
       toMerge = defaultStyles.code!.style;

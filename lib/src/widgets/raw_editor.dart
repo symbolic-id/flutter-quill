@@ -264,11 +264,6 @@ class RawEditorState extends EditorState
               opaque: false
           ),
       );
-
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member\
-        // widget.controller.notifyListeners();
-      });
     }
   }
 
@@ -332,7 +327,7 @@ class RawEditorState extends EditorState
         ),
         null,
         textLine,
-        0,
+        _getIntentWidth(node),
         _getVerticalSpacingForLine(node, _styles),
         _textDirection,
         widget.controller.selection,
@@ -342,6 +337,16 @@ class RawEditorState extends EditorState
         MediaQuery.of(context).devicePixelRatio,
         _cursorCont);
     return editableTextLine;
+  }
+
+  double _getIntentWidth(Line line) {
+    final attrs = line.style.attributes;
+
+    final indent = attrs[Attribute.indent.key];
+    if (indent != null && indent.value != null) {
+      return 16.0 * indent.value;
+    }
+    return 0;
   }
 
   Tuple2<double, double> _getVerticalSpacingForLine(
