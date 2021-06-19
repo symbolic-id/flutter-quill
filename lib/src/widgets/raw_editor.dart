@@ -230,7 +230,7 @@ class RawEditorState extends EditorState
   }
 
   Future<void> _handleBlockOptionButtonTap(
-      int textIndex, GlobalKey key, bool turnable) async {
+      int textIndex, GlobalKey key, bool isEmbed) async {
     if (!widget.readOnly) {
       final box = key.currentContext!.findRenderObject()
         as RenderEditableTextLine;
@@ -253,119 +253,10 @@ class RawEditorState extends EditorState
                 return FadeTransition(
                   opacity: animation,
                   child: MenuBlockOption(
-                    buttonRenderBox: box,
-                    actionListener: MenuBlockOptionActionListener(
-                      onDelete: () {
-                        int textLength;
-
-                        /*
-                          Applying linebreak length (+ 1) on the text length
-                          but embeddable (image) considered only contain
-                          a linebreak
-                          */
-                        if (turnable) {
-                          textLength = widget.controller
-                              .document
-                              .getTextInLineFromTextIndex(textIndex)
-                              .length
-                              + 1;
-                        } else {
-                          textLength = 1;
-                        }
-
-                        if (textLength != widget.controller.document.length) {
-                          widget.controller.document
-                              .delete(textIndex, textLength);
-
-                          final lastCursorIndex = widget.controller
-                              .selection.baseOffset;
-
-                          if (lastCursorIndex > textIndex) {
-                            var newCursorIndex = lastCursorIndex
-                                - textLength;
-
-                            if (newCursorIndex < 0) {
-                              newCursorIndex = 0;
-                            }
-
-                            widget.controller.updateSelection(
-                                TextSelection(
-                                    baseOffset: newCursorIndex,
-                                    extentOffset: newCursorIndex
-                                ), ChangeSource.LOCAL);
-                          }
-                        } else {
-                          widget.controller
-                              .replaceText(
-                              0,
-                              widget.controller
-                                  .document
-                                  .getTextInLineFromTextIndex(textIndex)
-                                  .length,
-                              '\n',
-                              const TextSelection(
-                                  baseOffset: 0,
-                                  extentOffset: 0
-                              )
-                          );
-                        }
-                      },
-                      onCopy: () async {
-                        final text = widget
-                            .controller
-                            .document
-                            .getTextInLineFromTextIndex(textIndex);
-                        await Clipboard.setData(ClipboardData(text: text));
-                      },
-                      onDuplicate: () {
-                        final selectedLine = getRenderEditor()
-                          !.getLineFromGlobalOffset(boxOffset);
-
-                        final Block? selectedBlock =
-                          selectedLine?.parent is Block
-                              ? selectedLine!.parent as Block : null;
-                        if (selectedLine != null) {
-                          var newLineIndex = selectedLine.documentOffset
-                              + selectedLine.length;
-
-                          if (selectedLine.nextLine == null) {
-                            newLineIndex--;
-                          }
-
-                          widget.controller.document.insertLine(
-                              newLineIndex,
-                              selectedLine,
-                              selectedBlock?.style
-                                  .attributes.entries.first.value);
-
-                          // final text = widget.controller
-                          //     .document
-                          //     .getTextInLineFromTextIndex(textIndex);
-
-                          // print('LL:: Duplicate  BEFORE ================\n');
-                          // print('${widget.controller.document.toDelta()}');
-                          // widget.controller.document
-                          // // .insert(newLineIndex, '\n$text');
-                          //     .insert(newLineIndex, 'THIS IS DUPLICATE${DateTime.now().millisecondsSinceEpoch}\n');
-                          // print('LL:: Duplicate  AFTER ================\n');
-                          // print('${widget.controller.document.toDelta()}');
-                        }
-                      }
-                    ),
-                    turnIntoListener: turnable
-                        ? MenuBlockOptionTurnIntoListener(
-                      turnInto: (attribute) {
-                        for (final attr in Attribute.blockKeysExceptIndent) {
-                          if (attr != attribute) {
-                            widget.controller.document.format(
-                                textIndex, 0, Attribute.clone(attr, null));
-                          }
-                        }
-
-                        widget.controller.document.format(
-                            textIndex, 0, attribute);
-                      },
-                    ) : null,
+                    renderEditableTextLine: box,
+                    controller: widget.controller,
+                    isEmbeddable: isEmbed,
+                    textIndex: textIndex,
                   ),
                 );
               },
@@ -375,8 +266,8 @@ class RawEditorState extends EditorState
       );
 
       WidgetsBinding.instance!.addPostFrameCallback((_) {
-        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-        widget.controller.notifyListeners();
+        // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member\
+        // widget.controller.notifyListeners();
       });
     }
   }
@@ -436,7 +327,7 @@ class RawEditorState extends EditorState
             (btnOffset, btnKey) {
               final isEmbed = (node.children.first as Leaf)
                   .value is Embeddable;
-              _handleBlockOptionButtonTap(btnOffset, btnKey, !isEmbed);
+              _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
             }
         ),
         null,

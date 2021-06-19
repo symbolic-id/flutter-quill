@@ -69,9 +69,7 @@ class Document {
     return delta;
   }
 
-  void insertLine(int index, Line line, Attribute? blockAttr, /*int? indent*/) {
-    assert(index >= 0);
-
+  void duplicateLine(int index, Line line, Attribute? blockAttr) {
     var _index = index;
 
     if (line.nextLine == null) {
@@ -80,91 +78,14 @@ class Document {
     }
 
     final delta = line.toDelta();
+    for (final op in delta.toList()) {
+      final style = op.attributes != null
+          ? Style.fromJson(op.attributes) : null;
 
-    // for (final op in delta.toList()) {
-    //   final style = op.attributes != null
-    //       ? Style.fromJson(op.attributes) : null;
-    //
-    //   final data = _normalize(op.data);
-    //   _root.insert(_index, data, style);
-    //   _index += op.length!;
-    // }
-
-    final itr = DeltaIterator(delta);
-
-    Operation op;
-
-    final lastAttrKey = <String>[];
-
-    while (itr.hasNext) {
-      op = itr.next();
-      if (op.length != null) {
-        final delta = _rules.apply(
-            RuleType.INSERT, this, _index,
-            data: op.data, attribute: null);
-
-        compose(delta, ChangeSource.LOCAL);
-
-        if (op.attributes?.isNotEmpty == true) {
-          op.attributes!.entries.forEachIndexed((e, i) {
-            final formatDelta = _rules.apply(
-                RuleType.FORMAT, this, _index,
-                len: op.length,
-                attribute: Attribute(e.key, AttributeScope.INLINE, e.value)
-            );
-
-            lastAttrKey.add(e.key);
-
-            if (formatDelta.isNotEmpty) {
-              compose(formatDelta, ChangeSource.LOCAL);
-            }
-          });
-        } else if (lastAttrKey.isNotEmpty){
-          for (final attrKey in lastAttrKey) {
-            final formatDelta = _rules.apply(
-                RuleType.FORMAT, this, _index,
-                len: op.length,
-                attribute: Attribute(attrKey, AttributeScope.INLINE, null)
-            );
-
-            if (formatDelta.isNotEmpty) {
-              compose(formatDelta, ChangeSource.LOCAL);
-            }
-          };
-          lastAttrKey.clear();
-        }
-      }
-      _index = _index + op.length!;
-    }
-
-    print('LL:: lineBlockAttributes $blockAttr');
-
-    for (final blockKeys in Attribute.blockKeys.toList()) {
-      if (blockKeys != blockAttr?.key) {
-        print('LL:: not applied : ${blockKeys}');
-        final formatDelta = _rules.apply(
-            RuleType.FORMAT, this, index,
-            len: line.length - 1,
-            attribute: Attribute(
-                blockKeys, AttributeScope.BLOCK, null)
-        );
-
-        if (formatDelta.isNotEmpty) {
-          compose(formatDelta, ChangeSource.LOCAL);
-        }
-      } else {
-        print('LL:: applied : {${blockAttr?.key} : ${blockAttr?.value}}');
-        final formatDelta = _rules.apply(
-            RuleType.FORMAT, this, index,
-            len: line.length - 1,
-            attribute: blockAttr
-        );
-
-        if (formatDelta.isNotEmpty) {
-          compose(formatDelta, ChangeSource.LOCAL);
-        }
-        print('LL:: applied AFTER ===============\n${toDelta().toJson()}');
-      }
+      final data = _normalize(op.data);
+      _root.insert(_index, data, style);
+      _index += op.length!;
+      _delta = _root.toDelta();
     }
   }
 
