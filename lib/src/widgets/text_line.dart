@@ -288,6 +288,7 @@ class EditableTextLine extends RenderObjectWidget {
   }
 
   EdgeInsetsGeometry _getPadding() {
+    final text = line.toPlainText();
     return EdgeInsetsDirectional.only(
         start: indentWidth,
         top: verticalSpacing.item1,

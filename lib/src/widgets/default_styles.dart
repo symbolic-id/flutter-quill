@@ -188,7 +188,7 @@ class DefaultStyles {
               borderRadius: BorderRadius.circular(2),
             )),
         indent: DefaultTextBlockStyle(
-            baseStyle, baseSpacing, const Tuple2(0, 6), null),
+            baseStyle, const Tuple2(0, 0), const Tuple2(0, 0), null),
         align: DefaultTextBlockStyle(
             baseStyle, const Tuple2(0, 0), const Tuple2(0, 0), null),
         leading: DefaultTextBlockStyle(

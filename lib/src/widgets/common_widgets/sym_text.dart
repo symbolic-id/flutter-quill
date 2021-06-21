@@ -7,7 +7,7 @@ class SymText extends StatelessWidget {
       this.text,
       {
         this.textSize = 12,
-        this.textColor = SymColors.light_TextPrimary,
+        this.textColor = SymColors.light_textPrimary,
         this.bold = false,
         Key? key
       }): super(key: key);

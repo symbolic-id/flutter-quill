@@ -119,6 +119,7 @@ class EditableTextBlock extends StatelessWidget {
     final count = block.children.length;
     final children = <Widget>[];
     var index = 0;
+    // print('LL:: block buildChildren indentWidth() : ${_getIndentWidth()}');
     for (final line in Iterable.castFrom<dynamic, Line>(block.children)) {
       index++;
       final editableTextLineKey = GlobalKey();
@@ -128,7 +129,7 @@ class EditableTextBlock extends StatelessWidget {
           BlockOptionButton.basic(editableTextLineKey,
               block.offset + line.offset, (btnOffset, btnKey) {
             final isEmbed = (line.children.first as Leaf).value is Embeddable;
-                onBlockButtonTap(btnOffset, btnKey, !isEmbed);
+                onBlockButtonTap(btnOffset, btnKey, isEmbed);
               }
           ),
           _buildLeading(context, line, index, indentLevelCounts, count),
@@ -215,11 +216,19 @@ class EditableTextBlock extends StatelessWidget {
 
   double _getIndentWidth() {
     final attrs = block.style.attributes;
+    var text = block.toPlainText();
+    if (text.length > 10) {
+      text = text.substring(0, 9);
+    }
 
     final indent = attrs[Attribute.indent.key];
     var extraIndent = 0.0;
     if (indent != null && indent.value != null) {
-      extraIndent = 16.0 * indent.value;
+      if (attrs.length == 1) {
+        return extraIndent = 16.0 * indent.value;
+      } else {
+        extraIndent = 16.0 * indent.value;
+      }
     }
 
     if (attrs.containsKey(Attribute.blockQuote.key)) {
@@ -233,9 +242,13 @@ class EditableTextBlock extends StatelessWidget {
       Line node, int index, int count, DefaultStyles? defaultStyles) {
     var top = 0.0, bottom = 0.0;
 
-    final attrs = block.style.attributes;
-    if (attrs.containsKey(Attribute.header.key)) {
-      final level = attrs[Attribute.header.key]!.value;
+    final blockAttrs = block.style.attributes;
+    final lineAttrs = node.style.attributes;
+
+    final headerAttr = blockAttrs[Attribute.header.key]
+        ?? lineAttrs[Attribute.header.key];
+    if (headerAttr != null) {
+      final level = headerAttr.value;
       switch (level) {
         case 1:
           top = defaultStyles!.h1!.verticalSpacing.item1;
@@ -252,28 +265,28 @@ class EditableTextBlock extends StatelessWidget {
         default:
           throw 'Invalid level $level';
       }
-    } else {
-      late Tuple2 lineSpacing;
-      if (attrs.containsKey(Attribute.blockQuote.key)) {
-        lineSpacing = defaultStyles!.quote!.lineSpacing;
-      } else if (attrs.containsKey(Attribute.indent.key)) {
-        lineSpacing = defaultStyles!.indent!.lineSpacing;
-      } else if (attrs.containsKey(Attribute.list.key)) {
-        lineSpacing = defaultStyles!.lists!.lineSpacing;
-      } else if (attrs.containsKey(Attribute.codeBlock.key)) {
-        lineSpacing = defaultStyles!.code!.lineSpacing;
-      } else if (attrs.containsKey(Attribute.align.key)) {
-        lineSpacing = defaultStyles!.align!.lineSpacing;
-      }
-      top = lineSpacing.item1;
-      bottom = lineSpacing.item2;
     }
 
-    if (index == 1) {
+    late Tuple2 lineSpacing;
+    if (blockAttrs.containsKey(Attribute.blockQuote.key)) {
+      lineSpacing = defaultStyles!.quote!.lineSpacing;
+    } else if (blockAttrs.containsKey(Attribute.indent.key)) {
+      lineSpacing = defaultStyles!.indent!.lineSpacing;
+    } else if (blockAttrs.containsKey(Attribute.list.key)) {
+      lineSpacing = defaultStyles!.lists!.lineSpacing;
+    } else if (blockAttrs.containsKey(Attribute.codeBlock.key)) {
+      lineSpacing = defaultStyles!.code!.lineSpacing;
+    } else if (blockAttrs.containsKey(Attribute.align.key)) {
+      lineSpacing = defaultStyles!.align!.lineSpacing;
+    }
+    top += lineSpacing.item1;
+    bottom += lineSpacing.item2;
+
+    if (index == 1 && headerAttr == null) {
       top = 0.0;
     }
 
-    if (index == count) {
+    if (index == count && headerAttr == null) {
       bottom = 0.0;
     }
 

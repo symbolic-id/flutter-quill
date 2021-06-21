@@ -293,8 +293,8 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
-          onBlockButtonTap: (btnOffset, btnKey, turnable) {
-            _handleBlockOptionButtonTap(btnOffset, btnKey, turnable);
+          onBlockButtonTap: (btnOffset, btnKey, isEmbed) {
+            _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
           },
         );
         result.add(editableTextBlock);
@@ -366,6 +366,7 @@ class RawEditorState extends EditorState
       }
     }
 
+
     return defaultStyles!.paragraph!.verticalSpacing;
   }
 
@@ -378,8 +379,10 @@ class RawEditorState extends EditorState
       return defaultStyles!.code!.verticalSpacing;
     } else if (attrs.containsKey(Attribute.indent.key)) {
       return defaultStyles!.indent!.verticalSpacing;
+    } else if (attrs.containsKey(Attribute.list.key)) {
+      return defaultStyles!.lists!.verticalSpacing;
     }
-    return defaultStyles!.lists!.verticalSpacing;
+    return Tuple2(0, 0);
   }
 
   @override

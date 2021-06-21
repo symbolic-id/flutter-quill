@@ -145,7 +145,7 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    var maxBottom = false;
+    bool? maxBottom;
 
     final childOffset = widget.renderEditableTextLine
         .localToGlobal(Offset.zero);
@@ -171,6 +171,7 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
       maxBottom = true;
       topOffset = size.height - menuSize.height - menuMargin;
     } else if (topOffset < 0) {
+      maxBottom = false;
       topOffset = menuMargin.toDouble();
     }
 
@@ -183,6 +184,9 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
+                WidgetsBinding.instance!.addPostFrameCallback((_) {
+                  widget.controller.notifyListeners();
+                });
               },
             ),
             Positioned(
@@ -203,28 +207,26 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
                     maxWidth: menuSize.width,
                     maxHeight: menuSize.height,
                   ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: maxBottom ? null : 0,
-                        bottom: maxBottom ? 0 : null,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                              color: Colors.white,
-                              borderRadius:
-                              const BorderRadius.all(Radius.circular(16)),
-                              boxShadow: [
-                                const BoxShadow(
-                                    color: Colors.black12,
-                                    offset: Offset(0, 4),
-                                    blurRadius: 6,
-                                    spreadRadius: 0.5)
-                              ]),
-                          padding: const EdgeInsets.symmetric(vertical: 26),
-                          child: _menuContent(menuSize.width),
-                        ),
-                      ),
-                    ],
+                  child: Align(
+                    alignment: maxBottom != null ?
+                        maxBottom ? Alignment.bottomCenter
+                            : Alignment.topCenter
+                        : Alignment.center,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius:
+                          const BorderRadius.all(Radius.circular(16)),
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.black12,
+                                offset: Offset(0, 4),
+                                blurRadius: 6,
+                                spreadRadius: 0.5)
+                          ]),
+                      padding: const EdgeInsets.symmetric(vertical: 26),
+                      child: _menuContent(menuSize.width),
+                    ),
                   ),
                 ),
               ),
@@ -255,18 +257,20 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
   }
 
   Widget _itemMenuContent(
-      String assetName, String text, double maxMenuWidth, {Function? onTap}) {
+      String assetName, String text, double maxMenuWidth,
+      {Function? onTap, bool enabled = true}
+      ) {
     return Material(
       color: Colors.white,
       child: InkWell(
         splashColor: SymColors.hoverColor,
-        onTap: () {
+        onTap: enabled ? () {
           onTap?.call();
           Navigator.pop(context);
           WidgetsBinding.instance!.addPostFrameCallback((_) {
             widget.controller.notifyListeners();
           });
-        },
+        } : null,
         child: Container(
           width: maxMenuWidth,
           padding: const EdgeInsets.all(8)
@@ -276,10 +280,12 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
               Image(
                   image: AssetImage(assetName, package: PACKAGES_NAME),
                   width: 18,
-                  height: 18
+                  height: 18,
+                  color: !enabled ? SymColors.light_Line : null,
               ),
               const GapH(19),
-              SymText(text)
+              SymText(text, textColor: enabled ? SymColors.light_textPrimary
+                  : SymColors.light_Line)
             ],
           ),
         ),
@@ -288,6 +294,11 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
   }
 
   List<Widget> _submenuAction(double maxMenuWidth) {
+    final selectedLine = widget.renderEditableTextLine.line;
+
+    final int? indentLevel = selectedLine.style
+        .attributes[Attribute.indent.key]?.value;
+
     return [
       _titleSubMenu('Action'),
       GapV(8),
@@ -309,9 +320,32 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
             actionListener.onDuplicate();
           }
       ),
-      _itemMenuContent(Assets.INDENT_LEFT_ACTIVE ,'Indent Left', maxMenuWidth),
       _itemMenuContent(
-          Assets.INDENT_RIGHT_ACTIVE ,'Indent Right', maxMenuWidth),
+          Assets.INDENT_LEFT_ACTIVE ,'Indent Left',
+          maxMenuWidth,
+          enabled: (indentLevel ?? 0) > 0,
+          onTap: () {
+            if (indentLevel == 1) {
+              widget.controller
+                  .formatSelection(Attribute.clone(Attribute.indentL1, null));
+              return;
+            }
+            widget.controller
+                .formatSelection(Attribute.getIndentLevel(indentLevel! - 1));
+          }
+      ),
+      _itemMenuContent(
+          Assets.INDENT_RIGHT_ACTIVE ,'Indent Right', maxMenuWidth,
+          enabled: true,
+          onTap: () {
+            if (indentLevel == null) {
+              widget.controller.formatSelection(Attribute.indentL1);
+              return;
+            }
+            widget.controller
+                .formatSelection(Attribute.getIndentLevel(indentLevel + 1));
+          }
+      ),
     ];
   }
   

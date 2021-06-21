@@ -1105,10 +1105,6 @@ class RenderEditableContainerBox extends RenderBox
     return null;
   }
 
-  // Iterable<Attribute> getLineAttributeFromGlobalOffset(Offset globalOffset) {
-  //
-  // }
-
   @override
   void setupParentData(RenderBox child) {
     if (child.parentData is EditableContainerParentData) {
@@ -1125,6 +1121,8 @@ class RenderEditableContainerBox extends RenderBox
     assert(_resolvedPadding != null);
 
     var mainAxisExtent = _resolvedPadding!.top;
+    if (this is RenderEditableTextBlock) {
+    }
     var child = firstChild;
     final innerConstraints =
         BoxConstraints.tightFor(width: constraints.maxWidth)
