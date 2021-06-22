@@ -1038,7 +1038,7 @@ class RenderEditableContainerBox extends RenderBox
     throw 'No child';
   }
 
-  RenderEditableTextLine? _renderEditableTextLineAtGlobalOffset(
+  RenderEditableTextLine? getRenderEditableTextLineAtGlobalOffset(
       Offset globalOffset) {
     assert(firstChild != null);
     final localOffset = globalToLocal(globalOffset);
@@ -1071,7 +1071,7 @@ class RenderEditableContainerBox extends RenderBox
   }
 
   void selectLine(Offset globalOffset, bool isSelected) {
-    _renderEditableTextLineAtGlobalOffset(globalOffset)
+    getRenderEditableTextLineAtGlobalOffset(globalOffset)
         ?.setLineSelected(isSelected);
   }
 
@@ -1093,7 +1093,7 @@ class RenderEditableContainerBox extends RenderBox
   }
 
   Line? getLineFromGlobalOffset(Offset globalOffset) {
-    return _renderEditableTextLineAtGlobalOffset(globalOffset)?.line;
+    return getRenderEditableTextLineAtGlobalOffset(globalOffset)?.line;
   }
   
   Block? getBlockFromGlobalOffset(Offset globalOffset) {

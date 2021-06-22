@@ -22,4 +22,24 @@ class Assets {
   static const String FORMAT_INLINECODE = '$_FOLDER''ic_format_inlinecode_20px''$_PNG';
   static const String FORMAT_ITALIC = '$_FOLDER''ic_format_italic_20px''$_PNG';
   static const String FORMAT_STRIKETHROUGH = '$_FOLDER''ic_format_strikethrough_20px''$_PNG';
+
+  static const String CIRCLE_CLOCK = '$_FOLDER''ic_circle_clock_40px''$_PNG';
+  static const String CIRCLE_DATE = '$_FOLDER''ic_circle_date_40px''$_PNG';
+  static const String CIRCLE_DIVIDER = '$_FOLDER''ic_circle_divider_40px''$_PNG';
+  static const String CIRCLE_EMBED_LINK = '$_FOLDER''ic_circle_embed_link_40px''$_PNG';
+  static const String CIRCLE_FORMAT_BULLET_LIST = '$_FOLDER''ic_circle_format_bullet_list_40px''$_PNG';
+  static const String CIRCLE_FORMAT_CODE = '$_FOLDER''ic_circle_format_code_40px''$_PNG';
+  static const String CIRCLE_FORMAT_H1 = '$_FOLDER''ic_circle_format_h1_40px''$_PNG';
+  static const String CIRCLE_FORMAT_H2 = '$_FOLDER''ic_circle_format_h2_40px''$_PNG';
+  static const String CIRCLE_FORMAT_H3 = '$_FOLDER''ic_circle_format_h3_10px''$_PNG';
+  static const String CIRCLE_FORMAT_NORMAL_TEXT = '$_FOLDER''ic_circle_format_normal_text_40px''$_PNG';
+  static const String CIRCLE_FORMAT_NUMBER_LIST = '$_FOLDER''ic_circle_format_number_list_40px''$_PNG';
+  static const String CIRCLE_FORMAT_QUOTE = '$_FOLDER''ic_circle_format_quote_40px''$_PNG';
+  static const String CIRCLE_FORMAT_REFERENCE = '$_FOLDER''ic_circle_format_reference_40px''$_PNG';
+  static const String CIRCLE_FORMAT_TAG = '$_FOLDER''ic_circle_format_tag_40px''$_PNG';
+  static const String CIRCLE_FORMAT_TODO_LIST = '$_FOLDER''ic_circle_format_todo_list_40px''$_PNG';
+  static const String CIRCLE_GIF = '$_FOLDER''ic_circle_gif_40px''$_PNG';
+  static const String CIRCLE_IMAGE = '$_FOLDER''ic_circle_image_40px''$_PNG';
+
+  static const String CHECK_12PX = '$_FOLDER''ic_check_12px''$_PNG';
 }

@@ -4,23 +4,23 @@ import 'package:flutter_quill/src/utils/app_constant.dart';
 import 'package:flutter_quill/src/utils/color.dart';
 import 'package:flutter_quill/utils/assets.dart';
 
-class BlockOptionButton extends StatelessWidget {
+class SymBlockOptionButton extends StatelessWidget {
 
   static const buttonWidth = 32.0;
 
-  const BlockOptionButton({
+  const SymBlockOptionButton({
     required this.width,
     required this.onTap,
     required this.offset,
     required this.editableTextLineKey,
 });
 
-  factory BlockOptionButton.basic(
+  factory SymBlockOptionButton.basic(
       GlobalKey editableTextLineKey,
       int offset,
       Function(int, GlobalKey) onTap
   ) {
-    return BlockOptionButton(
+    return SymBlockOptionButton(
       editableTextLineKey: editableTextLineKey,
       width: buttonWidth,
       offset: offset,

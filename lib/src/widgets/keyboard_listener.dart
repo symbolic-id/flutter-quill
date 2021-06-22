@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/widgets/keyboard_listener.dart';
 
 enum InputShortcut { CUT, COPY, PASTE, SELECT_ALL }
 
@@ -8,13 +9,20 @@ typedef CursorMoveCallback = void Function(
     LogicalKeyboardKey key, bool wordModifier, bool lineModifier, bool shift);
 typedef InputShortcutCallback = void Function(InputShortcut? shortcut);
 typedef OnDeleteCallback = void Function(bool forward);
+typedef MenuBlockCreationCallback = void Function();
 
 class KeyboardListener {
-  KeyboardListener(this.onCursorMove, this.onShortcut, this.onDelete);
+  KeyboardListener(
+      this.onCursorMove,
+      this.onShortcut,
+      this.onDelete,
+      this.onShowMenuBlockCreation
+      );
 
   final CursorMoveCallback onCursorMove;
   final InputShortcutCallback onShortcut;
   final OnDeleteCallback onDelete;
+  final MenuBlockCreationCallback onShowMenuBlockCreation;
 
   static final Set<LogicalKeyboardKey> _moveKeys = <LogicalKeyboardKey>{
     LogicalKeyboardKey.arrowRight,
@@ -65,6 +73,15 @@ class KeyboardListener {
 
   KeyEventResult handleRawKeyEvent(RawKeyEvent event) {
     if (kIsWeb) {
+      if (
+        event is RawKeyDownEvent &&
+        !event.isControlPressed &&
+        !event.isMetaPressed &&
+        !event.isAltPressed &&
+        event.logicalKey == LogicalKeyboardKey.slash
+      ) {
+        onShowMenuBlockCreation();
+      }
       // On web platform, we ignore the key because it's already processed.
       return KeyEventResult.ignored;
     }

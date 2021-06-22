@@ -11,14 +11,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
 import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
-import 'package:flutter_quill/src/widgets/menus/menu_block_option.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_creation.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_option.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
 import '../models/documents/document.dart';
 import '../models/documents/nodes/block.dart';
 import '../models/documents/nodes/line.dart';
-import 'block_option_button.dart';
+import 'sym_widgets/sym_block_option_button.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'default_styles.dart';
@@ -137,6 +138,8 @@ class RawEditorState extends EditorState
 
   TextDirection get _textDirection => Directionality.of(context);
 
+  OverlayEntry? _menuCreation;
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
@@ -252,7 +255,7 @@ class RawEditorState extends EditorState
                     .animate(animation);
                 return FadeTransition(
                   opacity: animation,
-                  child: MenuBlockOption(
+                  child: SymMenuBlockOption(
                     renderEditableTextLine: box,
                     controller: widget.controller,
                     isEmbeddable: isEmbed,
@@ -265,6 +268,21 @@ class RawEditorState extends EditorState
           ),
       );
     }
+  }
+
+  void _handleShowMenuBlockCreation() {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _menuCreation = OverlayEntry(
+          builder: (context) => SymMenuBlockCreation(
+              widget.controller,
+              getRenderEditor()!,
+              this,
+                  () {
+                _menuCreation?.remove();
+              }
+          ));
+      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
+    });
   }
 
   List<Widget> _buildChildren(Document doc, BuildContext context) {
@@ -317,7 +335,7 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        BlockOptionButton.basic(
+        SymBlockOptionButton.basic(
             editableTextLineKey, node.offset,
             (btnOffset, btnKey) {
               final isEmbed = (node.children.first as Leaf)
@@ -408,6 +426,7 @@ class RawEditorState extends EditorState
       handleCursorMovement,
       handleShortcut,
       handleDelete,
+      _handleShowMenuBlockCreation,
     );
 
     if (defaultTargetPlatform == TargetPlatform.windows ||

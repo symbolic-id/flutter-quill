@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
 import 'package:flutter_quill/src/models/documents/nodes/leaf.dart' hide Text;
-import 'package:flutter_quill/src/widgets/block_option_button.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_block_option_button.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -125,7 +125,7 @@ class EditableTextBlock extends StatelessWidget {
       final editableTextLine = EditableTextLine(
           editableTextLineKey,
           line,
-          BlockOptionButton.basic(editableTextLineKey,
+          SymBlockOptionButton.basic(editableTextLineKey,
               block.offset + line.offset, (btnOffset, btnKey) {
             final isEmbed = (line.children.first as Leaf).value is Embeddable;
                 onBlockButtonTap(btnOffset, btnKey, isEmbed);

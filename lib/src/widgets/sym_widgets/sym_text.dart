@@ -9,6 +9,7 @@ class SymText extends StatelessWidget {
         this.textSize = 12,
         this.textColor = SymColors.light_textPrimary,
         this.bold = false,
+        this.align,
         Key? key
       }): super(key: key);
 
@@ -16,6 +17,7 @@ class SymText extends StatelessWidget {
   final double textSize;
   final Color textColor;
   final bool bold;
+  final TextAlign? align;
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +28,10 @@ class SymText extends StatelessWidget {
         TextStyle(
           fontSize: textSize,
           color: textColor,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal
+          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         )
       ),
+      textAlign: align,
     );
   }
 }

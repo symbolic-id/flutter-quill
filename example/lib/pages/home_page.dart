@@ -85,6 +85,9 @@ class _HomePageState extends State<HomePage> {
             //   _controller!.formatSelection(Attribute.bold);
             // }
           }
+          if (event.character == '/') {
+            _controller!.showMenuBlockCreation();
+          }
         },
         child: _buildWelcomeEditor(context),
       ),

@@ -1,22 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/src/models/documents/nodes/block.dart';
-import 'package:flutter_quill/src/models/documents/nodes/line.dart';
-import 'package:flutter_quill/src/widgets/text_block.dart';
-import 'package:flutter_quill/src/widgets/text_line.dart';
 
 import '../../../flutter_quill.dart';
 import '../../../utils/assets.dart';
+import '../../models/documents/nodes/block.dart';
 import '../../utils/app_constant.dart';
 import '../../utils/color.dart';
-import '../block_option_button.dart';
+import 'sym_block_option_button.dart';
 import '../common_widgets/gap.dart';
-import '../sym_widgets/sym_text.dart';
+import 'sym_text.dart';
+import '../text_line.dart';
 
-class MenuBlockOption extends StatefulWidget {
+class SymMenuBlockOption extends StatefulWidget {
 
-  const MenuBlockOption({
+  const SymMenuBlockOption({
     required this.renderEditableTextLine,
     required this.controller,
     required this.isEmbeddable,
@@ -29,10 +27,10 @@ class MenuBlockOption extends StatefulWidget {
   final int textIndex;
 
   @override
-  _MenuBlockOptionState createState() => _MenuBlockOptionState();
+  _SymMenuBlockOptionState createState() => _SymMenuBlockOptionState();
 }
 
-class _MenuBlockOptionState extends State<MenuBlockOption> {
+class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
 
   late MenuBlockOptionActionListener actionListener;
   MenuBlockOptionTurnIntoListener? turnIntoListener;
@@ -165,7 +163,7 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
     );
     final leftOffset = childOffset.dx - menuSize.width - menuMargin;
     var topOffset = childOffset.dy - (menuSize.height / 2)
-        + BlockOptionButton.buttonWidth;
+        + SymBlockOptionButton.buttonWidth;
 
     if (topOffset + menuSize.height + menuMargin > size.height) {
       maxBottom = true;

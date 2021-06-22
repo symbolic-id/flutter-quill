@@ -53,6 +53,24 @@ flutter:
     - packages/flutter_quill/assets/icons/ic_format_inlinecode_20px.png
     - packages/flutter_quill/assets/icons/ic_format_italic_20px.png
     - packages/flutter_quill/assets/icons/ic_format_strikethrough_20px.png
+    - packages/flutter_quill/assets/icons/ic_circle_clock_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_date_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_divider_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_embed_link_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_bullet_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_code_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h1_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h2_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h3_10px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_normal_text_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_number_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_quote_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_reference_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_tag_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_todo_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_gif_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_image_40px.png
+    - packages/flutter_quill/assets/icons/ic_check_12px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

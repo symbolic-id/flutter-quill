@@ -5,7 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/src/widgets/block_option_button.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_block_option_button.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
@@ -234,7 +234,7 @@ class EditableTextLine extends RenderObjectWidget {
   ): super(key: key);
 
   final Line line;
-  final BlockOptionButton? button;
+  final SymBlockOptionButton? button;
   final Widget? leading;
   final Widget body;
   final double indentWidth;

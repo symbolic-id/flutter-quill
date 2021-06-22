@@ -1,14 +1,14 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_quill/src/models/documents/attribute.dart';
-import 'package:flutter_quill/src/utils/app_constant.dart';
-import 'package:flutter_quill/src/utils/color.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_asset_image.dart';
-import 'package:flutter_quill/utils/assets.dart';
 
+import '../../../utils/assets.dart';
+import '../../models/documents/attribute.dart';
+import '../../utils/color.dart';
 import '../controller.dart';
 import '../editor.dart';
+import 'sym_asset_image.dart';
 
 const double _toggledButtonSize = 48;
 
