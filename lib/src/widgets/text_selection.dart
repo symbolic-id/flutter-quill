@@ -7,9 +7,11 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 import '../models/documents/nodes/node.dart';
 import 'editor.dart';
+import 'sym_widgets/sym_inline_toolbar.dart';
 
 TextSelection localSelection(Node node, TextSelection selection, fromParent) {
   final base = fromParent ? node.offset : node.documentOffset;
@@ -38,6 +40,7 @@ class EditorTextSelectionOverlay {
     this.dragStartBehavior,
     this.onSelectionHandleTapped,
     this.clipboardStatus,
+    {required this.quillController}
   ) {
     final overlay = Overlay.of(context, rootOverlay: true)!;
 
@@ -61,6 +64,8 @@ class EditorTextSelectionOverlay {
   late AnimationController _toolbarController;
   List<OverlayEntry>? _handles;
   OverlayEntry? toolbar;
+
+  QuillController quillController;
 
   TextSelection get _selection => value.selection;
 
@@ -97,10 +102,21 @@ class EditorTextSelectionOverlay {
 
   void showToolbar() {
     assert(toolbar == null);
-    toolbar = OverlayEntry(builder: _buildToolbar);
-    Overlay.of(context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
-        .insert(toolbar!);
-    _toolbarController.forward(from: 0);
+    if (!kIsWeb) {
+      toolbar = OverlayEntry(builder: _buildToolbar);
+      Overlay.of(
+          context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
+          .insert(toolbar!);
+      _toolbarController.forward(from: 0);
+    } else {
+      toolbar = OverlayEntry(builder: (context) => SymInlineToolbar(
+          _selection, renderObject!,
+          selectionDelegate, quillController));
+      Overlay.of(
+          context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
+          .insert(toolbar!);
+      _toolbarController.forward(from: 0);
+    }
   }
 
   Widget _buildHandle(

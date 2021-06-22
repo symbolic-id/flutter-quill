@@ -49,6 +49,10 @@ flutter:
     - packages/flutter_quill/assets/icons/ic_todo_list_18px.png
     - packages/flutter_quill/assets/icons/ic_numbering_list_18px.png
     - packages/flutter_quill/assets/icons/ic_bullet_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_format_bold_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_inlinecode_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_italic_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_strikethrough_20px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

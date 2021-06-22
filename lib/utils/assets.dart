@@ -1,3 +1,5 @@
+
+// ignore_for_file: lines_longer_than_80_chars
 class Assets {
   static const String _FOLDER = 'assets/icons/';
   static const String _PNG = '.png';
@@ -16,4 +18,8 @@ class Assets {
   static const String TODO_LIST = '$_FOLDER''ic_todo_list_18px''$_PNG';
   static const String NUMBERING_LIST = '$_FOLDER''ic_numbering_list_18px''$_PNG';
   static const String BULLET_LIST = '$_FOLDER''ic_bullet_list_18px''$_PNG';
+  static const String FORMAT_BOLD = '$_FOLDER''ic_format_bold_20px''$_PNG';
+  static const String FORMAT_INLINECODE = '$_FOLDER''ic_format_inlinecode_20px''$_PNG';
+  static const String FORMAT_ITALIC = '$_FOLDER''ic_format_italic_20px''$_PNG';
+  static const String FORMAT_STRIKETHROUGH = '$_FOLDER''ic_format_strikethrough_20px''$_PNG';
 }

@@ -180,9 +180,10 @@ class QuillController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // void insertLine(int index, Line line) {
-  //
-  // }
+  void formatLine(Line line, Attribute attribute) {
+    document.format(
+        line.documentOffset, line.length - 1, attribute);
+  }
 
   void compose(Delta delta, TextSelection textSelection, ChangeSource source) {
     if (delta.isNotEmpty) {

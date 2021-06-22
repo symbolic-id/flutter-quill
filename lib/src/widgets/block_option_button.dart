@@ -41,7 +41,7 @@ class BlockOptionButton extends StatelessWidget {
         onTap: () { onTap(offset, editableTextLineKey); },
         splashColor: SymColors.hoverColor,
         child: const Image(
-            image: AssetImage(Assets.MORE, package: PACKAGES_NAME),
+            image: AssetImage(Assets.MORE, package: PACKAGE_NAME),
             width: 22,
             height: 22
         ),

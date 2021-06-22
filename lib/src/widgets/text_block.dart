@@ -119,7 +119,6 @@ class EditableTextBlock extends StatelessWidget {
     final count = block.children.length;
     final children = <Widget>[];
     var index = 0;
-    // print('LL:: block buildChildren indentWidth() : ${_getIndentWidth()}');
     for (final line in Iterable.castFrom<dynamic, Line>(block.children)) {
       index++;
       final editableTextLineKey = GlobalKey();

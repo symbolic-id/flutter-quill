@@ -12,7 +12,7 @@ import '../../utils/app_constant.dart';
 import '../../utils/color.dart';
 import '../block_option_button.dart';
 import '../common_widgets/gap.dart';
-import '../common_widgets/sym_text.dart';
+import '../sym_widgets/sym_text.dart';
 
 class MenuBlockOption extends StatefulWidget {
 
@@ -278,14 +278,14 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
           child: Row(
             children: [
               Image(
-                  image: AssetImage(assetName, package: PACKAGES_NAME),
+                  image: AssetImage(assetName, package: PACKAGE_NAME),
                   width: 18,
                   height: 18,
-                  color: !enabled ? SymColors.light_Line : null,
+                  color: !enabled ? SymColors.light_line : null,
               ),
               const GapH(19),
               SymText(text, textColor: enabled ? SymColors.light_textPrimary
-                  : SymColors.light_Line)
+                  : SymColors.light_line)
             ],
           ),
         ),
@@ -300,50 +300,51 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
         .attributes[Attribute.indent.key]?.value;
 
     return [
-      _titleSubMenu('Action'),
+      _titleSubMenu('Aksi'),
       GapV(8),
       _itemMenuContent(
-          Assets.TRASH, 'Delete Section', maxMenuWidth,
+          Assets.TRASH, 'Hapis blok', maxMenuWidth,
           onTap: () {
             actionListener.onDelete();
           }
       ),
       _itemMenuContent(
-          Assets.COPY, 'Copy Text', maxMenuWidth,
+          Assets.COPY, 'Salin Teks', maxMenuWidth,
           onTap: () {
             actionListener.onCopy();
           }
       ),
       _itemMenuContent(
-          Assets.DUPLICATE ,'Duplicate Section', maxMenuWidth,
+          Assets.DUPLICATE ,'Duplikat blok', maxMenuWidth,
           onTap: () {
             actionListener.onDuplicate();
           }
       ),
-      _itemMenuContent(
-          Assets.INDENT_LEFT_ACTIVE ,'Indent Left',
+      if (!widget.isEmbeddable) _itemMenuContent(
+          Assets.INDENT_LEFT_ACTIVE ,'Indent kiri',
           maxMenuWidth,
           enabled: (indentLevel ?? 0) > 0,
           onTap: () {
             if (indentLevel == 1) {
-              widget.controller
-                  .formatSelection(Attribute.clone(Attribute.indentL1, null));
+              widget.controller.formatLine(
+                  selectedLine, Attribute.clone(Attribute.indentL1, null));
               return;
             }
-            widget.controller
-                .formatSelection(Attribute.getIndentLevel(indentLevel! - 1));
+            widget.controller.formatLine(
+                selectedLine, Attribute.getIndentLevel(indentLevel! - 1));
           }
       ),
-      _itemMenuContent(
-          Assets.INDENT_RIGHT_ACTIVE ,'Indent Right', maxMenuWidth,
+      if (!widget.isEmbeddable) _itemMenuContent(
+          Assets.INDENT_RIGHT_ACTIVE ,'Indent kanan', maxMenuWidth,
           enabled: true,
           onTap: () {
             if (indentLevel == null) {
-              widget.controller.formatSelection(Attribute.indentL1);
+              widget.controller.formatLine(
+                  selectedLine, Attribute.indentL1);
               return;
             }
-            widget.controller
-                .formatSelection(Attribute.getIndentLevel(indentLevel + 1));
+            widget.controller.formatLine(
+                selectedLine, Attribute.getIndentLevel(indentLevel + 1));
           }
       ),
     ];
@@ -357,7 +358,7 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
         child: Container(
           height: 1,
           width: maxMenuWidth - 15 - 15,
-          color: SymColors.light_Line,
+          color: SymColors.light_line,
         ),
       ),
       GapV(16),
@@ -370,19 +371,19 @@ class _MenuBlockOptionState extends State<MenuBlockOption> {
           }
       ),
       _itemMenuContent(
-          Assets.H1, 'Judul Besar 1', maxMenuWidth,
+          Assets.H1, 'Judul Besar', maxMenuWidth,
           onTap: () {
             turnIntoListener!.turnInto(Attribute.h1);
           }
       ),
       _itemMenuContent(
-          Assets.H2, 'Judul Besar 2', maxMenuWidth,
+          Assets.H2, 'Judul Sedang', maxMenuWidth,
           onTap: () {
             turnIntoListener!.turnInto(Attribute.h2);
           }
       ),
       _itemMenuContent(
-          Assets.H3, 'Judul Besar 3', maxMenuWidth,
+          Assets.H3, 'Judul Kecil', maxMenuWidth,
           onTap: () {
             turnIntoListener!.turnInto(Attribute.h3);
           }
