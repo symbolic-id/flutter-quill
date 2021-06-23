@@ -168,10 +168,10 @@ class RawEditorState extends EditorState
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _handleSelectionChanged,
           scrollBottomInset: widget.scrollBottomInset,
-          padding: widget.padding ?? EdgeInsets.only(
-              left: containerSize.width * 0.2,
-              right: containerSize.width * 0.2
-          ),
+          padding: widget.padding ??
+              EdgeInsets.only(
+                  left: containerSize.width * 0.2,
+                  right: containerSize.width * 0.2),
           children: _buildChildren(_doc, context),
         ),
       ),
@@ -235,8 +235,8 @@ class RawEditorState extends EditorState
   Future<void> _handleBlockOptionButtonTap(
       int textIndex, GlobalKey key, bool isEmbed) async {
     if (!widget.readOnly) {
-      final box = key.currentContext!.findRenderObject()
-        as RenderEditableTextLine;
+      final box =
+          key.currentContext!.findRenderObject() as RenderEditableTextLine;
 
       final boxOffset = box.localToGlobal(Offset.zero);
 
@@ -247,42 +247,26 @@ class RawEditorState extends EditorState
       });
 
       await Navigator.push(
-          context,
-          PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) {
-                animation = Tween(begin: 0.0, end: 1.0).animate(animation);
-                secondaryAnimation = Tween(begin: 1.0, end: 0.0)
-                    .animate(animation);
-                return FadeTransition(
-                  opacity: animation,
-                  child: SymMenuBlockOption(
-                    renderEditableTextLine: box,
-                    controller: widget.controller,
-                    isEmbeddable: isEmbed,
-                    textIndex: textIndex,
-                  ),
-                );
-              },
-              fullscreenDialog: false,
-              opaque: false
-          ),
+        context,
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+              secondaryAnimation =
+                  Tween(begin: 1.0, end: 0.0).animate(animation);
+              return FadeTransition(
+                opacity: animation,
+                child: SymMenuBlockOption(
+                  renderEditableTextLine: box,
+                  controller: widget.controller,
+                  isEmbeddable: isEmbed,
+                  textIndex: textIndex,
+                ),
+              );
+            },
+            fullscreenDialog: false,
+            opaque: false),
       );
     }
-  }
-
-  void _handleShowMenuBlockCreation() {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _menuCreation = OverlayEntry(
-          builder: (context) => SymMenuBlockCreation(
-              widget.controller,
-              getRenderEditor()!,
-              this,
-                  () {
-                _menuCreation?.remove();
-              }
-          ));
-      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
-    });
   }
 
   List<Widget> _buildChildren(Document doc, BuildContext context) {
@@ -335,14 +319,11 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        SymBlockOptionButton.basic(
-            editableTextLineKey, node.offset,
+        SymBlockOptionButton.basic(editableTextLineKey, node.offset,
             (btnOffset, btnKey) {
-              final isEmbed = (node.children.first as Leaf)
-                  .value is Embeddable;
-              _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
-            }
-        ),
+          final isEmbed = (node.children.first as Leaf).value is Embeddable;
+          _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
+        }),
         null,
         textLine,
         _getIntentWidth(node),
@@ -384,7 +365,6 @@ class RawEditorState extends EditorState
       }
     }
 
-
     return defaultStyles!.paragraph!.verticalSpacing;
   }
 
@@ -422,11 +402,31 @@ class RawEditorState extends EditorState
       tickerProvider: this,
     );
 
+    final menuCallback = MenuBlockCreationCallback(
+        isVisible: () => _menuCreation != null,
+        onShow: () {
+          WidgetsBinding.instance!.addPostFrameCallback((_) {
+            _menuCreation = OverlayEntry(
+                builder: (context) => SymMenuBlockCreation(
+                    widget.controller,
+                    getRenderEditor()!,
+                    widget.focusNode,
+                       onDismiss: () {
+                      _menuCreation?.remove();
+                      _menuCreation = null;
+                    },
+                )
+            );
+            Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
+          });
+        },
+    );
+
     _keyboardListener = KeyboardListener(
-      handleCursorMovement,
-      handleShortcut,
-      handleDelete,
-      _handleShowMenuBlockCreation,
+        handleCursorMovement,
+        handleShortcut,
+        handleDelete,
+        menuCallback
     );
 
     if (defaultTargetPlatform == TargetPlatform.windows ||
@@ -601,21 +601,20 @@ class RawEditorState extends EditorState
       _selectionOverlay = null;
 
       _selectionOverlay = EditorTextSelectionOverlay(
-        textEditingValue,
-        false,
-        context,
-        widget,
-        _toolbarLayerLink,
-        _startHandleLayerLink,
-        _endHandleLayerLink,
-        getRenderEditor(),
-        widget.selectionCtrls,
-        this,
-        DragStartBehavior.start,
-        null,
-        _clipboardStatus,
-        quillController: widget.controller
-      );
+          textEditingValue,
+          false,
+          context,
+          widget,
+          _toolbarLayerLink,
+          _startHandleLayerLink,
+          _endHandleLayerLink,
+          getRenderEditor(),
+          widget.selectionCtrls,
+          this,
+          DragStartBehavior.start,
+          null,
+          _clipboardStatus,
+          quillController: widget.controller);
       _selectionOverlay!.handlesVisible = _shouldShowSelectionHandles();
       _selectionOverlay!.showHandles();
     }

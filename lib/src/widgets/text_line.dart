@@ -273,7 +273,6 @@ class EditableTextLine extends RenderObjectWidget {
   @override
   void updateRenderObject(
       BuildContext context, covariant RenderEditableTextLine renderObject) {
-    print('LL: updateRenderObject');
     renderObject
       ..setLine(line)
       ..setPadding(_getPadding())

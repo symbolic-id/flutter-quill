@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:tuple/tuple.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import '../../../src/utils/iterator_ext.dart';
 import '../../../utils/assets.dart';
 import '../../models/documents/attribute.dart';
 import '../../utils/color.dart';
@@ -32,258 +33,109 @@ class _MenuBlockItem {
   String? descAssetName;
   String? desc;
   String? shortcutChar;
+  int index = 0;
+
+  void setIndex(int index) {
+    this.index = index;
+  }
 }
 
 class _MenuBlockSection {
-  _MenuBlockSection(this.blockType, {this.items, this.withDivider = true});
+  _MenuBlockSection(this.blockType,
+      {required List<_MenuBlockItem> defaultItems})
+      : _defaultItems = defaultItems;
 
   final String blockType;
-  final List<_MenuBlockItem>? items;
-  final bool withDivider;
+  final List<_MenuBlockItem> _defaultItems;
+
+  bool itemsContainKeyword(String? keyword) {
+    if (keyword == null) {
+      return true;
+    }
+    for (final item in _defaultItems) {
+      if (item.title.toLowerCase().contains(keyword.toLowerCase()) ||
+          item.desc?.toLowerCase().contains(keyword.toLowerCase()) == true) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  List<_MenuBlockItem> getItemsContainKeyword(String? keyword) {
+    if (keyword == null) {
+      return _defaultItems;
+    }
+    final itemsMatch = <_MenuBlockItem>[];
+
+    for (final item in _defaultItems) {
+      if (item.title.toLowerCase().contains(keyword.toLowerCase()) ||
+          item.desc?.toLowerCase().contains(keyword.toLowerCase()) == true) {
+        itemsMatch.add(item);
+      }
+    }
+
+    return itemsMatch;
+  }
 }
 
 class SymMenuBlockCreation extends StatefulWidget {
-  const SymMenuBlockCreation(this.controller, this.renderObject,
-      this.selectionDelegate, this.onDismiss);
+  const SymMenuBlockCreation(this.controller, this.renderObject, this.focusNode,
+      {required this.onDismiss});
 
   final QuillController controller;
   final RenderEditor renderObject;
-  final TextSelectionDelegate selectionDelegate;
   final Function() onDismiss;
+  final FocusNode focusNode;
 
   @override
   State<StatefulWidget> createState() => _SymMenuBlockCreationState();
 }
 
 class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
-  final List<_MenuBlockSection> menuSections = [
-    _MenuBlockSection(
-      'Format Teks',
-      items: [
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.clone(Attribute.header, null),
-            title: 'Teks Biasa',
-            iconAssetName: Assets.CIRCLE_FORMAT_NORMAL_TEXT,
-            desc: 'Format teks standar dalam paragraf')
-      ],
-    ),
-    _MenuBlockSection(
-      'Format Judul',
-      items: [
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.h1,
-            title: 'Judul Besar',
-            titleSize: 20,
-            iconAssetName: Assets.CIRCLE_FORMAT_H1,
-            shortcutChar: '#'),
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.h2,
-            title: 'Judul Sedang',
-            titleSize: 16,
-            iconAssetName: Assets.CIRCLE_FORMAT_H2,
-            shortcutChar: '##'),
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.h3,
-            title: 'Judul Kecil',
-            iconAssetName: Assets.CIRCLE_FORMAT_H3,
-            shortcutChar: '###'),
-      ],
-    ),
-    _MenuBlockSection(
-      'Format Daftar',
-      items: [
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.ul,
-            title: 'Bullet List',
-            iconAssetName: Assets.CIRCLE_FORMAT_BULLET_LIST,
-            desc: '• Buat daftar dengan pointer lingkaran',
-            shortcutChar: '*'),
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.ol,
-            title: 'Number List',
-            iconAssetName: Assets.CIRCLE_FORMAT_NUMBER_LIST,
-            desc: '1. Buat daftar dengan urutan angka',
-            shortcutChar: '1.'),
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.unchecked,
-            title: 'To do List',
-            iconAssetName: Assets.CIRCLE_FORMAT_TODO_LIST,
-            desc: 'Buat daftar dengan checkbox',
-            descAssetName: Assets.CHECK_12PX),
-      ],
-    ),
-    _MenuBlockSection(
-      'Hashtag',
-      items: [
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Tag Section',
-          iconAssetName: Assets.CIRCLE_FORMAT_TAG,
-          desc: 'Menambahkan tag di suatu section',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Tag Card',
-          iconAssetName: Assets.CIRCLE_FORMAT_TAG,
-          desc: 'Menambahkan tag di card',
-        ),
-      ],
-    ),
-    _MenuBlockSection(
-      'Referensi',
-      items: [
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Card Reference',
-          iconAssetName: Assets.CIRCLE_FORMAT_REFERENCE,
-          desc: 'Menambahkan card lain',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Block Embed',
-          iconAssetName: Assets.CIRCLE_FORMAT_TAG,
-          desc: 'Menambahkan section card lain',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Block Reference',
-          iconAssetName: Assets.CIRCLE_FORMAT_TAG,
-          desc: 'Menambahkan section card lain',
-        ),
-      ],
-    ),
-    _MenuBlockSection(
-      'Referensi',
-      items: [
-        _MenuBlockItem(
-            key: GlobalKey(),
-            attr: Attribute.blockQuote,
-            title: 'Quote',
-            iconAssetName: Assets.CIRCLE_FORMAT_QUOTE,
-            desc: 'Buat tulisan quote',
-            shortcutChar: '>'),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.codeBlock,
-          title: 'Code',
-          iconAssetName: Assets.CIRCLE_FORMAT_CODE,
-          desc: 'Buat tulisan code snippet',
-        ),
-      ],
-    ),
-    _MenuBlockSection(
-      'Referensi',
-      items: [
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Tanggal Sekarang',
-          iconAssetName: Assets.CIRCLE_DATE,
-          desc: 'Menambahkan tanggal sekarang',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Jam Sekarang',
-          iconAssetName: Assets.CIRCLE_CLOCK,
-          desc: 'Menambahkan jam sekarang',
-        ),
-      ],
-    ),
-    _MenuBlockSection(
-      'Format Sisipan',
-      withDivider: false,
-      items: [
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Gambar',
-          iconAssetName: Assets.CIRCLE_IMAGE,
-          desc: 'Menambahkan file gambar',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'GIF',
-          iconAssetName: Assets.CIRCLE_GIF,
-          desc: 'Menambahkan GIF',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Embed Link',
-          iconAssetName: Assets.CIRCLE_GIF,
-          desc: 'Menambahkan rangkuman tautan',
-        ),
-        _MenuBlockItem(
-          key: GlobalKey(),
-          attr: Attribute.header,
-          title: 'Divider',
-          iconAssetName: Assets.CIRCLE_DIVIDER,
-          desc: 'Menambahkan garis pemisah',
-        ),
-      ],
-    ),
-  ];
-
-  final List<Tuple2<GlobalKey, String>> menus = [
-    Tuple2(GlobalKey(), '1'),
-    Tuple2(GlobalKey(), '2'),
-    Tuple2(GlobalKey(), '3'),
-    Tuple2(GlobalKey(), '4'),
-    Tuple2(GlobalKey(), '5'),
-    Tuple2(GlobalKey(), '6'),
-    Tuple2(GlobalKey(), '7'),
-    Tuple2(GlobalKey(), '8'),
-    Tuple2(GlobalKey(), '9'),
-    Tuple2(GlobalKey(), '10'),
-    Tuple2(GlobalKey(), '11'),
-    Tuple2(GlobalKey(), '12'),
-    Tuple2(GlobalKey(), '13'),
-    Tuple2(GlobalKey(), '14'),
-    Tuple2(GlobalKey(), '15'),
-  ];
-
+  final double MAX_HEIGHT = 350;
+  final double MAX_WIDTH = 320;
   final scrollController = ScrollController();
 
-  GlobalKey? selectedIndex;
+  int? selectedIndex;
 
   bool onScroll = false;
 
+  final filteredSections = <_MenuBlockSection>[];
+
   void _setSelectedIndex(int index) {
-    // print('LL:: _setSelectedIndex $index');
-    // if (index < 0) {
-    //   selectedIndex = menus.length - 1;
-    // } else if (index >= menus.length) {
-    //   selectedIndex = 0;
-    // } else {
-    //   selectedIndex = index;
-    // }
-    //
-    // print(
-    //     'LL:: selectedIndex $selectedIndex | menus[selectedIndex!] : ${menus[selectedIndex!]} | currentContext : ${menus[selectedIndex!].item1.currentContext}');
-    // setState(() {
-    //   Scrollable.ensureVisible(menus[selectedIndex!].item1.currentContext!);
-    //   WidgetsBinding.instance!.addPostFrameCallback((_) {
-    //     onScroll = false;
-    //   });
-    // });
+    if (filteredSections.isNotEmpty) {
+      final filteredItems = <_MenuBlockItem>[];
+
+      for (final section in filteredSections) {
+        for (final item in section.getItemsContainKeyword(keyword)) {
+          filteredItems.add(item);
+        }
+      }
+      if (index < 0) {
+        selectedIndex = filteredItems.length - 1;
+      } else if (index >= filteredItems.length) {
+        selectedIndex = 0;
+      } else {
+        selectedIndex = index;
+      }
+
+      setState(() {
+        Scrollable.ensureVisible(
+            filteredItems[selectedIndex!].key.currentContext!,
+            alignment: 0.5,
+            duration: const Duration(milliseconds: 500));
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          onScroll = false;
+        });
+      });
+    }
   }
+
+  var keyword = '';
 
   @override
   Widget build(BuildContext context) {
+    filteredSections.clear();
     final endpoints = widget.renderObject
         .getEndpointsForSelection(widget.controller.selection);
 
@@ -298,34 +150,22 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
     FocusScope.of(context).requestFocus(focusNode);
 
+    var itemCount = 0;
+
+    for (final section in _defaultMenuSections) {
+      if (section.itemsContainKeyword(keyword)) {
+        filteredSections.add(section);
+      }
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
         RawKeyboardListener(
           focusNode: focusNode,
-          onKey: (event) {
-            if (!onScroll && event is RawKeyDownEvent) {
-              onScroll = true;
-              if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-                print('SymMenuBlockCreation arrowDown');
-
-                // _setSelectedIndex((selectedIndex ?? -1) + 1);
-              } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                // _setSelectedIndex((selectedIndex ?? menus.length + 1) - 1);
-              } else if (event.logicalKey == LogicalKeyboardKey.abort ||
-                  event.logicalKey == LogicalKeyboardKey.escape ||
-                  event.logicalKey == LogicalKeyboardKey.arrowLeft ||
-                  event.logicalKey == LogicalKeyboardKey.arrowRight) {
-                widget.onDismiss();
-              } else {
-                onScroll = false;
-              }
-            }
-          },
+          onKey: _handleRawKeyEvent,
           child: GestureDetector(
-            onTap: () {
-              widget.onDismiss();
-            },
+            onTap: dismiss,
           ),
         ),
         Positioned(
@@ -339,19 +179,67 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
             elevation: 5,
             clipBehavior: Clip.hardEdge,
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxHeight: 350, maxWidth: 320),
-              child: Scrollbar(
-                controller: scrollController,
-                isAlwaysShown: true,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: menuSections
-                          .map((e) => _buildSection(
-                              e.blockType, e.items!, e.withDivider))
-                          .toList()),
-                ),
+              constraints:
+                  BoxConstraints(maxHeight: MAX_HEIGHT, maxWidth: MAX_WIDTH),
+              child: Stack(
+                children: [
+                  Scrollbar(
+                    controller: scrollController,
+                    isAlwaysShown: true,
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: filteredSections.isNotEmpty
+                              ? filteredSections.mapIndexed((e, i) {
+                                  final itemStartIndex = itemCount;
+                                  itemCount +=
+                                      e.getItemsContainKeyword(keyword).length;
+
+                                  return _buildSection(
+                                      e.blockType,
+                                      e.getItemsContainKeyword(keyword),
+                                      i != filteredSections.length - 1,
+                                      itemStartIndex);
+                                }).toList()
+                              : [_noResult()]),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    right: 0,
+                    child: Opacity(
+                      opacity: keyword.isNotEmpty ? 1 : 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 16, top: 8),
+                        child: IntrinsicWidth(
+                          child: TextField(
+                            showCursor: false,
+                            focusNode: focusNode,
+                            style: GoogleFonts.ibmPlexSans().merge(
+                                const TextStyle(
+                                    fontSize: 12,
+                                    color: SymColors.light_textTertiary)),
+                            textAlign: TextAlign.end,
+                            decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.search, size: 12),
+                                prefixIconConstraints:
+                                    BoxConstraints(maxWidth: 12, maxHeight: 12),
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                                border: InputBorder.none),
+                            onChanged: (text) {
+                              setState(() {
+                                keyword = text;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
               ),
             ),
           ),
@@ -360,13 +248,15 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     );
   }
 
-  Widget _buildSection(
-      String blockType, List<_MenuBlockItem> items, bool withDivider) {
+  Widget _buildSection(String blockType, List<_MenuBlockItem> items,
+      bool withDivider, int itemStartIndex) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _headerBlockType(blockType),
-        ...items.map(_menuItem).toList(),
+        _headerBlockType('[$itemStartIndex] $blockType'),
+        ...items
+            .mapIndexed((e, i) => _buildItem(e, itemStartIndex + i))
+            .toList(),
         if (withDivider) _divider()
       ],
     );
@@ -381,7 +271,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     );
   }
 
-  Widget _menuItem(_MenuBlockItem item) {
+  Widget _buildItem(_MenuBlockItem item, int index) {
     final key = item.key;
     final attr = item.attr;
     final title = item.title;
@@ -391,54 +281,69 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     final descAssetName = item.descAssetName;
     final shortcutChar = item.shortcutChar;
 
-    return InkWell(
-      key: key,
-      hoverColor: SymColors.hoverColor,
-      onTap: () {},
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Row(
-          children: [
-            SymAssetImage(
-              iconAssetName,
-              size: const Size(48, 48),
-            ),
-            GapH(12),
-            Expanded(
-                child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return Material(
+      child: InkWell(
+        key: key,
+        hoverColor: SymColors.hoverColor,
+        onTap: () {},
+        child: Ink(
+          color: index == selectedIndex
+              ? SymColors.hoverColor
+              : SymColors.light_bgWhite,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
               children: [
-                SymText(
-                  title,
-                  textSize: titleSize,
-                  bold: true,
-                ),
-                if (desc != null)
-                  Row(
-                    children: [
-                      if (descAssetName != null)
-                        Padding(
-                          padding: const EdgeInsets.only(right: 4, top: 2),
-                          child: SymAssetImage(
-                            descAssetName,
-                            size: const Size(12, 12),
-                          ),
-                        ),
-                      SymText(
-                        desc,
-                        textColor: SymColors.light_textTertiary,
-                      )
-                    ],
+                ClipOval(
+                  child: Container(
+                    padding: EdgeInsets.zero,
+                    width: 40,
+                    height: 40,
+                    color: SymColors.light_bgWhite,
+                    child: SymAssetImage(
+                      iconAssetName,
+                      size: const Size(48, 48),
+                    ),
                   ),
+                ),
+                GapH(12),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SymText(
+                      '$index: $title',
+                      textSize: titleSize,
+                      bold: true,
+                    ),
+                    if (desc != null)
+                      Row(
+                        children: [
+                          if (descAssetName != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 4, top: 2),
+                              child: SymAssetImage(
+                                descAssetName,
+                                size: const Size(12, 12),
+                              ),
+                            ),
+                          SymText(
+                            desc,
+                            textColor: SymColors.light_textTertiary,
+                          )
+                        ],
+                      ),
+                  ],
+                )),
+                if (shortcutChar != null)
+                  SymText(
+                    shortcutChar,
+                    textColor: SymColors.light_bluePrimary,
+                    bold: true,
+                  )
               ],
-            )),
-            if (shortcutChar != null)
-              SymText(
-                shortcutChar,
-                textColor: SymColors.light_bluePrimary,
-                bold: true,
-              )
-          ],
+            ),
+          ),
         ),
       ),
     );
@@ -451,4 +356,239 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
       height: 1,
     );
   }
+
+  Widget _noResult() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        child: const SymText(
+          'No Result',
+          textSize: 14,
+          textColor: SymColors.light_textTertiary,
+        ),
+      ),
+    );
+  }
+
+  void onDown() {
+    _setSelectedIndex((selectedIndex ?? -1) + 1);
+  }
+
+  void onUp() {
+    _setSelectedIndex((selectedIndex ?? 0) - 1);
+  }
+
+  void onEnter() {
+    dismiss();
+  }
+
+  void dismiss() {
+    widget.onDismiss();
+  }
+
+  void _handleRawKeyEvent(RawKeyEvent event) {
+    if (event is RawKeyDownEvent) {
+      onScroll = true;
+      if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        onDown();
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        onUp();
+      } else if (event.logicalKey == LogicalKeyboardKey.abort ||
+          event.logicalKey == LogicalKeyboardKey.escape ||
+          event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+          event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        dismiss();
+      } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+        onEnter();
+      } else if (event.logicalKey == LogicalKeyboardKey.backspace &&
+          keyword.isEmpty) {
+        dismiss();
+      } else {
+        onScroll = false;
+      }
+    }
+  }
 }
+
+/* DEFAULT MENU ITEM */
+
+final List<_MenuBlockSection> _defaultMenuSections = [
+  _MenuBlockSection(
+    'Format Teks',
+    defaultItems: [
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.clone(Attribute.header, null),
+          title: 'Teks Biasa',
+          iconAssetName: Assets.CIRCLE_FORMAT_NORMAL_TEXT,
+          desc: 'Format teks standar dalam paragraf')
+    ],
+  ),
+  _MenuBlockSection(
+    'Format Judul',
+    defaultItems: [
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.h1,
+          title: 'Judul Besar',
+          titleSize: 20,
+          iconAssetName: Assets.CIRCLE_FORMAT_H1,
+          shortcutChar: '#'),
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.h2,
+          title: 'Judul Sedang',
+          titleSize: 16,
+          iconAssetName: Assets.CIRCLE_FORMAT_H2,
+          shortcutChar: '##'),
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.h3,
+          title: 'Judul Kecil',
+          iconAssetName: Assets.CIRCLE_FORMAT_H3,
+          shortcutChar: '###'),
+    ],
+  ),
+  _MenuBlockSection(
+    'Format Daftar',
+    defaultItems: [
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.ul,
+          title: 'Bullet List',
+          iconAssetName: Assets.CIRCLE_FORMAT_BULLET_LIST,
+          desc: '• Buat daftar dengan pointer lingkaran',
+          shortcutChar: '*'),
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.ol,
+          title: 'Number List',
+          iconAssetName: Assets.CIRCLE_FORMAT_NUMBER_LIST,
+          desc: '1. Buat daftar dengan urutan angka',
+          shortcutChar: '1.'),
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.unchecked,
+          title: 'To do List',
+          iconAssetName: Assets.CIRCLE_FORMAT_TODO_LIST,
+          desc: 'Buat daftar dengan checkbox',
+          descAssetName: Assets.CHECK_12PX),
+    ],
+  ),
+  _MenuBlockSection(
+    'Hashtag',
+    defaultItems: [
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Tag Section',
+        iconAssetName: Assets.CIRCLE_FORMAT_TAG,
+        desc: 'Menambahkan tag di suatu section',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Tag Card',
+        iconAssetName: Assets.CIRCLE_FORMAT_TAG,
+        desc: 'Menambahkan tag di card',
+      ),
+    ],
+  ),
+  _MenuBlockSection(
+    'Referensi',
+    defaultItems: [
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Card Reference',
+        iconAssetName: Assets.CIRCLE_FORMAT_REFERENCE,
+        desc: 'Menambahkan card lain',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Block Embed',
+        iconAssetName: Assets.CIRCLE_FORMAT_TAG,
+        desc: 'Menambahkan section card lain',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Block Reference',
+        iconAssetName: Assets.CIRCLE_FORMAT_TAG,
+        desc: 'Menambahkan section card lain',
+      ),
+    ],
+  ),
+  _MenuBlockSection(
+    'Referensi #2',
+    defaultItems: [
+      _MenuBlockItem(
+          key: GlobalKey(),
+          attr: Attribute.blockQuote,
+          title: 'Quote',
+          iconAssetName: Assets.CIRCLE_FORMAT_QUOTE,
+          desc: 'Buat tulisan quote',
+          shortcutChar: '>'),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.codeBlock,
+        title: 'Code',
+        iconAssetName: Assets.CIRCLE_FORMAT_CODE,
+        desc: 'Buat tulisan code snippet',
+      ),
+    ],
+  ),
+  _MenuBlockSection(
+    'Referensi #3',
+    defaultItems: [
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Tanggal Sekarang',
+        iconAssetName: Assets.CIRCLE_DATE,
+        desc: 'Menambahkan tanggal sekarang',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Jam Sekarang',
+        iconAssetName: Assets.CIRCLE_CLOCK,
+        desc: 'Menambahkan jam sekarang',
+      ),
+    ],
+  ),
+  _MenuBlockSection(
+    'Format Sisipan',
+    defaultItems: [
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Gambar',
+        iconAssetName: Assets.CIRCLE_IMAGE,
+        desc: 'Menambahkan file gambar',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'GIF',
+        iconAssetName: Assets.CIRCLE_GIF,
+        desc: 'Menambahkan GIF',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Embed Link',
+        iconAssetName: Assets.CIRCLE_GIF,
+        desc: 'Menambahkan rangkuman tautan',
+      ),
+      _MenuBlockItem(
+        key: GlobalKey(),
+        attr: Attribute.header,
+        title: 'Divider',
+        iconAssetName: Assets.CIRCLE_DIVIDER,
+        desc: 'Menambahkan garis pemisah',
+      ),
+    ],
+  ),
+];
