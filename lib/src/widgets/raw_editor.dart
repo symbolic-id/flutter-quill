@@ -411,6 +411,7 @@ class RawEditorState extends EditorState
                     widget.controller,
                     getRenderEditor()!,
                     widget.focusNode,
+                       scrollPosition: _scrollController!.position.pixels,
                        onDismiss: () {
                       _menuCreation?.remove();
                       _menuCreation = null;

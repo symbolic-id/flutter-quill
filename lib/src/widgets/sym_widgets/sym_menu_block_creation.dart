@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -80,12 +81,13 @@ class _MenuBlockSection {
 
 class SymMenuBlockCreation extends StatefulWidget {
   const SymMenuBlockCreation(this.controller, this.renderObject, this.focusNode,
-      {required this.onDismiss});
+      { required this.scrollPosition, required this.onDismiss});
 
   final QuillController controller;
   final RenderEditor renderObject;
   final Function() onDismiss;
   final FocusNode focusNode;
+  final double scrollPosition;
 
   @override
   State<StatefulWidget> createState() => _SymMenuBlockCreationState();
@@ -138,12 +140,51 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     filteredSections.clear();
     final endpoints = widget.renderObject
         .getEndpointsForSelection(widget.controller.selection);
+    final baseLineHeight = widget.renderObject
+        .preferredLineHeight(widget.controller.selection.base);
 
-    final midX = (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
+    final editingRegion = Rect.fromPoints(
+      widget.renderObject.localToGlobal(Offset.zero),
+      widget.renderObject.localToGlobal(
+          widget.renderObject.size.bottomRight(Offset.zero)),
+    );
+
+    var offsetX = (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
+    // var localOffsetY = widget.renderObject
+    //     .localToGlobal(Offset(0, endpoints.first.point.dy - widget.scrollPosition)).dy;
+    final localEndpointY = widget.renderObject.globalToLocal(endpoints.first.point).dy;
+    var localOffsetY =  localEndpointY - widget.scrollPosition;
+    var globalOffsetY = widget.renderObject.localToGlobal(Offset(0, localOffsetY));
+
+    const safeMargin = 20.0;
+
+    var isUpward = false;
+
+    var screenSize = MediaQuery.of(context).size;
+
+    // print('LL:: editingRegion : $editingRegion');
+    // print('LL:: offsetY : $offsetY | testY : $testY | MAX_HEIGHT : $MAX_HEIGHT | editingRegion.bottom : ${editingRegion.bottom} | safeMargin: $safeMargin');
+    // print('LL:: testY + MAX_HEIGHT : ${testY + MAX_HEIGHT} | editingRegion.bottom - safeMargin : ${editingRegion.bottom - safeMargin}');
+
+    print('LL:: offsetY : ${localOffsetY}'
+        '| globalOffsetY : ${globalOffsetY} '
+        '| endpoints.dy : ${endpoints.first.point.dy} '
+        '| localEndpointY : ${localEndpointY} '
+        '| scrollPosition : ${widget.scrollPosition}');
+    if (localOffsetY + MAX_HEIGHT > screenSize.height - safeMargin) {
+      isUpward = true;
+      // offsetY = offsetY - baseLineHeight - MAX_HEIGHT;
+      print('LL:: isUpward offsetY before : $localOffsetY');
+      localOffsetY = localOffsetY - (editingRegion.bottom - localOffsetY) + baseLineHeight;
+      print('LL:: isUpward offsetY after : $localOffsetY');
+    }
+    if (offsetX + MAX_WIDTH > editingRegion.right - safeMargin) {
+      offsetX = editingRegion.right - safeMargin - MAX_WIDTH;
+    }
 
     final offset = Offset(
-      midX,
-      widget.renderObject.localToGlobal(Offset(0, endpoints.first.point.dy)).dy,
+      offsetX,
+      localOffsetY,
     );
 
     final focusNode = FocusNode();
@@ -161,91 +202,112 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     return Stack(
       fit: StackFit.expand,
       children: [
+        const AbsorbPointer(),
         RawKeyboardListener(
           focusNode: focusNode,
           onKey: _handleRawKeyEvent,
           child: GestureDetector(
+
             onTap: dismiss,
           ),
         ),
-        Positioned(
-          left: offset.dx,
-          top: offset.dy,
-          child: Material(
-            color: SymColors.light_bgWhite,
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-                side: BorderSide(color: SymColors.light_line)),
-            elevation: 5,
-            clipBehavior: Clip.hardEdge,
-            child: ConstrainedBox(
-              constraints:
-                  BoxConstraints(maxHeight: MAX_HEIGHT, maxWidth: MAX_WIDTH),
-              child: Stack(
-                children: [
-                  Scrollbar(
-                    controller: scrollController,
-                    isAlwaysShown: true,
-                    child: SingleChildScrollView(
+        _positionedMenu(
+            isUpward: isUpward,
+            offset: offset,
+            child: Material(
+              color: SymColors.light_bgWhite,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  side: BorderSide(color: SymColors.light_line)),
+              elevation: 5,
+              clipBehavior: Clip.hardEdge,
+              child: ConstrainedBox(
+                constraints:
+                BoxConstraints(maxHeight: MAX_HEIGHT, maxWidth: MAX_WIDTH),
+                child: Stack(
+                  children: [
+                    Scrollbar(
                       controller: scrollController,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: filteredSections.isNotEmpty
-                              ? filteredSections.mapIndexed((e, i) {
-                                  final itemStartIndex = itemCount;
-                                  itemCount +=
-                                      e.getItemsContainKeyword(keyword).length;
+                      isAlwaysShown: true,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: filteredSections.isNotEmpty
+                                ? filteredSections.mapIndexed((e, i) {
+                              final itemStartIndex = itemCount;
+                              itemCount +=
+                                  e.getItemsContainKeyword(keyword).length;
 
-                                  return _buildSection(
-                                      e.blockType,
-                                      e.getItemsContainKeyword(keyword),
-                                      i != filteredSections.length - 1,
-                                      itemStartIndex);
-                                }).toList()
-                              : [_noResult()]),
+                              return _buildSection(
+                                  e.blockType,
+                                  e.getItemsContainKeyword(keyword),
+                                  i != filteredSections.length - 1,
+                                  itemStartIndex);
+                            }).toList()
+                                : [_noResult()]),
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Opacity(
-                      opacity: keyword.isNotEmpty ? 1 : 0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 16, top: 8),
-                        child: IntrinsicWidth(
-                          child: TextField(
-                            showCursor: false,
-                            focusNode: focusNode,
-                            style: GoogleFonts.ibmPlexSans().merge(
-                                const TextStyle(
-                                    fontSize: 12,
-                                    color: SymColors.light_textTertiary)),
-                            textAlign: TextAlign.end,
-                            decoration: const InputDecoration(
-                                prefixIcon: Icon(Icons.search, size: 12),
-                                prefixIconConstraints:
-                                    BoxConstraints(maxWidth: 12, maxHeight: 12),
-                                isDense: true,
-                                contentPadding: EdgeInsets.zero,
-                                border: InputBorder.none),
-                            onChanged: (text) {
-                              setState(() {
-                                keyword = text;
-                              });
-                            },
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Opacity(
+                        opacity: keyword.isNotEmpty ? 1 : 0,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16, top: 8),
+                          child: IntrinsicWidth(
+                            child: TextField(
+                              showCursor: false,
+                              focusNode: focusNode,
+                              style: GoogleFonts.ibmPlexSans().merge(
+                                  const TextStyle(
+                                      fontSize: 12,
+                                      color: SymColors.light_textTertiary)),
+                              textAlign: TextAlign.end,
+                              decoration: const InputDecoration(
+                                  prefixIcon: Icon(Icons.search, size: 12),
+                                  prefixIconConstraints:
+                                  BoxConstraints(maxWidth: 12, maxHeight: 12),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none),
+                              onChanged: (text) {
+                                setState(() {
+                                  keyword = text;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
         )
       ],
     );
+  }
+
+  Widget _positionedMenu({
+    required bool isUpward, required Offset offset, required Widget child}) {
+    print('LL:: isUpward: $isUpward');
+
+    if (!isUpward) {
+      return Positioned(
+        top: offset.dy,
+        left: offset.dx,
+        child: child,
+      );
+    } else {
+      return Positioned(
+        bottom: offset.dy,
+        left: offset.dx,
+        child: child,
+      );
+    }
   }
 
   Widget _buildSection(String blockType, List<_MenuBlockItem> items,
