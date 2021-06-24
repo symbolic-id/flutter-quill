@@ -28,7 +28,7 @@ class _MenuBlockItem {
   });
 
   final GlobalKey key;
-  final Attribute attr;
+  final Attribute? attr;
   final String title;
   final double titleSize;
   final String iconAssetName;
@@ -81,13 +81,15 @@ class _MenuBlockSection {
 }
 
 class SymMenuBlockCreation extends StatefulWidget {
-  const SymMenuBlockCreation(this.controller, this.renderObject, this.focusNode,
-      { required this.toolbarLayerLink, required this.onDismiss});
+  const SymMenuBlockCreation(this.controller, this.renderObject,
+      {required this.toolbarLayerLink,
+      required this.onDismiss,
+      required this.onSelected});
 
   final QuillController controller;
   final RenderEditor renderObject;
   final Function() onDismiss;
-  final FocusNode focusNode;
+  final Function(Attribute?) onSelected;
   final LayerLink toolbarLayerLink;
 
   @override
@@ -104,16 +106,10 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
   bool onScroll = false;
 
   final filteredSections = <_MenuBlockSection>[];
+  final filteredItems = <_MenuBlockItem>[];
 
   void _setSelectedIndex(int index) {
-    if (filteredSections.isNotEmpty) {
-      final filteredItems = <_MenuBlockItem>[];
-
-      for (final section in filteredSections) {
-        for (final item in section.getItemsContainKeyword(keyword)) {
-          filteredItems.add(item);
-        }
-      }
+    if (filteredItems.isNotEmpty) {
       if (index < 0) {
         selectedIndex = filteredItems.length - 1;
       } else if (index >= filteredItems.length) {
@@ -135,6 +131,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
   }
 
   var keyword = '';
+  final focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -144,8 +141,8 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
     final editingRegion = Rect.fromPoints(
       widget.renderObject.localToGlobal(Offset.zero),
-      widget.renderObject.localToGlobal(
-          widget.renderObject.size.bottomRight(Offset.zero)),
+      widget.renderObject
+          .localToGlobal(widget.renderObject.size.bottomRight(Offset.zero)),
     );
 
     final baseLineHeight = widget.renderObject
@@ -173,8 +170,6 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
       offsetY,
     );
 
-    final focusNode = FocusNode();
-
     FocusScope.of(context).requestFocus(focusNode);
 
     var itemCount = 0;
@@ -182,12 +177,13 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     for (final section in _defaultMenuSections) {
       if (section.itemsContainKeyword(keyword)) {
         filteredSections.add(section);
+        filteredItems.addAll(section.getItemsContainKeyword(keyword));
       }
     }
 
     return CompositedTransformFollower(
       link: widget.toolbarLayerLink,
-      offset: - editingRegion.topLeft,
+      offset: -editingRegion.topLeft,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -196,94 +192,93 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
             focusNode: focusNode,
             onKey: _handleRawKeyEvent,
             child: GestureDetector(
-
               onTap: dismiss,
             ),
           ),
           _positionedMenu(
-              isUpward: isUpward,
-              offset: offset,
-              child: Material(
-                color: SymColors.light_bgWhite,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
-                    side: BorderSide(color: SymColors.light_line)),
-                elevation: 5,
-                clipBehavior: Clip.hardEdge,
-                child: ConstrainedBox(
-                  constraints:
-                  BoxConstraints(maxHeight: MAX_HEIGHT, maxWidth: MAX_WIDTH),
-                  child: Stack(
-                    children: [
-                      Scrollbar(
+            isUpward: isUpward,
+            offset: offset,
+            child: Material(
+              color: SymColors.light_bgWhite,
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8)),
+                  side: BorderSide(color: SymColors.light_line)),
+              elevation: 5,
+              clipBehavior: Clip.hardEdge,
+              child: ConstrainedBox(
+                constraints:
+                    BoxConstraints(maxHeight: MAX_HEIGHT, maxWidth: MAX_WIDTH),
+                child: Stack(
+                  children: [
+                    Scrollbar(
+                      controller: scrollController,
+                      isAlwaysShown: true,
+                      child: SingleChildScrollView(
                         controller: scrollController,
-                        isAlwaysShown: true,
-                        child: SingleChildScrollView(
-                          controller: scrollController,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: filteredSections.isNotEmpty
-                                  ? filteredSections.mapIndexed((e, i) {
-                                final itemStartIndex = itemCount;
-                                itemCount +=
-                                    e.getItemsContainKeyword(keyword).length;
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: filteredSections.isNotEmpty
+                                ? filteredSections.mapIndexed((e, i) {
+                                    final itemStartIndex = itemCount;
+                                    itemCount += e
+                                        .getItemsContainKeyword(keyword)
+                                        .length;
 
-                                return _buildSection(
-                                    e.blockType,
-                                    e.getItemsContainKeyword(keyword),
-                                    i != filteredSections.length - 1,
-                                    itemStartIndex);
-                              }).toList()
-                                  : [_noResult()]),
-                        ),
+                                    return _buildSection(
+                                        e.blockType,
+                                        e.getItemsContainKeyword(keyword),
+                                        i != filteredSections.length - 1,
+                                        itemStartIndex);
+                                  }).toList()
+                                : [_noResult()]),
                       ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: Opacity(
-                          opacity: keyword.isNotEmpty ? 1 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 16, top: 8),
-                            child: IntrinsicWidth(
-                              child: TextField(
-                                showCursor: false,
-                                focusNode: focusNode,
-                                style: GoogleFonts.ibmPlexSans().merge(
-                                    const TextStyle(
-                                        fontSize: 12,
-                                        color: SymColors.light_textTertiary)),
-                                textAlign: TextAlign.end,
-                                decoration: const InputDecoration(
-                                    prefixIcon: Icon(Icons.search, size: 12),
-                                    prefixIconConstraints:
-                                    BoxConstraints(maxWidth: 12, maxHeight: 12),
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.zero,
-                                    border: InputBorder.none),
-                                onChanged: (text) {
-                                  setState(() {
-                                    keyword = text;
-                                  });
-                                },
-                              ),
+                    ),
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Opacity(
+                        opacity: keyword.isNotEmpty ? 1 : 0,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16, top: 8),
+                          child: IntrinsicWidth(
+                            child: TextField(
+                              showCursor: false,
+                              focusNode: focusNode,
+                              style: GoogleFonts.ibmPlexSans().merge(
+                                  const TextStyle(
+                                      fontSize: 12,
+                                      color: SymColors.light_textTertiary)),
+                              textAlign: TextAlign.end,
+                              decoration: const InputDecoration(
+                                  prefixIcon: Icon(Icons.search, size: 12),
+                                  prefixIconConstraints: BoxConstraints(
+                                      maxWidth: 12, maxHeight: 12),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.zero,
+                                  border: InputBorder.none),
+                              onChanged: (text) {
+                                setState(() {
+                                  keyword = text;
+                                });
+                              },
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
+                      ),
+                    )
+                  ],
                 ),
               ),
+            ),
           )
         ],
       ),
     );
   }
 
-  Widget _positionedMenu({
-    required bool isUpward, required Offset offset, required Widget child}) {
-
+  Widget _positionedMenu(
+      {required bool isUpward, required Offset offset, required Widget child}) {
     if (!isUpward) {
       return Positioned(
         top: offset.dy,
@@ -430,7 +425,12 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
   }
 
   void onEnter() {
-    dismiss();
+    // focusNode.unfocus();
+    if (selectedIndex != null) {
+      widget.onSelected(filteredItems[selectedIndex!].attr);
+    } else {
+      dismiss();
+    }
   }
 
   void dismiss() {
@@ -438,7 +438,9 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
   }
 
   void _handleRawKeyEvent(RawKeyEvent event) {
-    if (event is RawKeyDownEvent) {
+    if (event.logicalKey == LogicalKeyboardKey.enter) {
+      onEnter();
+    } else if (event is RawKeyDownEvent) {
       onScroll = true;
       if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
         onDown();
@@ -449,8 +451,6 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
           event.logicalKey == LogicalKeyboardKey.arrowLeft ||
           event.logicalKey == LogicalKeyboardKey.arrowRight) {
         dismiss();
-      } else if (event.logicalKey == LogicalKeyboardKey.enter) {
-        onEnter();
       } else if (event.logicalKey == LogicalKeyboardKey.backspace &&
           keyword.isEmpty) {
         dismiss();
@@ -469,7 +469,7 @@ final List<_MenuBlockSection> _defaultMenuSections = [
     defaultItems: [
       _MenuBlockItem(
           key: GlobalKey(),
-          attr: Attribute.clone(Attribute.header, null),
+          attr: null,
           title: 'Teks Biasa',
           iconAssetName: Assets.CIRCLE_FORMAT_NORMAL_TEXT,
           desc: 'Format teks standar dalam paragraf')

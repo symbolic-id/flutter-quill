@@ -411,11 +411,21 @@ class RawEditorState extends EditorState
               builder: (context) => SymMenuBlockCreation(
                     widget.controller,
                     getRenderEditor()!,
-                    widget.focusNode,
                     toolbarLayerLink: _toolbarLayerLink,
                     onDismiss: () {
                       _menuCreation?.remove();
                       _menuCreation = null;
+                      widget.focusNode.requestFocus();
+                    },
+                    onSelected: (attribute) {
+                      widget.focusNode.requestFocus();
+                      _menuCreation?.remove();
+                      _menuCreation = null;
+                      final fromLine = widget.controller.document
+                          .getLineFromTextIndex(
+                              widget.controller.selection.extentOffset);
+                      widget.controller.insertLine(fromLine, attribute,
+                          fromSlashCommand: true);
                     },
                   ));
           Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);

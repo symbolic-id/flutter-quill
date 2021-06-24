@@ -181,8 +181,24 @@ class QuillController extends ChangeNotifier {
   }
 
   void formatLine(Line line, Attribute attribute) {
-    document.format(
-        line.documentOffset, line.length - 1, attribute);
+    document.format(line.documentOffset, line.length - 1, attribute);
+  }
+
+  void insertLine(Line fromLine, Attribute? attribute,
+      {bool fromSlashCommand = false}) {
+    if (fromSlashCommand) {
+      final currentSelection = selection.extentOffset;
+      document.delete(currentSelection - 1, 1);
+      _updateSelection(
+          TextSelection(
+              baseOffset: currentSelection - 1,
+              extentOffset: currentSelection - 1),
+          ChangeSource.LOCAL);
+    }
+    final result = document.insertLine(fromLine, attribute);
+    _updateSelection(TextSelection(baseOffset: result, extentOffset: result),
+        ChangeSource.LOCAL);
+    notifyListeners();
   }
 
   void compose(Delta delta, TextSelection textSelection, ChangeSource source) {
@@ -237,7 +253,5 @@ class QuillController extends ChangeNotifier {
         extentOffset: math.min(selection.extentOffset, end));
   }
 
-  void showMenuBlockCreation() {
-
-  }
+  void showMenuBlockCreation() {}
 }

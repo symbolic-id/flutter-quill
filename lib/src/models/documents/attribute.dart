@@ -170,6 +170,7 @@ class Attribute<T> {
   bool get isInline => scope == AttributeScope.INLINE;
 
   bool get isBlockExceptHeader => blockKeysExceptHeader.contains(key);
+  bool get isBlock => blockKeys.contains(key);
 
   Map<String, dynamic> toJson() => <String, dynamic>{key: value};
 

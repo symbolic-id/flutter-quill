@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:tuple/tuple.dart';
 
+import '../../../flutter_quill.dart';
 import '../quill_delta.dart';
 import '../rules/rule.dart';
 import 'attribute.dart';
@@ -12,7 +13,7 @@ import 'nodes/embed.dart';
 import 'nodes/line.dart';
 import 'nodes/node.dart';
 import 'style.dart';
-import '../../utils/iterator_ext.dart';
+import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
 
 /// The rich text document
 class Document {
@@ -87,6 +88,37 @@ class Document {
       _index += op.length!;
       _delta = _root.toDelta();
     }
+  }
+
+  int insertLine(Line fromLine, Attribute? blockAttr) {
+    var index = fromLine.documentOffset + fromLine.length;
+
+    if (fromLine.nextLine == null) {
+      index--;
+      insert(index, '\n');
+      index++;
+    }
+    final newLine = Line();
+
+    Block? newBlock;
+    if (blockAttr?.isBlock == true) {
+      newBlock = Block()
+        ..add(newLine)
+        ..applyAttribute(blockAttr!);
+    }
+
+    final delta = newBlock?.toDelta() ?? newLine.toDelta();
+    for (final op in delta.toList()) {
+      final style = op.attributes != null
+          ? Style.fromJson(op.attributes) : null;
+
+      final data = _normalize(op.data);
+      _root.insert(index, data, style);
+      index += op.length!;
+      _delta = _root.toDelta();
+    }
+
+    return index - 1;
   }
 
   Delta delete(int index, int len) {
@@ -178,6 +210,15 @@ class Document {
     }
     final block = res.node as Block;
     return block.queryChild(res.offset, true);
+  }
+
+  Line getLineFromTextIndex(int textIndex) {
+    final res = _root.queryChild(textIndex, true);
+    if (res.node is Line) {
+      return res.node as Line;
+    }
+    final block = res.node as Block;
+    return block.queryChild(res.offset, true).node as Line;
   }
 
   void compose(Delta delta, ChangeSource changeSource,
