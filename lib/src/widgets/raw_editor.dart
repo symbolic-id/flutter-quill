@@ -127,6 +127,7 @@ class RawEditorState extends EditorState
   // Focus
   bool _didAutoFocus = false;
   FocusAttachment? _focusAttachment;
+
   bool get _hasFocus => widget.focusNode.hasFocus;
 
   DefaultStyles? _styles;
@@ -403,32 +404,27 @@ class RawEditorState extends EditorState
     );
 
     final menuCallback = MenuBlockCreationCallback(
-        isVisible: () => _menuCreation != null,
-        onShow: () {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
-            _menuCreation = OverlayEntry(
-                builder: (context) => SymMenuBlockCreation(
+      isVisible: () => _menuCreation != null,
+      onShow: () {
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          _menuCreation = OverlayEntry(
+              builder: (context) => SymMenuBlockCreation(
                     widget.controller,
                     getRenderEditor()!,
                     widget.focusNode,
-                       scrollPosition: _scrollController!.position.pixels,
-                       onDismiss: () {
+                    toolbarLayerLink: _toolbarLayerLink,
+                    onDismiss: () {
                       _menuCreation?.remove();
                       _menuCreation = null;
                     },
-                )
-            );
-            Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
-          });
-        },
+                  ));
+          Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
+        });
+      },
     );
 
     _keyboardListener = KeyboardListener(
-        handleCursorMovement,
-        handleShortcut,
-        handleDelete,
-        menuCallback
-    );
+        handleCursorMovement, handleShortcut, handleDelete, menuCallback);
 
     if (defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||

@@ -7,9 +7,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_quill/flutter_quill.dart';
 
 import '../models/documents/nodes/node.dart';
+import 'controller.dart';
 import 'editor.dart';
 import 'sym_widgets/sym_inline_toolbar.dart';
 
@@ -111,7 +111,7 @@ class EditorTextSelectionOverlay {
     } else {
       toolbar = OverlayEntry(builder: (context) => SymInlineToolbar(
           _selection, renderObject!,
-          selectionDelegate, quillController));
+          selectionDelegate, quillController, toolbarLayerLink));
       Overlay.of(
           context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
           .insert(toolbar!);

@@ -19,12 +19,14 @@ class SymInlineToolbar extends StatefulWidget {
       this.renderObject,
       this.selectionDelegate,
       this.controller,
+      this.toolbarLayerLink,
   );
 
   final TextSelection selection;
   final RenderEditor renderObject;
   final TextSelectionDelegate selectionDelegate;
   final QuillController controller;
+  final LayerLink toolbarLayerLink;
 
   @override
   _SymInlineToolbarState createState() => _SymInlineToolbarState();
@@ -59,89 +61,97 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
       endpoints[0].point.dy - baseLineHeight,
     );
 
-    return Visibility(
-      visible: widget.selection.baseOffset != widget.selection.extentOffset,
-      child: SizedBox.expand(
-        child: Stack(
-          children: [
-            Positioned(
-                left: midpoint.dx -
-                    ((2) * _toggledButtonSize / 2),
-                top: midpoint.dy + baseLineHeight / 2,
-                child: FractionalTranslation(
-                    translation: const Offset(0, -0.2),
-                    child: Material(
-                      shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          side: BorderSide(color: SymColors.light_line
-                          )
-                      ),
-                      elevation: 5,
-                      clipBehavior: Clip.hardEdge,
-                      child: SizedBox(
-                        height: _toggledButtonSize,
-                        width: _toggledButtonSize * 5,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _symToggleStyleButton(
-                                assetName: Assets.FORMAT_BOLD,
-                                onAfterPressed: () { setState(() {}); },
-                                tooltipLabel: 'Bold',
-                                controller: widget.controller,
-                                attribute: Attribute.bold
-                            ),
-                            _symToggleStyleButton(
-                                assetName: Assets.FORMAT_ITALIC,
-                                onAfterPressed: () { setState(() {}); },
-                                tooltipLabel: 'Italic',
-                                controller: widget.controller,
-                                attribute: Attribute.italic
-                            ),
-                            _symToggleStyleButton(
-                                assetName: Assets.FORMAT_STRIKETHROUGH,
-                                onAfterPressed: () { setState(() {}); },
-                                tooltipLabel: 'Strikethrough',
-                                controller: widget.controller,
-                                attribute: Attribute.strikeThrough
-                            ),
-                            _symToggleStyleButton(
-                                assetName: Assets.FORMAT_INLINECODE,
-                                onAfterPressed: () { setState(() {}); },
-                                tooltipLabel: 'Code',
-                                controller: widget.controller,
-                                attribute: Attribute.underline
-                            ),
-                            // Container(
-                            //   width: 1,
-                            //   color: SymColors.light_line,
-                            //   margin: const EdgeInsets.symmetric(vertical: 8),
-                            // ),
-                            // TextButton(
-                            //   onPressed: () {
-                            //     widget.selectionDelegate.hideToolbar();
-                            //   },
-                            //   child: const SymAssetImage(
-                            //     Assets.MORE,
-                            //     size: Size(20, 20),
-                            //     color: SymColors.light_textPrimary,
-                            //   ),
-                            // ),
-                          ],
+    const paddingToolbar = 40;
+
+    final topOffset = midpoint.dy + editingRegion.top - paddingToolbar;
+    print('LL:: topOffset = $topOffset | midpointY : ${endpoints[0].point.dy - baseLineHeight} | editingRegion.top : ${editingRegion.top}');
+    return CompositedTransformFollower(
+      link: widget.toolbarLayerLink,
+      offset: -editingRegion.topLeft,
+      child: Visibility(
+        visible: widget.selection.baseOffset != widget.selection.extentOffset && topOffset > 0,
+        child: SizedBox.expand(
+          child: Stack(
+            children: [
+              Positioned(
+                  left: midpoint.dx -
+                      ((2) * _toggledButtonSize / 2),
+                  top: topOffset,
+                  child: FractionalTranslation(
+                      translation: const Offset(0, -0.2),
+                      child: Material(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                            side: BorderSide(color: SymColors.light_line
+                            )
                         ),
-                      ),
-                    )
-                )
-            )
-          ],
+                        elevation: 5,
+                        clipBehavior: Clip.hardEdge,
+                        child: SizedBox(
+                          height: _toggledButtonSize,
+                          width: _toggledButtonSize * 5,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SymToggleStyleButton(
+                                  assetName: Assets.FORMAT_BOLD,
+                                  onAfterPressed: () { setState(() {}); },
+                                  tooltipLabel: 'Bold',
+                                  controller: widget.controller,
+                                  attribute: Attribute.bold
+                              ),
+                              SymToggleStyleButton(
+                                  assetName: Assets.FORMAT_ITALIC,
+                                  onAfterPressed: () { setState(() {}); },
+                                  tooltipLabel: 'Italic',
+                                  controller: widget.controller,
+                                  attribute: Attribute.italic
+                              ),
+                              SymToggleStyleButton(
+                                  assetName: Assets.FORMAT_STRIKETHROUGH,
+                                  onAfterPressed: () { setState(() {}); },
+                                  tooltipLabel: 'Strikethrough',
+                                  controller: widget.controller,
+                                  attribute: Attribute.strikeThrough
+                              ),
+                              SymToggleStyleButton(
+                                  assetName: Assets.FORMAT_INLINECODE,
+                                  onAfterPressed: () { setState(() {}); },
+                                  tooltipLabel: 'Code',
+                                  controller: widget.controller,
+                                  attribute: Attribute.underline
+                              ),
+                              // Container(
+                              //   width: 1,
+                              //   color: SymColors.light_line,
+                              //   margin: const EdgeInsets.symmetric(vertical: 8),
+                              // ),
+                              // TextButton(
+                              //   onPressed: () {
+                              //     widget.selectionDelegate.hideToolbar();
+                              //   },
+                              //   child: const SymAssetImage(
+                              //     Assets.MORE,
+                              //     size: Size(20, 20),
+                              //     color: SymColors.light_textPrimary,
+                              //   ),
+                              // ),
+                            ],
+                          ),
+                        ),
+                      )
+                  )
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-Widget _symToggleStyleButton({
+Widget SymToggleStyleButton({
   required String assetName,
   required Function onAfterPressed,
   required String tooltipLabel,
@@ -172,4 +182,28 @@ Widget _symToggleStyleButton({
       ),
     ),
   );
+}
+
+
+class InlineToolbarDelegate extends SingleChildLayoutDelegate {
+  final Size anchorSize;
+
+  // ignore: sort_constructors_first
+  InlineToolbarDelegate(this.anchorSize);
+
+  @override
+  BoxConstraints getConstraintsForChild(BoxConstraints constraints) {
+    // we allow our child to be smaller than parent's constraint:
+    return constraints.loosen();
+  }
+
+  @override
+  Offset getPositionForChild(Size size, Size childSize) {
+    return Offset(0, 0);
+  }
+
+  @override
+  bool shouldRelayout(covariant SingleChildLayoutDelegate oldDelegate) {
+    return true;
+  }
 }

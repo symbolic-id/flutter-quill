@@ -18,6 +18,15 @@
       "insert":"\n"
    },
    {
+      "attributes":{
+         "placeholder":true
+      },
+      "insert":"This is Placeholder"
+   },
+   {
+      "insert":"\n"
+   },
+   {
       "insert":"Quill component for Flutter"
    },
    {
