@@ -66,7 +66,8 @@ class EditableTextBlock extends StatelessWidget {
     this.indentLevelCounts,
     this.onCheckboxTap,
     {
-      required this.onBlockButtonTap,
+      required this.onBlockButtonAddTap,
+      required this.onBlockButtonOptionTap,
     }
   );
 
@@ -84,7 +85,8 @@ class EditableTextBlock extends StatelessWidget {
   final CursorCont cursorCont;
   final Map<int, int> indentLevelCounts;
   final Function(int, bool) onCheckboxTap;
-  final Function(int, GlobalKey, bool) onBlockButtonTap;
+  final void Function(int?) onBlockButtonAddTap;
+  final Function(int, GlobalKey, bool) onBlockButtonOptionTap;
 
   @override
   Widget build(BuildContext context) {
@@ -125,10 +127,15 @@ class EditableTextBlock extends StatelessWidget {
       final editableTextLine = EditableTextLine(
           editableTextLineKey,
           line,
-          SymBlockOptionButton.basic(editableTextLineKey,
-              block.offset + line.offset, (btnOffset, btnKey) {
+          SymBlockButton.typeAdd(editableTextLineKey,
+              block.offset + line.offset, (textOffset, _) {
+                onBlockButtonAddTap(textOffset);
+              }
+          ),
+          SymBlockButton.typeOption(editableTextLineKey,
+              block.offset + line.offset, (textOffset, btnKey) {
             final isEmbed = (line.children.first as Leaf).value is Embeddable;
-                onBlockButtonTap(btnOffset, btnKey, isEmbed);
+                onBlockButtonOptionTap(textOffset, btnKey, isEmbed);
               }
           ),
           _buildLeading(context, line, index, indentLevelCounts, count),

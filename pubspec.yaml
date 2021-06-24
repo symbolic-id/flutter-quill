@@ -35,7 +35,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - packages/flutter_quill/assets/icons/ic_add_block_22.png
     - packages/flutter_quill/assets/icons/ic_more_20px.png
     - packages/flutter_quill/assets/icons/ic_copy_18px.png
     - packages/flutter_quill/assets/icons/ic_duplicate_18px.png
@@ -71,6 +70,7 @@ flutter:
     - packages/flutter_quill/assets/icons/ic_circle_gif_40px.png
     - packages/flutter_quill/assets/icons/ic_circle_image_40px.png
     - packages/flutter_quill/assets/icons/ic_check_12px.png
+    - packages/flutter_quill/assets/icons/ic_circle_add_20_px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

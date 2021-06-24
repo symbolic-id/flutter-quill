@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +12,7 @@ import '../common_widgets/gap.dart';
 import '../controller.dart';
 import '../editor.dart';
 import 'sym_asset_image.dart';
+import 'sym_block_option_button.dart';
 import 'sym_text.dart';
 
 class _MenuBlockItem {
@@ -81,16 +81,18 @@ class _MenuBlockSection {
 }
 
 class SymMenuBlockCreation extends StatefulWidget {
-  const SymMenuBlockCreation(this.controller, this.renderObject,
+  SymMenuBlockCreation(this.controller, this.renderObject,
       {required this.toolbarLayerLink,
       required this.onDismiss,
-      required this.onSelected});
+      required this.onSelected,
+      required this.selectionIndex});
 
   final QuillController controller;
   final RenderEditor renderObject;
   final Function() onDismiss;
   final Function(Attribute?) onSelected;
   final LayerLink toolbarLayerLink;
+  int? selectionIndex;
 
   @override
   State<StatefulWidget> createState() => _SymMenuBlockCreationState();
@@ -135,9 +137,15 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
   @override
   Widget build(BuildContext context) {
+    final selectionIndex = widget.selectionIndex != null
+        ? TextSelection(
+            baseOffset: widget.selectionIndex!,
+            extentOffset: widget.selectionIndex!)
+        : widget.controller.selection;
     filteredSections.clear();
-    final endpoints = widget.renderObject
-        .getEndpointsForSelection(widget.controller.selection);
+    filteredItems.clear();
+    final endpoints =
+        widget.renderObject.getEndpointsForSelection(selectionIndex);
 
     final editingRegion = Rect.fromPoints(
       widget.renderObject.localToGlobal(Offset.zero),
@@ -145,8 +153,8 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
           .localToGlobal(widget.renderObject.size.bottomRight(Offset.zero)),
     );
 
-    final baseLineHeight = widget.renderObject
-        .preferredLineHeight(widget.controller.selection.base);
+    final baseLineHeight =
+        widget.renderObject.preferredLineHeight(selectionIndex.base);
 
     var offsetX = endpoints.first.point.dx;
     var offsetY = endpoints[0].point.dy + editingRegion.top;
@@ -163,6 +171,16 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     }
     if (offsetX + MAX_WIDTH > editingRegion.right - safeMargin) {
       offsetX = editingRegion.right - safeMargin - MAX_WIDTH;
+    }
+
+    /* menu trigerred by buttonAdd instead of slash */
+    if (widget.selectionIndex != null) {
+      offsetX -= SymBlockButton.buttonWidth;
+      if (isUpward) {
+        offsetY -= baseLineHeight;
+      } else {
+        offsetY += baseLineHeight;
+      }
     }
 
     final offset = Offset(
@@ -251,7 +269,11 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
                                       color: SymColors.light_textTertiary)),
                               textAlign: TextAlign.end,
                               decoration: const InputDecoration(
-                                  prefixIcon: Icon(Icons.search, size: 12),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    size: 12,
+                                    color: SymColors.light_textTertiary,
+                                  ),
                                   prefixIconConstraints: BoxConstraints(
                                       maxWidth: 12, maxHeight: 12),
                                   isDense: true,
@@ -319,7 +341,6 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
   Widget _buildItem(_MenuBlockItem item, int index) {
     final key = item.key;
-    final attr = item.attr;
     final title = item.title;
     final titleSize = item.titleSize;
     final iconAssetName = item.iconAssetName;
@@ -331,7 +352,10 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
       child: InkWell(
         key: key,
         hoverColor: SymColors.hoverColor,
-        onTap: () {},
+        onTap: () {
+          _setSelectedIndex(index);
+          onEnter();
+        },
         child: Ink(
           color: index == selectedIndex
               ? SymColors.hoverColor
@@ -425,7 +449,6 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
   }
 
   void onEnter() {
-    // focusNode.unfocus();
     if (selectedIndex != null) {
       widget.onSelected(filteredItems[selectedIndex!].attr);
     } else {

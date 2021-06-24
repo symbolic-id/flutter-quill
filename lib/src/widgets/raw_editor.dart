@@ -296,8 +296,11 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
-          onBlockButtonTap: (btnOffset, btnKey, isEmbed) {
-            _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
+          onBlockButtonAddTap: (selectionIndex) {
+            _showMenuBlockCreation(selectionIndex: selectionIndex);
+          },
+          onBlockButtonOptionTap: (textOffset, btnKey, isEmbed) {
+            _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
           },
         );
         result.add(editableTextBlock);
@@ -320,10 +323,19 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        SymBlockOptionButton.basic(editableTextLineKey, node.offset,
-            (btnOffset, btnKey) {
-          final isEmbed = (node.children.first as Leaf).value is Embeddable;
-          _handleBlockOptionButtonTap(btnOffset, btnKey, isEmbed);
+        SymBlockButton.typeAdd(editableTextLineKey, node.offset,
+            (textOffset, _) {
+          _showMenuBlockCreation(selectionIndex: textOffset);
+        }),
+        SymBlockButton.typeOption(editableTextLineKey, node.offset,
+            (textOffset, btnKey) {
+          bool isEmbed;
+          if (node.children.isEmpty) {
+            isEmbed = false;
+          } else {
+            isEmbed = (node.children.first as Leaf).value is Embeddable;
+          }
+          _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
         }),
         null,
         textLine,
@@ -406,30 +418,7 @@ class RawEditorState extends EditorState
     final menuCallback = MenuBlockCreationCallback(
       isVisible: () => _menuCreation != null,
       onShow: () {
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
-          _menuCreation = OverlayEntry(
-              builder: (context) => SymMenuBlockCreation(
-                    widget.controller,
-                    getRenderEditor()!,
-                    toolbarLayerLink: _toolbarLayerLink,
-                    onDismiss: () {
-                      _menuCreation?.remove();
-                      _menuCreation = null;
-                      widget.focusNode.requestFocus();
-                    },
-                    onSelected: (attribute) {
-                      widget.focusNode.requestFocus();
-                      _menuCreation?.remove();
-                      _menuCreation = null;
-                      final fromLine = widget.controller.document
-                          .getLineFromTextIndex(
-                              widget.controller.selection.extentOffset);
-                      widget.controller.insertLine(fromLine, attribute,
-                          fromSlashCommand: true);
-                    },
-                  ));
-          Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
-        });
+        _showMenuBlockCreation();
       },
     );
 
@@ -685,6 +674,34 @@ class RawEditorState extends EditorState
           );
         }
       }
+    });
+  }
+  
+  void _showMenuBlockCreation({int? selectionIndex}) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _menuCreation = OverlayEntry(
+          builder: (context) => SymMenuBlockCreation(
+            widget.controller,
+            getRenderEditor()!,
+            toolbarLayerLink: _toolbarLayerLink,
+            selectionIndex: selectionIndex,
+            onDismiss: () {
+              _menuCreation?.remove();
+              _menuCreation = null;
+              widget.focusNode.requestFocus();
+            },
+            onSelected: (attribute) {
+              widget.focusNode.requestFocus();
+              _menuCreation?.remove();
+              _menuCreation = null;
+              final fromLine = widget.controller.document
+                  .getLineFromTextIndex(
+                  selectionIndex ?? widget.controller.selection.extentOffset);
+              widget.controller.insertLine(fromLine, attribute,
+                  fromSlashCommand: selectionIndex == null);
+            },
+          ));
+      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
     });
   }
 

@@ -4,7 +4,6 @@ class Assets {
   static const String _FOLDER = 'assets/icons/';
   static const String _PNG = '.png';
 
-  static const String ADD_BLOCK = '$_FOLDER''ic_add_block_22''$_PNG';
   static const String MORE = '$_FOLDER''ic_more_20px''$_PNG';
   static const String COPY = '$_FOLDER''ic_copy_18px''$_PNG';
   static const String DUPLICATE = '$_FOLDER''ic_duplicate_18px''$_PNG';
@@ -23,6 +22,7 @@ class Assets {
   static const String FORMAT_ITALIC = '$_FOLDER''ic_format_italic_20px''$_PNG';
   static const String FORMAT_STRIKETHROUGH = '$_FOLDER''ic_format_strikethrough_20px''$_PNG';
 
+  static const String CIRCLE_ADD = '$_FOLDER''ic_circle_add_20_px''$_PNG';
   static const String CIRCLE_CLOCK = '$_FOLDER''ic_circle_clock_40px''$_PNG';
   static const String CIRCLE_DATE = '$_FOLDER''ic_circle_date_40px''$_PNG';
   static const String CIRCLE_DIVIDER = '$_FOLDER''ic_circle_divider_40px''$_PNG';

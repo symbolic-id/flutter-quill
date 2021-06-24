@@ -5,8 +5,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_block_option_button.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -21,6 +19,7 @@ import 'cursor.dart';
 import 'default_styles.dart';
 import 'delegate.dart';
 import 'proxy.dart';
+import 'sym_widgets/sym_block_option_button.dart';
 import 'text_selection.dart';
 
 class TextLine extends StatelessWidget {
@@ -214,27 +213,27 @@ class TextLine extends StatelessWidget {
 
 class EditableTextLine extends RenderObjectWidget {
   const EditableTextLine(
-    Key key,
-    this.line,
-    this.button,
-    this.leading,
-    this.body,
-    this.indentWidth,
-    this.verticalSpacing,
-    this.textDirection,
-    this.textSelection,
-    this.color,
-    this.enableInteractiveSelection,
-    this.hasFocus,
-    this.devicePixelRatio,
-    this.cursorCont,
-    {
-      this.isLineSelected = false
-    }
-  ): super(key: key);
+      Key key,
+      this.line,
+      this.buttonAdd,
+      this.buttonOption,
+      this.leading,
+      this.body,
+      this.indentWidth,
+      this.verticalSpacing,
+      this.textDirection,
+      this.textSelection,
+      this.color,
+      this.enableInteractiveSelection,
+      this.hasFocus,
+      this.devicePixelRatio,
+      this.cursorCont,
+      {this.isLineSelected = false})
+      : super(key: key);
 
   final Line line;
-  final SymBlockOptionButton? button;
+  final SymBlockButton? buttonAdd;
+  final SymBlockButton? buttonOption;
   final Widget? leading;
   final Widget body;
   final double indentWidth;
@@ -263,11 +262,10 @@ class EditableTextLine extends RenderObjectWidget {
         hasFocus,
         devicePixelRatio,
         _getPadding(),
-        button?.width ?? 0,
+        buttonAdd?.width ?? 0,
         color,
         cursorCont,
-        isLineSelected: isLineSelected
-    );
+        isLineSelected: isLineSelected);
   }
 
   @override
@@ -287,7 +285,6 @@ class EditableTextLine extends RenderObjectWidget {
   }
 
   EdgeInsetsGeometry _getPadding() {
-    final text = line.toPlainText();
     return EdgeInsetsDirectional.only(
         start: indentWidth,
         top: verticalSpacing.item1,
@@ -295,26 +292,25 @@ class EditableTextLine extends RenderObjectWidget {
   }
 }
 
-enum TextLineSlot { BUTTON, LEADING, BODY }
+enum TextLineSlot { BUTTON_ADD, BUTTON_OPTION, LEADING, BODY }
 
-class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAnnotation {
+class RenderEditableTextLine extends RenderEditableBox
+    implements MouseTrackerAnnotation {
   RenderEditableTextLine(
-    this.line,
-    this.textDirection,
-    this.textSelection,
-    this.enableInteractiveSelection,
-    this.hasFocus,
-    this.devicePixelRatio,
-    this.padding,
-    this.buttonWidth,
-    this.color,
-    this.cursorCont,
-    {
-      this.isLineSelected = false
-    }
-  );
+      this.line,
+      this.textDirection,
+      this.textSelection,
+      this.enableInteractiveSelection,
+      this.hasFocus,
+      this.devicePixelRatio,
+      this.padding,
+      this.buttonWidth,
+      this.color,
+      this.cursorCont,
+      {this.isLineSelected = false});
 
-  RenderBox? _button;
+  RenderBox? _buttonAdd;
+  RenderBox? _buttonOption;
   RenderBox? _leading;
   RenderContentProxyBox? body;
   Line line;
@@ -336,7 +332,9 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
   final buttonRightMargin = 8;
 
   bool _onHover = false;
+
   bool get onHover => _onHover;
+
   void setHovered(bool isHovered) {
     if (_onHover != isHovered) {
       _onHover = isHovered;
@@ -345,6 +343,7 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
   }
 
   bool isLineSelected = false;
+
   void setLineSelected(bool isSelected) {
     if (isLineSelected != isSelected) {
       isLineSelected = isSelected;
@@ -353,8 +352,11 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
   }
 
   Iterable<RenderBox> get _children sync* {
-    if (_button != null) {
-      yield _button!;
+    if (_buttonAdd != null) {
+      yield _buttonAdd!;
+    }
+    if (_buttonOption != null) {
+      yield _buttonOption!;
     }
     if (_leading != null) {
       yield _leading!;
@@ -452,8 +454,13 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
     markNeedsLayout();
   }
 
-  void setButton(RenderBox? btn) {
-    _button = _updateChild(_button, btn, TextLineSlot.BUTTON);
+  void setButtonAdd(RenderBox? btn) {
+    _buttonAdd = _updateChild(_buttonAdd, btn, TextLineSlot.BUTTON_ADD);
+  }
+
+  void setButtonOption(RenderBox? btn) {
+    _buttonOption =
+        _updateChild(_buttonOption, btn, TextLineSlot.BUTTON_OPTION);
   }
 
   void setLeading(RenderBox? l) {
@@ -505,11 +512,16 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
       return;
     }
 
-    if (_button != null) {
-      _resolvedPadding = padding.resolve(textDirection) +
-          EdgeInsets.only(left: buttonWidth);
-    } else {
-      _resolvedPadding = padding.resolve(textDirection);
+    _resolvedPadding = padding.resolve(textDirection);
+
+    if (_buttonAdd != null) {
+      _resolvedPadding = _resolvedPadding!
+          .add(EdgeInsets.only(left: buttonWidth)) as EdgeInsets?;
+    }
+
+    if (_buttonOption != null) {
+      _resolvedPadding = _resolvedPadding!
+          .add(EdgeInsets.only(left: buttonWidth)) as EdgeInsets?;
     }
 
     assert(_resolvedPadding!.isNonNegative);
@@ -671,7 +683,8 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
       }
     }
 
-    add(_button, 'button');
+    add(_buttonAdd, 'buttonAdd');
+    add(_buttonOption, 'buttonOption');
     add(_leading, 'leading');
     add(body, 'body');
     return value;
@@ -685,9 +698,12 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
     _resolvePadding();
     final horizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
-    final buttonWidth = _button == null
+    final buttonAddWidth = _buttonAdd == null
         ? 0
-        : _button!.getMinIntrinsicWidth(height - verticalPadding).ceil();
+        : _buttonAdd!.getMinIntrinsicWidth(height - verticalPadding).ceil();
+    final buttonOptionWidth = _buttonOption == null
+        ? 0
+        : _buttonOption!.getMinIntrinsicWidth(height - verticalPadding).ceil();
     final leadingWidth = _leading == null
         ? 0
         : _leading!.getMinIntrinsicWidth(height - verticalPadding).ceil();
@@ -696,7 +712,11 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
         : body!
             .getMinIntrinsicWidth(math.max(0, height - verticalPadding))
             .ceil();
-    return horizontalPadding + buttonWidth + leadingWidth + bodyWidth;
+    return horizontalPadding +
+        buttonAddWidth +
+        buttonOptionWidth +
+        leadingWidth +
+        bodyWidth;
   }
 
   @override
@@ -704,9 +724,12 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
     _resolvePadding();
     final horizontalPadding = _resolvedPadding!.left + _resolvedPadding!.right;
     final verticalPadding = _resolvedPadding!.top + _resolvedPadding!.bottom;
-    final buttonWidth = _button == null
+    final buttonAddWidth = _buttonAdd == null
         ? 0
-        : _button!.getMinIntrinsicWidth(height - verticalPadding).ceil();
+        : _buttonAdd!.getMinIntrinsicWidth(height - verticalPadding).ceil();
+    final buttonOptionWidth = _buttonOption == null
+        ? 0
+        : _buttonOption!.getMinIntrinsicWidth(height - verticalPadding).ceil();
     final leadingWidth = _leading == null
         ? 0
         : _leading!.getMaxIntrinsicWidth(height - verticalPadding).ceil();
@@ -715,7 +738,11 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
         : body!
             .getMaxIntrinsicWidth(math.max(0, height - verticalPadding))
             .ceil();
-    return horizontalPadding + buttonWidth + leadingWidth + bodyWidth;
+    return horizontalPadding +
+        buttonAddWidth +
+        buttonOptionWidth +
+        leadingWidth +
+        bodyWidth;
   }
 
   @override
@@ -747,8 +774,7 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
   @override
   double computeDistanceToActualBaseline(TextBaseline baseline) {
     _resolvePadding();
-    return body!.getDistanceToActualBaseline(baseline)! +
-        _resolvedPadding!.top;
+    return body!.getDistanceToActualBaseline(baseline)! + _resolvedPadding!.top;
   }
 
   @override
@@ -776,36 +802,54 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
     (body!.parentData as BoxParentData).offset =
         Offset(_resolvedPadding!.left, _resolvedPadding!.top);
 
-    if (_button != null) {
+    if (_buttonAdd != null) {
       final buttonConstraints = innerConstraints.copyWith(
-          minWidth: 0,
-          maxWidth: buttonWidth,
-          maxHeight: body!.size.height
-      );
-      _button!.layout(buttonConstraints, parentUsesSize: true);
+          minWidth: 0, maxWidth: buttonWidth, maxHeight: body!.size.height);
+      _buttonAdd!.layout(buttonConstraints, parentUsesSize: true);
 
       var buttonMargin = 5;
       void resolveMargin() {
-        if (
-            _button!.size.height + buttonMargin + buttonMargin
-            > body!.size.height
-                && buttonMargin != 0
-        ) {
+        if (_buttonAdd!.size.height + buttonMargin + buttonMargin >
+                body!.size.height &&
+            buttonMargin != 0) {
           buttonMargin--;
           resolveMargin();
         }
       }
+
       resolveMargin();
 
-      (_button!.parentData as BoxParentData).offset =
+      (_buttonAdd!.parentData as BoxParentData).offset =
           Offset(0, _resolvedPadding!.top + buttonMargin);
     }
 
+    if (_buttonOption != null) {
+      final buttonConstraints = innerConstraints.copyWith(
+          minWidth: 0, maxWidth: buttonWidth, maxHeight: body!.size.height);
+      _buttonOption!.layout(buttonConstraints, parentUsesSize: true);
+
+      var buttonMargin = 5;
+      void resolveMargin() {
+        if (_buttonOption!.size.height + buttonMargin + buttonMargin >
+                body!.size.height &&
+            buttonMargin != 0) {
+          buttonMargin--;
+          resolveMargin();
+        }
+      }
+
+      resolveMargin();
+
+      (_buttonOption!.parentData as BoxParentData).offset =
+          Offset(buttonWidth, _resolvedPadding!.top + buttonMargin);
+    }
+
     if (_leading != null) {
-      final double buttonOffset = _button != null
-          ?  _button!.size.width + buttonRightMargin : 0;
+      final double buttonOffset = _buttonOption != null
+          ? _buttonOption!.size.width * 2 + buttonRightMargin
+          : 0;
       final leadingConstraints = innerConstraints.copyWith(
-          minWidth: indentWidth - buttonWidth - buttonRightMargin,
+          minWidth: indentWidth - buttonWidth * 2 - buttonRightMargin,
           maxWidth: indentWidth,
           maxHeight: body!.size.height);
       _leading!.layout(leadingConstraints, parentUsesSize: true);
@@ -831,10 +875,16 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (_button != null && (onHover || isLineSelected)) {
-      final parentData = _button!.parentData as BoxParentData;
+    if (_buttonAdd != null && (onHover || isLineSelected)) {
+      final parentData = _buttonAdd!.parentData as BoxParentData;
       final effectiveOffset = offset + parentData.offset;
-      context.paintChild(_button!, effectiveOffset);
+      context.paintChild(_buttonAdd!, effectiveOffset);
+    }
+
+    if (_buttonOption != null && (onHover || isLineSelected)) {
+      final parentData = _buttonOption!.parentData as BoxParentData;
+      final effectiveOffset = offset + parentData.offset;
+      context.paintChild(_buttonOption!, effectiveOffset);
     }
 
     if (_leading != null) {
@@ -887,14 +937,14 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
     }
   }
 
-  void _paintLineBody(PaintingContext context, Offset effectiveOffset, Color color) {
+  void _paintLineBody(
+      PaintingContext context, Offset effectiveOffset, Color color) {
     final paint = Paint()..color = color;
     final box = Rect.fromLTRB(
         effectiveOffset.dx,
         effectiveOffset.dy,
         effectiveOffset.dx + body!.size.width,
-        effectiveOffset.dy + body!.size.height
-    );
+        effectiveOffset.dy + body!.size.height);
     context.canvas.drawRect(box, paint);
   }
 
@@ -908,26 +958,25 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    for (RenderBox? child in [_button, _leading, body]) {
+    for (RenderBox? child in [_buttonAdd, _buttonOption, _leading, body]) {
       if (child != null) {
         final parentData = child.parentData as BoxParentData;
-        bool isHit = result.addWithPaintOffset(
+        var isHit = result.addWithPaintOffset(
             offset: parentData.offset,
             position: position,
             hitTest: (BoxHitTestResult result, Offset tranformed) {
               assert(tranformed == position - parentData.offset);
               return child.hitTest(result, position: tranformed);
-            }
-        );
+            });
         if (child == body && !isHit) {
           isHit = result.addWithPaintOffset(
               offset: parentData.offset,
               position: position,
               hitTest: (BoxHitTestResult result, Offset tranformed) {
                 assert(tranformed == position - parentData.offset);
-                return child.hitTest(result, position: tranformed + Offset(_resolvedPadding!.left, 0));
-              }
-          );
+                return child.hitTest(result,
+                    position: tranformed + Offset(_resolvedPadding!.left, 0));
+              });
         }
         if (isHit) {
           setHovered(true);
@@ -944,15 +993,15 @@ class RenderEditableTextLine extends RenderEditableBox implements MouseTrackerAn
 
   @override
   PointerEnterEventListener? get onEnter => (event) {
-    // do nothing : hover handled on hitTestChildren
-  };
+        // do nothing : hover handled on hitTestChildren
+      };
 
   @override
   PointerExitEventListener? get onExit => (event) {
-    if (_button != null) {
-      setHovered(false);
-    }
-  };
+        if (_buttonOption != null) {
+          setHovered(false);
+        }
+      };
 
   @override
   bool get validForMouseTracker => true;
@@ -987,7 +1036,8 @@ class _TextLineElement extends RenderObjectElement {
   @override
   void mount(Element? parent, dynamic newSlot) {
     super.mount(parent, newSlot);
-    _mountChild(widget.button, TextLineSlot.BUTTON);
+    _mountChild(widget.buttonAdd, TextLineSlot.BUTTON_ADD);
+    _mountChild(widget.buttonOption, TextLineSlot.BUTTON_OPTION);
     _mountChild(widget.leading, TextLineSlot.LEADING);
     _mountChild(widget.body, TextLineSlot.BODY);
   }
@@ -996,7 +1046,8 @@ class _TextLineElement extends RenderObjectElement {
   void update(EditableTextLine newWidget) {
     super.update(newWidget);
     assert(widget == newWidget);
-    _updateChild(widget.button, TextLineSlot.BUTTON);
+    _updateChild(widget.buttonAdd, TextLineSlot.BUTTON_ADD);
+    _updateChild(widget.buttonOption, TextLineSlot.BUTTON_OPTION);
     _updateChild(widget.leading, TextLineSlot.LEADING);
     _updateChild(widget.body, TextLineSlot.BODY);
   }
@@ -1035,8 +1086,11 @@ class _TextLineElement extends RenderObjectElement {
 
   void _updateRenderObject(RenderBox? child, TextLineSlot? slot) {
     switch (slot) {
-      case TextLineSlot.BUTTON:
-        renderObject.setButton(child);
+      case TextLineSlot.BUTTON_ADD:
+        renderObject.setButtonAdd(child);
+        break;
+      case TextLineSlot.BUTTON_OPTION:
+        renderObject.setButtonOption(child);
         break;
       case TextLineSlot.LEADING:
         renderObject.setLeading(child);

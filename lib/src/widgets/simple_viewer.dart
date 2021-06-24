@@ -208,7 +208,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             _cursorCont,
             indentLevelCounts,
             _handleCheckboxTap,
-          onBlockButtonTap: (_, __, ___) {},
+          onBlockButtonOptionTap: (_, __, ___) {},
         );
         result.add(editableTextBlock);
       } else {
@@ -241,6 +241,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
+        null,
         null,
         null,
         textLine,
