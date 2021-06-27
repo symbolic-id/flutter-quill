@@ -42,4 +42,8 @@ class Assets {
   static const String CIRCLE_IMAGE = '$_FOLDER''ic_circle_image_40px''$_PNG';
 
   static const String CHECK_12PX = '$_FOLDER''ic_check_12px''$_PNG';
+
+  static const String HASHTAG_14PX = '$_FOLDER''ic_hashtag_14px''$_PNG';
+  static const String IMAGE_14PX = '$_FOLDER''ic_image_14px''$_PNG';
+  static const String STICKER_HAPPY_14PX = '$_FOLDER''ic_sticker_happy_14px''$_PNG';
 }

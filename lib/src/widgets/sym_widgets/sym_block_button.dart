@@ -7,7 +7,7 @@ import 'package:flutter_quill/utils/assets.dart';
 
 enum _ButtonType { ADD, OPTION }
 
-class SymBlockButton extends StatelessWidget {
+class SymBlockButton extends StatefulWidget {
   const SymBlockButton({
     required this.width,
     required this.onTap,
@@ -47,25 +47,40 @@ class SymBlockButton extends StatelessWidget {
   final _ButtonType type;
 
   @override
+  _SymBlockButtonState createState() => _SymBlockButtonState();
+}
+
+class _SymBlockButtonState extends State<SymBlockButton> {
+  var _onHover = false;
+
+  @override
   Widget build(BuildContext context) {
     return ButtonClipper(
         child: Material(
-          child: InkWell(
-            onTap: () {
-              onTap(offset, editableTextLineKey);
-            },
-            splashColor: SymColors.hoverColor,
-            child: SymAssetImage(
-              type == _ButtonType.ADD ? Assets.CIRCLE_ADD : Assets.MORE,
-              size: const Size(22, 22),
-            ),
-          ),
-        )
-    );
+      child: InkWell(
+        onTap: () {
+          widget.onTap(widget.offset, widget.editableTextLineKey);
+        },
+        onHover: (hovered) {
+          setState(() {
+            _onHover = hovered;
+          });
+        },
+        splashColor: SymColors.hoverColor,
+        child: SymAssetImage(
+          widget.type == _ButtonType.ADD ? Assets.CIRCLE_ADD : Assets.MORE,
+          size: const Size(22, 22),
+          fit: BoxFit.fill,
+          color: _onHover
+              ? SymColors.light_bluePrimary
+              : SymColors.light_textQuaternary,
+        ),
+      ),
+    ));
   }
 
   Widget ButtonClipper({required Widget child}) {
-    if (type == _ButtonType.ADD) {
+    if (widget.type == _ButtonType.ADD) {
       return ClipOval(
         child: child,
       );

@@ -71,6 +71,9 @@ flutter:
     - packages/flutter_quill/assets/icons/ic_circle_image_40px.png
     - packages/flutter_quill/assets/icons/ic_check_12px.png
     - packages/flutter_quill/assets/icons/ic_circle_add_20_px.png
+    - packages/flutter_quill/assets/icons/ic_hashtag_14px.png
+    - packages/flutter_quill/assets/icons/ic_image_14px.png
+    - packages/flutter_quill/assets/icons/ic_sticker_happy_14px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

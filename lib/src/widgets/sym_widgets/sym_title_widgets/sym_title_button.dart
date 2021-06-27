@@ -1,14 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/src/utils/color.dart';
-import 'package:flutter_quill/src/widgets/common_widgets/gap.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_asset_image.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_text.dart';
-import 'package:flutter_quill/utils/assets.dart';
+
+import '../../../../utils/assets.dart';
+import '../../../utils/color.dart';
+import '../../common_widgets/gap.dart';
+import '../sym_asset_image.dart';
+import '../sym_text.dart';
 
 enum _ButtonType { TAG, COVER, STICKER }
 
 class SymTitleButton extends StatefulWidget {
+  const SymTitleButton(this.type);
+
+  factory SymTitleButton.typeTag() => const SymTitleButton(_ButtonType.TAG);
+
+  factory SymTitleButton.typeCover() => const SymTitleButton(_ButtonType.COVER);
+
+  factory SymTitleButton.typeSticker() =>
+      const SymTitleButton(_ButtonType.STICKER);
+
   static const buttonHeight = 26.0;
 
   final _ButtonType type;
@@ -23,7 +32,7 @@ class _SymTitleButton extends State<SymTitleButton> {
   @override
   Widget build(BuildContext context) {
     final buttonRRadius = BorderRadius.circular(32);
-    
+
     final String assetName;
     final String label;
     if (widget.type == _ButtonType.TAG) {
@@ -36,6 +45,8 @@ class _SymTitleButton extends State<SymTitleButton> {
       assetName = Assets.STICKER_HAPPY_14PX;
       label = 'tambah stiker';
     }
+    final activeColor = SymColors.light_bluePrimary;
+    final inactiveColor = SymColors.light_textQuaternary;
 
     return ClipRRect(
       borderRadius: buttonRRadius,
@@ -48,16 +59,25 @@ class _SymTitleButton extends State<SymTitleButton> {
             });
           },
           splashColor: SymColors.hoverColor,
+          hoverColor: SymColors.hoverColor,
           child: Ink(
-            color: ,
-            child: Row(
-              children: [
-                SymAssetImage(
-                  assetName,
-                ),
-                const GapH(4),
-                SymText(label, size: 14, color: SymColors.light_textQuaternary,)
-              ],
+            color: SymColors.light_bgSurface1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                  minHeight: SymTitleButton.buttonHeight,
+                  maxHeight: SymTitleButton.buttonHeight),
+              child: Row(
+                children: [
+                  SymAssetImage(
+                    assetName,
+                    size: const Size(14, 14),
+                    color: _onHover ? activeColor : inactiveColor,
+                  ),
+                  const GapH(4),
+                  SymText(label,
+                      size: 14, color: _onHover ? activeColor : inactiveColor)
+                ],
+              ),
             ),
           ),
         ),

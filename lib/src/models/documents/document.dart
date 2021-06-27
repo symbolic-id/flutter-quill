@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../../flutter_quill.dart';
@@ -13,7 +14,6 @@ import 'nodes/embed.dart';
 import 'nodes/line.dart';
 import 'nodes/node.dart';
 import 'style.dart';
-import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
 
 /// The rich text document
 class Document {
@@ -335,7 +335,10 @@ class Document {
     assert((doc.last.data as String).endsWith('\n'));
 
     var offset = 0;
-    for (final op in doc.toList()) {
+    print('LL:: _loadDocument :::::::::::::::::::::::::::::');
+    for (var i = 0; i < doc.toList().length; i++) {
+      final op = doc.toList().elementAt(i);
+      print('LL:: _loadDocument op : ${op.toJson()}');
       if (!op.isInsert) {
         throw ArgumentError.value(doc,
             'Document can only contain insert operations but ${op.key} found.');

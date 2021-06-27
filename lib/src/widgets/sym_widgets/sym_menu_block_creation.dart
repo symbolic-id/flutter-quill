@@ -12,7 +12,7 @@ import '../common_widgets/gap.dart';
 import '../controller.dart';
 import '../editor.dart';
 import 'sym_asset_image.dart';
-import 'sym_block_option_button.dart';
+import 'sym_block_button.dart';
 import 'sym_text.dart';
 
 class _MenuBlockItem {
@@ -321,7 +321,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _headerBlockType('[$itemStartIndex] $blockType'),
+        _headerBlockType(blockType),
         ...items
             .mapIndexed((e, i) => _buildItem(e, itemStartIndex + i))
             .toList(),
@@ -382,8 +382,8 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SymText(
-                      '$index: $title',
-                      textSize: titleSize,
+                      title,
+                      size: titleSize,
                       bold: true,
                     ),
                     if (desc != null)
@@ -399,7 +399,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
                             ),
                           SymText(
                             desc,
-                            textColor: SymColors.light_textTertiary,
+                            color: SymColors.light_textTertiary,
                           )
                         ],
                       ),
@@ -408,7 +408,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
                 if (shortcutChar != null)
                   SymText(
                     shortcutChar,
-                    textColor: SymColors.light_bluePrimary,
+                    color: SymColors.light_bluePrimary,
                     bold: true,
                   )
               ],
@@ -433,8 +433,8 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
         padding: const EdgeInsets.all(8),
         child: const SymText(
           'No Result',
-          textSize: 14,
-          textColor: SymColors.light_textTertiary,
+          size: 14,
+          color: SymColors.light_textTertiary,
         ),
       ),
     );

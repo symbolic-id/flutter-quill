@@ -7,6 +7,7 @@ class SymAssetImage extends StatelessWidget {
     this.assetName, {
     this.size = _defaultImageSize,
     this.color,
+    this.fit = BoxFit.none,
     Key? key,
   }) : super(key: key);
 
@@ -15,6 +16,7 @@ class SymAssetImage extends StatelessWidget {
   final String assetName;
   final Size size;
   final Color? color;
+  final BoxFit fit;
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,7 @@ class SymAssetImage extends StatelessWidget {
       width: size.width,
       height: size.width,
       color: color,
+      fit: fit,
     );
   }
 }

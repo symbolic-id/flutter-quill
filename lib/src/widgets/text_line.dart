@@ -19,7 +19,7 @@ import 'cursor.dart';
 import 'default_styles.dart';
 import 'delegate.dart';
 import 'proxy.dart';
-import 'sym_widgets/sym_block_option_button.dart';
+import 'sym_widgets/sym_block_button.dart';
 import 'text_selection.dart';
 
 class TextLine extends StatelessWidget {

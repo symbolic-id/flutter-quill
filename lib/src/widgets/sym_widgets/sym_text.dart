@@ -6,16 +6,16 @@ class SymText extends StatelessWidget {
   const SymText(
       this.text,
       {
-        this.textSize = 12,
-        this.textColor = SymColors.light_textPrimary,
+        this.size = 12,
+        this.color = SymColors.light_textPrimary,
         this.bold = false,
         this.align,
         Key? key
       }): super(key: key);
 
   final String text;
-  final double textSize;
-  final Color textColor;
+  final double size;
+  final Color color;
   final bool bold;
   final TextAlign? align;
 
@@ -26,8 +26,8 @@ class SymText extends StatelessWidget {
       style: GoogleFonts.ibmPlexSans()
       .merge(
         TextStyle(
-          fontSize: textSize,
-          color: textColor,
+          fontSize: size,
+          color: color,
           fontWeight: bold ? FontWeight.bold : FontWeight.normal,
         )
       ),

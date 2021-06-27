@@ -1,13 +1,15 @@
 import 'dart:math' as math;
 
-import '../../models/documents/attribute.dart';
-import '../../models/documents/nodes/container.dart';
-import '../../models/documents/nodes/embed.dart';
-import '../../models/documents/nodes/leaf.dart';
-import '../../models/documents/nodes/line.dart';
-import '../../models/documents/nodes/node.dart';
-import '../../models/documents/style.dart';
-import '../../models/quill_delta.dart';
+import 'package:flutter_quill/src/models/documents/nodes/block.dart';
+
+import '../../../models/documents/attribute.dart';
+import '../../../models/documents/nodes/container.dart';
+import '../../../models/documents/nodes/embed.dart';
+import '../../../models/documents/nodes/leaf.dart';
+import '../../../models/documents/nodes/line.dart';
+import '../../../models/documents/nodes/node.dart';
+import '../../../models/documents/style.dart';
+import '../../../models/quill_delta.dart';
 
 class SymTitle extends Container<Leaf?> {
   @override
@@ -17,17 +19,16 @@ class SymTitle extends Container<Leaf?> {
   int get length => super.length + 1;
 
   Line? get nextLine {
-    return null;
-    // if (!isLast) {
-    //   return next is Block ? (next as Block).first as Line? : next as Line?;
-    // }
-    //
-    // if (parent!.isLast) {
-    //   return null;
-    // }
-    // return parent!.next is Block
-    //     ? (parent!.next as Block).first as Line?
-    //     : parent!.next as Line?;
+    if (!isLast) {
+      return next is Block ? (next as Block).first as Line? : next as Line?;
+    }
+
+    if (parent!.isLast) {
+      return null;
+    }
+    return parent!.next is Block
+        ? (parent!.next as Block).first as Line?
+        : parent!.next as Line?;
   }
 
   @override

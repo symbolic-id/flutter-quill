@@ -2,13 +2,13 @@ import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
 
-import '../../models/documents/attribute.dart';
-import '../../models/documents/nodes/leaf.dart' as leaf;
-import '../../models/documents/nodes/node.dart';
-import '../../models/documents/style.dart';
-import '../../utils/color.dart';
-import '../default_styles.dart';
-import '../proxy.dart';
+import '../../../models/documents/attribute.dart';
+import '../../../models/documents/nodes/leaf.dart' as leaf;
+import '../../../models/documents/nodes/node.dart';
+import '../../../models/documents/style.dart';
+import '../../../utils/color.dart';
+import '../../default_styles.dart';
+import '../../proxy.dart';
 import 'sym_title.dart';
 
 class SymTextTitle extends StatelessWidget {
@@ -65,6 +65,7 @@ class SymTextTitle extends StatelessWidget {
     };
 
     textStyle = textStyle.merge(m[header] ?? defaultStyles.paragraph!.style);
+    // textStyle = textStyle.merge(const TextStyle(color: SymColors.light_bluePrimary));
 
     return TextSpan(children: children, style: textStyle);
   }

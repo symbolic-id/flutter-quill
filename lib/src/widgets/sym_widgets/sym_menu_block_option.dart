@@ -7,7 +7,7 @@ import '../../../utils/assets.dart';
 import '../../models/documents/nodes/block.dart';
 import '../../utils/app_constant.dart';
 import '../../utils/color.dart';
-import 'sym_block_option_button.dart';
+import 'sym_block_button.dart';
 import '../common_widgets/gap.dart';
 import 'sym_text.dart';
 import '../text_line.dart';
@@ -261,7 +261,7 @@ class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
               ),
               const GapH(19),
               SymText(text,
-                  textColor: enabled
+                  color: enabled
                       ? SymColors.light_textPrimary
                       : SymColors.light_line)
             ],

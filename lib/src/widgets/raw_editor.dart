@@ -11,15 +11,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
 import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_editable_text_title.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_creation.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_option.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_text_title.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
 import '../models/documents/document.dart';
 import '../models/documents/nodes/block.dart';
 import '../models/documents/nodes/line.dart';
-import 'sym_widgets/sym_block_option_button.dart';
+import 'sym_widgets/sym_block_button.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'default_styles.dart';
@@ -274,7 +278,11 @@ class RawEditorState extends EditorState
     final result = <Widget>[];
     final indentLevelCounts = <int, int>{};
     for (final node in doc.root.children) {
-      if (node is Line) {
+      if (node is SymTitle) {
+        final editableTextTitle =
+            _getSymEditableTextTitleFromNode(node, context);
+        result.add(editableTextTitle);
+      } else if (node is Line) {
         final editableTextLine = _getEditableTextLineFromNode(node, context);
         result.add(editableTextLine);
       } else if (node is Block) {
@@ -341,6 +349,32 @@ class RawEditorState extends EditorState
         textLine,
         _getIntentWidth(node),
         _getVerticalSpacingForLine(node, _styles),
+        _textDirection,
+        widget.controller.selection,
+        widget.selectionColor,
+        widget.enableInteractiveSelection,
+        _hasFocus,
+        MediaQuery.of(context).devicePixelRatio,
+        _cursorCont);
+    return editableTextLine;
+  }
+
+  SymEditableTextTitle _getSymEditableTextTitleFromNode(
+      SymTitle node, BuildContext context) {
+    final textTitle = SymTextTitle(
+      title: node,
+      textDirection: _textDirection,
+      styles: _styles!,
+    );
+    final editableTextTitleKey = GlobalKey();
+    final editableTextLine = SymEditableTextTitle(
+        editableTextTitleKey,
+        node,
+        SymTitleButton.typeTag(),
+        SymTitleButton.typeCover(),
+        SymTitleButton.typeSticker(),
+        textTitle,
+        _styles!.h1!.verticalSpacing,
         _textDirection,
         widget.controller.selection,
         widget.selectionColor,
