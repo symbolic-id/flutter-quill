@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../../flutter_quill.dart';
 import '../quill_delta.dart';
 import '../rules/rule.dart';
 import 'attribute.dart';
@@ -68,6 +70,57 @@ class Document {
     return delta;
   }
 
+  void duplicateLine(int index, Line line, Attribute? blockAttr) {
+    var _index = index;
+
+    if (line.nextLine == null) {
+      insert(_index, '\n');
+      _index++;
+    }
+
+    final delta = line.toDelta();
+    for (final op in delta.toList()) {
+      final style = op.attributes != null
+          ? Style.fromJson(op.attributes) : null;
+
+      final data = _normalize(op.data);
+      _root.insert(_index, data, style);
+      _index += op.length!;
+      _delta = _root.toDelta();
+    }
+  }
+
+  int insertLine(Line fromLine, Attribute? blockAttr) {
+    var index = fromLine.documentOffset + fromLine.length;
+
+    if (fromLine.nextLine == null) {
+      index--;
+      insert(index, '\n');
+      index++;
+    }
+    final newLine = Line();
+
+    Block? newBlock;
+    if (blockAttr?.isBlock == true) {
+      newBlock = Block()
+        ..add(newLine)
+        ..applyAttribute(blockAttr!);
+    }
+
+    final delta = newBlock?.toDelta() ?? newLine.toDelta();
+    for (final op in delta.toList()) {
+      final style = op.attributes != null
+          ? Style.fromJson(op.attributes) : null;
+
+      final data = _normalize(op.data);
+      _root.insert(index, data, style);
+      index += op.length!;
+      _delta = _root.toDelta();
+    }
+
+    return index - 1;
+  }
+
   Delta delete(int index, int len) {
     assert(index >= 0 && len > 0);
     final delta = _rules.apply(RuleType.DELETE, this, index, len: len);
@@ -119,6 +172,32 @@ class Document {
     return delta;
   }
 
+  /* Get string from entire line by text index */
+  String getTextInLineFromTextIndex(int index) {
+
+    var delta = Delta()..retain(index);
+    final itr = DeltaIterator(toDelta())..skip(index);
+
+    Operation op;
+
+    var text = '';
+
+    while (itr.hasNext) {
+      op = itr.next();
+
+      final _text = op.data is String ? (op.data as String?)! : '';
+      final lineBreak = _text.indexOf('\n');
+      if (lineBreak < 0) {
+        delta.retain(op.length!);
+        text = '$text${op.data}';
+        continue;
+      }
+      text = '$text${(op.data as String).substring(0, _text.indexOf('\n'))}';
+      break;
+    }
+    return text;
+  }
+
   Style collectStyle(int index, int len) {
     final res = queryChild(index);
     return (res.node as Line).collectStyle(res.offset, len);
@@ -131,6 +210,15 @@ class Document {
     }
     final block = res.node as Block;
     return block.queryChild(res.offset, true);
+  }
+
+  Line getLineFromTextIndex(int textIndex) {
+    final res = _root.queryChild(textIndex, true);
+    if (res.node is Line) {
+      return res.node as Line;
+    }
+    final block = res.node as Block;
+    return block.queryChild(res.offset, true).node as Line;
   }
 
   void compose(Delta delta, ChangeSource changeSource,
@@ -247,7 +335,8 @@ class Document {
     assert((doc.last.data as String).endsWith('\n'));
 
     var offset = 0;
-    for (final op in doc.toList()) {
+    for (var i = 0; i < doc.toList().length; i++) {
+      final op = doc.toList().elementAt(i);
       if (!op.isInsert) {
         throw ArgumentError.value(doc,
             'Document can only contain insert operations but ${op.key} found.');

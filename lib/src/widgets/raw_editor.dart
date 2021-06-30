@@ -9,12 +9,22 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
+import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_editable_text_title.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_creation.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_option.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_text_title.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
 import '../models/documents/document.dart';
 import '../models/documents/nodes/block.dart';
 import '../models/documents/nodes/line.dart';
+import 'sym_widgets/sym_block_button.dart';
 import 'controller.dart';
 import 'cursor.dart';
 import 'default_styles.dart';
@@ -69,7 +79,7 @@ class RawEditor extends StatefulWidget {
   final ScrollController scrollController;
   final bool scrollable;
   final double scrollBottomInset;
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
   final bool readOnly;
   final String? placeholder;
   final ValueChanged<String>? onLaunchUrl;
@@ -122,6 +132,7 @@ class RawEditorState extends EditorState
   // Focus
   bool _didAutoFocus = false;
   FocusAttachment? _focusAttachment;
+
   bool get _hasFocus => widget.focusNode.hasFocus;
 
   DefaultStyles? _styles;
@@ -133,9 +144,14 @@ class RawEditorState extends EditorState
 
   TextDirection get _textDirection => Directionality.of(context);
 
+  OverlayEntry? _menuCreation;
+
+  final titleFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
+    final containerSize = MediaQuery.of(context).size;
     _focusAttachment!.reparent();
     super.build(context);
 
@@ -146,6 +162,9 @@ class RawEditorState extends EditorState
       _doc = Document.fromJson(jsonDecode(
           '[{"attributes":{"placeholder":true},"insert":"${widget.placeholder}\\n"}]'));
     }
+
+    final defaultPadding = EdgeInsets.only(
+        left: containerSize.width * 0.2, right: containerSize.width * 0.2);
 
     Widget child = CompositedTransformTarget(
       link: _toolbarLayerLink,
@@ -160,7 +179,7 @@ class RawEditorState extends EditorState
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _handleSelectionChanged,
           scrollBottomInset: widget.scrollBottomInset,
-          padding: widget.padding,
+          padding: widget.padding ?? defaultPadding,
           children: _buildChildren(_doc, context),
         ),
       ),
@@ -175,7 +194,25 @@ class RawEditorState extends EditorState
         child: SingleChildScrollView(
           controller: _scrollController,
           physics: widget.scrollPhysics,
-          child: child,
+          child: Column(
+            children: [
+              SymTitleKalpataru(
+                focusNode: titleFocusNode,
+                padding: EdgeInsets.only(
+                    left: widget.padding?.horizontal ??
+                        defaultPadding.left + SymBlockButton.buttonWidth * 2,
+                    right: widget.padding?.horizontal ?? defaultPadding.right,
+                    top: 82),
+                onSubmitted: () {
+                  widget.controller.updateSelection(
+                      const TextSelection.collapsed(offset: 0),
+                      ChangeSource.LOCAL);
+                  widget.controller.notifyListeners();
+                },
+              ),
+              child,
+            ],
+          ),
         ),
       );
     }
@@ -221,6 +258,43 @@ class RawEditorState extends EditorState
     }
   }
 
+  Future<void> _handleBlockOptionButtonTap(
+      int textIndex, GlobalKey key, bool isEmbed) async {
+    if (!widget.readOnly) {
+      final box =
+          key.currentContext!.findRenderObject() as RenderEditableTextLine;
+
+      final boxOffset = box.localToGlobal(Offset.zero);
+
+      FocusScope.of(context).unfocus();
+
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        getRenderEditor()!.selectLine(boxOffset, true);
+      });
+
+      await Navigator.push(
+        context,
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+              secondaryAnimation =
+                  Tween(begin: 1.0, end: 0.0).animate(animation);
+              return FadeTransition(
+                opacity: animation,
+                child: SymMenuBlockOption(
+                  renderEditableTextLine: box,
+                  controller: widget.controller,
+                  isEmbeddable: isEmbed,
+                  textIndex: textIndex,
+                ),
+              );
+            },
+            fullscreenDialog: false,
+            opaque: false),
+      );
+    }
+  }
+
   List<Widget> _buildChildren(Document doc, BuildContext context) {
     final result = <Widget>[];
     final indentLevelCounts = <int, int>{};
@@ -247,6 +321,12 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
+          onBlockButtonAddTap: (selectionIndex) {
+            _showMenuBlockCreation(selectionIndex: selectionIndex);
+          },
+          onBlockButtonOptionTap: (textOffset, btnKey, isEmbed) {
+            _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
+          },
         );
         result.add(editableTextBlock);
       } else {
@@ -264,11 +344,27 @@ class RawEditorState extends EditorState
       embedBuilder: widget.embedBuilder,
       styles: _styles!,
     );
+    final editableTextLineKey = GlobalKey();
     final editableTextLine = EditableTextLine(
+        editableTextLineKey,
         node,
+        SymBlockButton.typeAdd(editableTextLineKey, node.offset,
+            (textOffset, _) {
+          _showMenuBlockCreation(selectionIndex: textOffset);
+        }),
+        SymBlockButton.typeOption(editableTextLineKey, node.offset,
+            (textOffset, btnKey) {
+          bool isEmbed;
+          if (node.children.isEmpty) {
+            isEmbed = false;
+          } else {
+            isEmbed = (node.children.first as Leaf).value is Embeddable;
+          }
+          _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
+        }),
         null,
         textLine,
-        0,
+        _getIntentWidth(node),
         _getVerticalSpacingForLine(node, _styles),
         _textDirection,
         widget.controller.selection,
@@ -278,6 +374,16 @@ class RawEditorState extends EditorState
         MediaQuery.of(context).devicePixelRatio,
         _cursorCont);
     return editableTextLine;
+  }
+
+  double _getIntentWidth(Line line) {
+    final attrs = line.style.attributes;
+
+    final indent = attrs[Attribute.indent.key];
+    if (indent != null && indent.value != null) {
+      return 16.0 * indent.value;
+    }
+    return 0;
   }
 
   Tuple2<double, double> _getVerticalSpacingForLine(
@@ -309,8 +415,10 @@ class RawEditorState extends EditorState
       return defaultStyles!.code!.verticalSpacing;
     } else if (attrs.containsKey(Attribute.indent.key)) {
       return defaultStyles!.indent!.verticalSpacing;
+    } else if (attrs.containsKey(Attribute.list.key)) {
+      return defaultStyles!.lists!.verticalSpacing;
     }
-    return defaultStyles!.lists!.verticalSpacing;
+    return Tuple2(0, 0);
   }
 
   @override
@@ -332,11 +440,15 @@ class RawEditorState extends EditorState
       tickerProvider: this,
     );
 
-    _keyboardListener = KeyboardListener(
-      handleCursorMovement,
-      handleShortcut,
-      handleDelete,
+    final menuCallback = MenuBlockCreationCallback(
+      isVisible: () => _menuCreation != null,
+      onShow: () {
+        _showMenuBlockCreation();
+      },
     );
+
+    _keyboardListener = KeyboardListener(
+        handleCursorMovement, handleShortcut, handleDelete, menuCallback);
 
     if (defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||
@@ -510,20 +622,20 @@ class RawEditorState extends EditorState
       _selectionOverlay = null;
 
       _selectionOverlay = EditorTextSelectionOverlay(
-        textEditingValue,
-        false,
-        context,
-        widget,
-        _toolbarLayerLink,
-        _startHandleLayerLink,
-        _endHandleLayerLink,
-        getRenderEditor(),
-        widget.selectionCtrls,
-        this,
-        DragStartBehavior.start,
-        null,
-        _clipboardStatus,
-      );
+          textEditingValue,
+          false,
+          context,
+          widget,
+          _toolbarLayerLink,
+          _startHandleLayerLink,
+          _endHandleLayerLink,
+          getRenderEditor(),
+          widget.selectionCtrls,
+          this,
+          DragStartBehavior.start,
+          null,
+          _clipboardStatus,
+          quillController: widget.controller);
       _selectionOverlay!.handlesVisible = _shouldShowSelectionHandles();
       _selectionOverlay!.showHandles();
     }
@@ -587,6 +699,34 @@ class RawEditorState extends EditorState
           );
         }
       }
+    });
+  }
+
+  void _showMenuBlockCreation({int? selectionIndex}) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _menuCreation = OverlayEntry(
+          builder: (context) => SymMenuBlockCreation(
+                widget.controller,
+                getRenderEditor()!,
+                toolbarLayerLink: _toolbarLayerLink,
+                selectionIndex: selectionIndex,
+                onDismiss: () {
+                  _menuCreation?.remove();
+                  _menuCreation = null;
+                  widget.focusNode.requestFocus();
+                },
+                onSelected: (attribute) {
+                  widget.focusNode.requestFocus();
+                  _menuCreation?.remove();
+                  _menuCreation = null;
+                  final fromLine = widget.controller.document
+                      .getLineFromTextIndex(selectionIndex ??
+                          widget.controller.selection.extentOffset);
+                  widget.controller.insertLine(fromLine, attribute,
+                      fromSlashCommand: selectionIndex == null);
+                },
+              ));
+      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
     });
   }
 
@@ -662,9 +802,11 @@ class RawEditorState extends EditorState
     // toolbar: copy, paste, select, cut. It might also provide additional
     // functionality depending on the browser (such as translate). Due to this
     // we should not show a Flutter toolbar for the editable text elements.
-    if (kIsWeb) {
-      return false;
-    }
+
+    // if (kIsWeb) {
+    //   return false;
+    // }
+
     if (_selectionOverlay == null || _selectionOverlay!.toolbar != null) {
       return false;
     }

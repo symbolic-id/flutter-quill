@@ -1,3 +1,4 @@
+import 'package:app/pages/kalpataru_demo_page/kalpataru_page.dart';
 import 'package:flutter/material.dart';
 
 import 'pages/home_page.dart';
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
         // closer together (more dense) than on mobile platforms.
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomePage(),
+      // home: HomePage(),
+      home: KalpataruPage(),
     );
   }
 }

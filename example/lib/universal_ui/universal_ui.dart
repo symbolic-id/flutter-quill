@@ -32,7 +32,7 @@ Widget defaultEmbedBuilderWeb(BuildContext context, Embed node) {
       final size = MediaQuery.of(context).size;
       UniversalUI().platformViewRegistry.registerViewFactory(
           imageUrl, (viewId) => html.ImageElement()..src = imageUrl);
-      return Padding(
+      return /*Padding(
         padding: EdgeInsets.only(
           right: ResponsiveWidget.isMediumScreen(context)
               ? size.width * 0.5
@@ -40,12 +40,12 @@ Widget defaultEmbedBuilderWeb(BuildContext context, Embed node) {
                   ? size.width * 0.75
                   : size.width * 0.2,
         ),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.45,
-          child: HtmlElementView(
+        child:*/ SizedBox(
+          height: MediaQuery.of(context).size.height * 0.4,
+          child: /*HtmlElementView(
             viewType: imageUrl,
-          ),
-        ),
+          ),*/Image.network(imageUrl)
+        // ),
       );
 
     default:

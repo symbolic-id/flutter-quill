@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/widgets/keyboard_listener.dart';
 
 enum InputShortcut { CUT, COPY, PASTE, SELECT_ALL }
 
@@ -9,12 +10,28 @@ typedef CursorMoveCallback = void Function(
 typedef InputShortcutCallback = void Function(InputShortcut? shortcut);
 typedef OnDeleteCallback = void Function(bool forward);
 
+class MenuBlockCreationCallback {
+  const MenuBlockCreationCallback({
+    required this.isVisible,
+    required this.onShow,
+  });
+
+  final bool Function() isVisible;
+  final Function onShow;
+}
+
 class KeyboardListener {
-  KeyboardListener(this.onCursorMove, this.onShortcut, this.onDelete);
+  KeyboardListener(
+      this.onCursorMove,
+      this.onShortcut,
+      this.onDelete,
+      this.menuBlockCreationCallback,
+      );
 
   final CursorMoveCallback onCursorMove;
   final InputShortcutCallback onShortcut;
   final OnDeleteCallback onDelete;
+  final MenuBlockCreationCallback menuBlockCreationCallback;
 
   static final Set<LogicalKeyboardKey> _moveKeys = <LogicalKeyboardKey>{
     LogicalKeyboardKey.arrowRight,
@@ -65,7 +82,34 @@ class KeyboardListener {
 
   KeyEventResult handleRawKeyEvent(RawKeyEvent event) {
     if (kIsWeb) {
-      // On web platform, we ignore the key because it's already processed.
+      if (menuBlockCreationCallback.isVisible()) {
+        if (event.logicalKey == LogicalKeyboardKey.abort ||
+            event.logicalKey == LogicalKeyboardKey.escape ||
+            event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+            event.logicalKey == LogicalKeyboardKey.arrowRight) {
+          return KeyEventResult.handled;
+        } else if (event.logicalKey == LogicalKeyboardKey.enter) {
+          return KeyEventResult.handled;
+        } else if (event is RawKeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+            return KeyEventResult.handled;
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+            return KeyEventResult.handled;
+          }
+        }
+      } else {
+        if (
+            event is RawKeyDownEvent &&
+            !event.isControlPressed &&
+            !event.isMetaPressed &&
+            !event.isAltPressed &&
+            !event.isShiftPressed &&
+            event.logicalKey == LogicalKeyboardKey.slash
+        ) {
+          menuBlockCreationCallback.onShow();
+        }
+      }
+
       return KeyEventResult.ignored;
     }
 

@@ -28,6 +28,7 @@ class ResolveLineFormatRule extends FormatRule {
 
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(document)..skip(index);
+
     Operation op;
     for (var cur = 0; cur < len! && itr.hasNext; cur += op.length!) {
       op = itr.next(len - cur);
@@ -92,6 +93,14 @@ class FormatLinkAtCaretPositionRule extends FormatRule {
     delta..retain(beg)..retain(retain!, attribute.toJson());
     return delta;
   }
+
+  // /* Get delta by index */
+  // Delta getDelta(Delta document, int index) {
+  //   final delta = Delta();
+  //   final itr = DeltaIterator(document);
+  //
+  //
+  // }
 }
 
 class ResolveInlineFormatRule extends FormatRule {

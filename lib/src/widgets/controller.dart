@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_quill/src/models/documents/nodes/line.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -179,6 +180,27 @@ class QuillController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void formatLine(Line line, Attribute attribute) {
+    document.format(line.documentOffset, line.length - 1, attribute);
+  }
+
+  void insertLine(Line fromLine, Attribute? attribute,
+      {bool fromSlashCommand = false}) {
+    if (fromSlashCommand) {
+      final currentSelection = selection.extentOffset;
+      document.delete(currentSelection - 1, 1);
+      _updateSelection(
+          TextSelection(
+              baseOffset: currentSelection - 1,
+              extentOffset: currentSelection - 1),
+          ChangeSource.LOCAL);
+    }
+    final result = document.insertLine(fromLine, attribute);
+    _updateSelection(TextSelection(baseOffset: result, extentOffset: result),
+        ChangeSource.LOCAL);
+    notifyListeners();
+  }
+
   void compose(Delta delta, TextSelection textSelection, ChangeSource source) {
     if (delta.isNotEmpty) {
       document.compose(delta, source);
@@ -230,4 +252,6 @@ class QuillController extends ChangeNotifier {
         baseOffset: math.min(selection.baseOffset, end),
         extentOffset: math.min(selection.extentOffset, end));
   }
+
+  void showMenuBlockCreation() {}
 }

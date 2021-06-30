@@ -107,6 +107,14 @@ class Attribute<T> {
     Attribute.indent.key,
   });
 
+  static final List<Attribute> blockKeysExceptIndent = [
+    Attribute.header,
+    Attribute.align,
+    Attribute.list,
+    Attribute.codeBlock,
+    Attribute.blockQuote,
+  ];
+
   static Attribute<int?> get h1 => HeaderAttribute(level: 1);
 
   static Attribute<int?> get h2 => HeaderAttribute(level: 2);
@@ -162,6 +170,7 @@ class Attribute<T> {
   bool get isInline => scope == AttributeScope.INLINE;
 
   bool get isBlockExceptHeader => blockKeysExceptHeader.contains(key);
+  bool get isBlock => blockKeys.contains(key);
 
   Map<String, dynamic> toJson() => <String, dynamic>{key: value};
 

@@ -22,6 +22,7 @@ dependencies:
   tuple: ^2.0.0
   url_launcher: ^6.0.2
   pedantic: ^1.11.0
+  google_fonts: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -30,11 +31,48 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 # The following section is specific to Flutter.
-flutter: null
-# To add assets to your package, add an assets section, like this:
-# assets:
-#   - images/a_dot_burr.jpeg
-#   - images/a_dot_ham.jpeg
+flutter:
+  uses-material-design: true
+  assets:
+    - packages/flutter_quill/assets/icons/ic_more_20px.png
+    - packages/flutter_quill/assets/icons/ic_copy_18px.png
+    - packages/flutter_quill/assets/icons/ic_duplicate_18px.png
+    - packages/flutter_quill/assets/icons/ic_indent_left_active_18px.png
+    - packages/flutter_quill/assets/icons/ic_indent_right_active_18px.png
+    - packages/flutter_quill/assets/icons/ic_trash_18px.png
+    - packages/flutter_quill/assets/icons/ic_h3_18px.png
+    - packages/flutter_quill/assets/icons/ic_h2_18px.png
+    - packages/flutter_quill/assets/icons/ic_h1_18px.png
+    - packages/flutter_quill/assets/icons/ic_text_normal_18px.png
+    - packages/flutter_quill/assets/icons/ic_todo_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_numbering_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_bullet_list_18px.png
+    - packages/flutter_quill/assets/icons/ic_format_bold_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_inlinecode_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_italic_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_strikethrough_20px.png
+    - packages/flutter_quill/assets/icons/ic_circle_clock_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_date_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_divider_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_embed_link_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_bullet_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_code_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h1_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h2_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_h3_10px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_normal_text_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_number_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_quote_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_reference_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_tag_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_format_todo_list_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_gif_40px.png
+    - packages/flutter_quill/assets/icons/ic_circle_image_40px.png
+    - packages/flutter_quill/assets/icons/ic_check_12px.png
+    - packages/flutter_quill/assets/icons/ic_circle_add_20_px.png
+    - packages/flutter_quill/assets/icons/ic_hashtag_14px.png
+    - packages/flutter_quill/assets/icons/ic_image_14px.png
+    - packages/flutter_quill/assets/icons/ic_sticker_happy_14px.png
 #
 # For details regarding assets in packages, see
 # https://flutter.dev/assets-and-images/#from-packages

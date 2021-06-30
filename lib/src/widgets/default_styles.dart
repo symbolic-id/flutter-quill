@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
 class QuillStyles extends InheritedWidget {
@@ -94,7 +95,7 @@ class DefaultStyles {
     final baseStyle = defaultTextStyle.style.copyWith(
       fontSize: 16,
       height: 1.3,
-    );
+    ).merge(GoogleFonts.ibmPlexSans());
     const baseSpacing = Tuple2<double, double>(6, 0);
     String fontFamily;
     switch (themeData.platform) {
@@ -187,7 +188,7 @@ class DefaultStyles {
               borderRadius: BorderRadius.circular(2),
             )),
         indent: DefaultTextBlockStyle(
-            baseStyle, baseSpacing, const Tuple2(0, 6), null),
+            baseStyle, const Tuple2(0, 0), const Tuple2(0, 0), null),
         align: DefaultTextBlockStyle(
             baseStyle, const Tuple2(0, 0), const Tuple2(0, 0), null),
         leading: DefaultTextBlockStyle(

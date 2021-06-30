@@ -207,7 +207,10 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             embedBuilder,
             _cursorCont,
             indentLevelCounts,
-            _handleCheckboxTap);
+            _handleCheckboxTap,
+          onBlockButtonAddTap: (_) {},
+          onBlockButtonOptionTap: (_, __, ___) {},
+        );
         result.add(editableTextBlock);
       } else {
         throw StateError('Unreachable.');
@@ -235,8 +238,12 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
       embedBuilder: embedBuilder,
       styles: _styles,
     );
+    final editableTextLineKey = GlobalKey();
     final editableTextLine = EditableTextLine(
+        editableTextLineKey,
         node,
+        null,
+        null,
         null,
         textLine,
         0,

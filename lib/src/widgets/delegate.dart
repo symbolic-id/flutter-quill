@@ -35,9 +35,9 @@ class EditorTextSelectionGestureDetectorBuilder {
     getRenderEditor()!.handleTapDown(details);
 
     final kind = details.kind;
-    shouldShowSelectionToolbar = kind == null ||
-        kind == PointerDeviceKind.touch ||
-        kind == PointerDeviceKind.stylus;
+    // shouldShowSelectionToolbar = kind == null ||
+    //     kind == PointerDeviceKind.touch ||
+    //     kind == PointerDeviceKind.stylus;
   }
 
   void onForcePressStart(ForcePressDetails details) {
@@ -124,7 +124,11 @@ class EditorTextSelectionGestureDetectorBuilder {
     );
   }
 
-  void onDragSelectionEnd(DragEndDetails details) {}
+  void onDragSelectionEnd(DragEndDetails details) {
+    if (shouldShowSelectionToolbar) {
+      getEditor()!.showToolbar();
+    }
+  }
 
   Widget build(HitTestBehavior behavior, Widget child) {
     return EditorTextSelectionGestureDetector(

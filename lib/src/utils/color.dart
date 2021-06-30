@@ -123,3 +123,15 @@ Color stringToColor(String? s) {
   final val = int.parse(hex, radix: 16);
   return Color(val);
 }
+
+class SymColors {
+  static const Color light_bluePrimary = Color(0xFF4267B2);
+  static const Color light_bgWhite = Color(0xFFFFFFFF);
+  static const Color light_line = Color(0xFFE0E0E0);
+  static const Color light_textPrimary = Color(0xFF212121);
+  static const Color light_textTertiary = Color(0xFF757575);
+  static const Color light_textQuaternary = Color(0xFF9E9E9E);
+  static const Color light_bgSurface1 = Color(0xFFF5F5F5);
+
+  static Color hoverColor = light_line;
+}

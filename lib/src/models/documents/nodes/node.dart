@@ -1,5 +1,7 @@
 import 'dart:collection';
 
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
+
 import '../../quill_delta.dart';
 import '../attribute.dart';
 import '../style.dart';

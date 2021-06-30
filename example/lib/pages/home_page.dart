@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
@@ -39,7 +41,7 @@ class _HomePageState extends State<HomePage> {
             document: doc, selection: const TextSelection.collapsed(offset: 0));
       });
     } catch (error) {
-      final doc = Document()..insert(0, 'Empty asset');
+      final doc = Document();//..insert(0, 'Empty asset');
       setState(() {
         _controller = QuillController(
             document: doc, selection: const TextSelection.collapsed(offset: 0));
@@ -73,17 +75,20 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         onKey: (event) {
           if (event.data.isControlPressed && event.character == 'b') {
-            if (_controller!
-                .getSelectionStyle()
-                .attributes
-                .keys
-                .contains('bold')) {
-              _controller!
-                  .formatSelection(Attribute.clone(Attribute.bold, null));
-            } else {
-              _controller!.formatSelection(Attribute.bold);
-            }
+            // if (_controller!
+            //     .getSelectionStyle()
+            //     .attributes
+            //     .keys
+            //     .contains('bold')) {
+            //   _controller!
+            //       .formatSelection(Attribute.clone(Attribute.bold, null));
+            // } else {
+            //   _controller!.formatSelection(Attribute.bold);
+            // }
           }
+          // if (event.character == '/') {
+          //   _controller!.showMenuBlockCreation();
+          // }
         },
         child: _buildWelcomeEditor(context),
       ),
@@ -100,7 +105,6 @@ class _HomePageState extends State<HomePage> {
         readOnly: false,
         placeholder: 'Add content',
         expands: false,
-        padding: EdgeInsets.zero,
         customStyles: DefaultStyles(
           h1: DefaultTextBlockStyle(
               const TextStyle(
@@ -113,7 +117,8 @@ class _HomePageState extends State<HomePage> {
               const Tuple2(0, 0),
               null),
           sizeSmall: const TextStyle(fontSize: 9),
-        ));
+        )
+    );
     if (kIsWeb) {
       quillEditor = QuillEditor(
           controller: _controller!,
@@ -124,7 +129,6 @@ class _HomePageState extends State<HomePage> {
           readOnly: false,
           placeholder: 'Add content',
           expands: false,
-          padding: EdgeInsets.zero,
           customStyles: DefaultStyles(
             h1: DefaultTextBlockStyle(
                 const TextStyle(
@@ -138,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                 null),
             sizeSmall: const TextStyle(fontSize: 9),
           ),
-          embedBuilder: defaultEmbedBuilderWeb);
+          embedBuilder: defaultEmbedBuilderWeb,);
     }
     var toolbar = QuillToolbar.basic(
         controller: _controller!, onImagePickCallback: _onImagePickCallback);
@@ -168,14 +172,14 @@ class _HomePageState extends State<HomePage> {
               child: quillEditor,
             ),
           ),
-          kIsWeb
-              ? Expanded(
-                  child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-                  child: toolbar,
-                ))
-              : Container(child: toolbar)
+          // kIsWeb
+          //     ? Expanded(
+          //         child: Container(
+          //         padding:
+          //             const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+          //         child: toolbar,
+          //       ))
+          //     : Container(child: toolbar)
         ],
       ),
     );
