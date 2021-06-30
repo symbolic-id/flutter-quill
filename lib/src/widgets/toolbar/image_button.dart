@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +19,7 @@ class ImageButton extends StatelessWidget {
     this.onImagePickCallback,
     this.imagePickImpl,
     this.filePickImpl,
+    this.webImagePickImpl,
     Key? key,
   }) : super(key: key);
 
@@ -33,6 +33,8 @@ class ImageButton extends StatelessWidget {
   final OnImagePickCallback? onImagePickCallback;
 
   final ImagePickImpl? imagePickImpl;
+
+  final WebImagePickImpl? webImagePickImpl;
 
   final ImageSource imageSource;
 
@@ -62,12 +64,17 @@ class ImageButton extends StatelessWidget {
       imageUrl = await imagePickImpl!(imageSource);
     } else {
       if (kIsWeb) {
-        imageUrl = await _pickImageWeb();
+        assert(
+            webImagePickImpl != null,
+            'Please provide webImagePickImpl for Web '
+            '(check out example directory for how to do it)');
+        imageUrl = await webImagePickImpl!(onImagePickCallback!);
       } else if (Platform.isAndroid || Platform.isIOS) {
-        imageUrl = await _pickImage(imageSource);
+        imageUrl = await _pickImage(imageSource, onImagePickCallback!);
       } else {
         assert(filePickImpl != null, 'Desktop must provide filePickImpl');
-        imageUrl = await _pickImageDesktop(context, filePickImpl!);
+        imageUrl = await _pickImageDesktop(
+            context, filePickImpl!, onImagePickCallback!);
       }
     }
 
@@ -76,34 +83,24 @@ class ImageButton extends StatelessWidget {
     }
   }
 
-  Future<String?> _pickImageWeb() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result == null) {
-      return null;
-    }
-
-    // Take first, because we don't allow picking multiple files.
-    final fileName = result.files.first.name;
-    final file = File(fileName);
-
-    return onImagePickCallback!(file);
-  }
-
-  Future<String?> _pickImage(ImageSource source) async {
+  Future<String?> _pickImage(
+      ImageSource source, OnImagePickCallback onImagePickCallback) async {
     final pickedFile = await ImagePicker().getImage(source: source);
     if (pickedFile == null) {
       return null;
     }
 
-    return onImagePickCallback!(File(pickedFile.path));
+    return onImagePickCallback(File(pickedFile.path));
   }
 
   Future<String?> _pickImageDesktop(
-      BuildContext context, FilePickImpl filePickImpl) async {
+      BuildContext context,
+      FilePickImpl filePickImpl,
+      OnImagePickCallback onImagePickCallback) async {
     final filePath = await filePickImpl(context);
     if (filePath == null || filePath.isEmpty) return null;
 
     final file = File(filePath);
-    return onImagePickCallback!(file);
+    return onImagePickCallback(file);
   }
 }
