@@ -362,6 +362,18 @@ class SymRenderEditableTextTitle extends RenderEditableBox
   }
 
   @override
+  void detach() {
+    super.detach();
+    for (final child in _children) {
+      child.detach();
+    }
+    if (containsCursor()) {
+      cursorCont.removeListener(markNeedsLayout);
+      cursorCont.color.removeListener(markNeedsPaint);
+    }
+  }
+
+  @override
   void redepthChildren() {
     _children.forEach(redepthChild);
   }
