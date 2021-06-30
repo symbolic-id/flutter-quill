@@ -54,24 +54,24 @@ class _SymTitleButton extends State<SymTitleButton> {
         child: InkWell(
           onTap: () {},
           onHover: (hovered) {
-            setState(() {
-              _onHover = hovered;
-            });
+            // setState(() {
+            //   _onHover = hovered;
+            // });
           },
           splashColor: SymColors.hoverColor,
           hoverColor: SymColors.hoverColor,
           child: Ink(
             color: SymColors.light_bgSurface1,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                  minHeight: SymTitleButton.buttonHeight,
-                  maxHeight: SymTitleButton.buttonHeight),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  top: 4, bottom: 4, left: 7, right: 7),
               child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   SymAssetImage(
                     assetName,
                     size: const Size(14, 14),
-                    color: _onHover ? activeColor : inactiveColor,
+                    color: _onHover ? activeColor : null,
                   ),
                   const GapH(4),
                   SymText(label,

@@ -11,6 +11,7 @@ import '../../default_styles.dart';
 import '../../proxy.dart';
 import 'sym_title.dart';
 
+@Deprecated("Not used yet")
 class SymTextTitle extends StatelessWidget {
   const SymTextTitle({
     required this.title,

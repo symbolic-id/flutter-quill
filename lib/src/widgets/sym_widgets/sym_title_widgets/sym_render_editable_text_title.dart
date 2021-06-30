@@ -10,6 +10,7 @@ import '../../text_selection.dart';
 import 'sym_text_title_element.dart';
 import 'sym_title.dart';
 
+@Deprecated("Not used yet")
 class SymRenderEditableTextTitle extends RenderEditableBox
     implements MouseTrackerAnnotation {
   SymRenderEditableTextTitle(this.title,

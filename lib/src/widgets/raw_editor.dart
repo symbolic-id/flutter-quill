@@ -17,6 +17,7 @@ import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_option.dart
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_text_title.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -145,6 +146,8 @@ class RawEditorState extends EditorState
 
   OverlayEntry? _menuCreation;
 
+  final titleFocusNode = FocusNode();
+
   @override
   Widget build(BuildContext context) {
     assert(debugCheckHasMediaQuery(context));
@@ -160,6 +163,9 @@ class RawEditorState extends EditorState
           '[{"attributes":{"placeholder":true},"insert":"${widget.placeholder}\\n"}]'));
     }
 
+    final defaultPadding = EdgeInsets.only(
+        left: containerSize.width * 0.2, right: containerSize.width * 0.2);
+
     Widget child = CompositedTransformTarget(
       link: _toolbarLayerLink,
       child: Semantics(
@@ -173,10 +179,7 @@ class RawEditorState extends EditorState
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _handleSelectionChanged,
           scrollBottomInset: widget.scrollBottomInset,
-          padding: widget.padding ??
-              EdgeInsets.only(
-                  left: containerSize.width * 0.2,
-                  right: containerSize.width * 0.2),
+          padding: widget.padding ?? defaultPadding,
           children: _buildChildren(_doc, context),
         ),
       ),
@@ -191,7 +194,25 @@ class RawEditorState extends EditorState
         child: SingleChildScrollView(
           controller: _scrollController,
           physics: widget.scrollPhysics,
-          child: child,
+          child: Column(
+            children: [
+              SymTitleKalpataru(
+                focusNode: titleFocusNode,
+                padding: EdgeInsets.only(
+                    left: widget.padding?.horizontal ??
+                        defaultPadding.left + SymBlockButton.buttonWidth * 2,
+                    right: widget.padding?.horizontal ?? defaultPadding.right,
+                    top: 82),
+                onSubmitted: () {
+                  widget.controller.updateSelection(
+                      const TextSelection.collapsed(offset: 0),
+                      ChangeSource.LOCAL);
+                  widget.controller.notifyListeners();
+                },
+              ),
+              child,
+            ],
+          ),
         ),
       );
     }
@@ -278,11 +299,7 @@ class RawEditorState extends EditorState
     final result = <Widget>[];
     final indentLevelCounts = <int, int>{};
     for (final node in doc.root.children) {
-      if (node is SymTitle) {
-        final editableTextTitle =
-            _getSymEditableTextTitleFromNode(node, context);
-        result.add(editableTextTitle);
-      } else if (node is Line) {
+      if (node is Line) {
         final editableTextLine = _getEditableTextLineFromNode(node, context);
         result.add(editableTextLine);
       } else if (node is Block) {
@@ -349,32 +366,6 @@ class RawEditorState extends EditorState
         textLine,
         _getIntentWidth(node),
         _getVerticalSpacingForLine(node, _styles),
-        _textDirection,
-        widget.controller.selection,
-        widget.selectionColor,
-        widget.enableInteractiveSelection,
-        _hasFocus,
-        MediaQuery.of(context).devicePixelRatio,
-        _cursorCont);
-    return editableTextLine;
-  }
-
-  SymEditableTextTitle _getSymEditableTextTitleFromNode(
-      SymTitle node, BuildContext context) {
-    final textTitle = SymTextTitle(
-      title: node,
-      textDirection: _textDirection,
-      styles: _styles!,
-    );
-    final editableTextTitleKey = GlobalKey();
-    final editableTextLine = SymEditableTextTitle(
-        editableTextTitleKey,
-        node,
-        SymTitleButton.typeTag(),
-        SymTitleButton.typeCover(),
-        SymTitleButton.typeSticker(),
-        textTitle,
-        _styles!.h1!.verticalSpacing,
         _textDirection,
         widget.controller.selection,
         widget.selectionColor,
@@ -710,31 +701,31 @@ class RawEditorState extends EditorState
       }
     });
   }
-  
+
   void _showMenuBlockCreation({int? selectionIndex}) {
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       _menuCreation = OverlayEntry(
           builder: (context) => SymMenuBlockCreation(
-            widget.controller,
-            getRenderEditor()!,
-            toolbarLayerLink: _toolbarLayerLink,
-            selectionIndex: selectionIndex,
-            onDismiss: () {
-              _menuCreation?.remove();
-              _menuCreation = null;
-              widget.focusNode.requestFocus();
-            },
-            onSelected: (attribute) {
-              widget.focusNode.requestFocus();
-              _menuCreation?.remove();
-              _menuCreation = null;
-              final fromLine = widget.controller.document
-                  .getLineFromTextIndex(
-                  selectionIndex ?? widget.controller.selection.extentOffset);
-              widget.controller.insertLine(fromLine, attribute,
-                  fromSlashCommand: selectionIndex == null);
-            },
-          ));
+                widget.controller,
+                getRenderEditor()!,
+                toolbarLayerLink: _toolbarLayerLink,
+                selectionIndex: selectionIndex,
+                onDismiss: () {
+                  _menuCreation?.remove();
+                  _menuCreation = null;
+                  widget.focusNode.requestFocus();
+                },
+                onSelected: (attribute) {
+                  widget.focusNode.requestFocus();
+                  _menuCreation?.remove();
+                  _menuCreation = null;
+                  final fromLine = widget.controller.document
+                      .getLineFromTextIndex(selectionIndex ??
+                          widget.controller.selection.extentOffset);
+                  widget.controller.insertLine(fromLine, attribute,
+                      fromSlashCommand: selectionIndex == null);
+                },
+              ));
       Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
     });
   }

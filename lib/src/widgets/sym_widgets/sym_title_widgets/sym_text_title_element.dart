@@ -5,6 +5,7 @@ import 'sym_render_editable_text_title.dart';
 
 enum SymTextTitleSlot { BUTTON_TAG, BUTTON_COVER, BUTTON_STICKER, BODY }
 
+@Deprecated("Not used yet")
 class SymTextTitleElement extends RenderObjectElement {
   SymTextTitleElement(SymEditableTextTitle title) : super(title);
 

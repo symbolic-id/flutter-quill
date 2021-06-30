@@ -335,10 +335,8 @@ class Document {
     assert((doc.last.data as String).endsWith('\n'));
 
     var offset = 0;
-    print('LL:: _loadDocument :::::::::::::::::::::::::::::');
     for (var i = 0; i < doc.toList().length; i++) {
       final op = doc.toList().elementAt(i);
-      print('LL:: _loadDocument op : ${op.toJson()}');
       if (!op.isInsert) {
         throw ArgumentError.value(doc,
             'Document can only contain insert operations but ${op.key} found.');

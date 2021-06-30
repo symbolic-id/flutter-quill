@@ -11,6 +11,7 @@ import '../../../models/documents/nodes/node.dart';
 import '../../../models/documents/style.dart';
 import '../../../models/quill_delta.dart';
 
+@Deprecated("Not used yet")
 class SymTitle extends Container<Leaf?> {
   @override
   Leaf? get defaultChild => Text('Buat Judul');
