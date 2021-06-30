@@ -85,9 +85,9 @@ class _HomePageState extends State<HomePage> {
             //   _controller!.formatSelection(Attribute.bold);
             // }
           }
-          if (event.character == '/') {
-            _controller!.showMenuBlockCreation();
-          }
+          // if (event.character == '/') {
+          //   _controller!.showMenuBlockCreation();
+          // }
         },
         child: _buildWelcomeEditor(context),
       ),
@@ -104,19 +104,19 @@ class _HomePageState extends State<HomePage> {
         readOnly: false,
         placeholder: 'Add content',
         expands: false,
-        // customStyles: DefaultStyles(
-        //   h1: DefaultTextBlockStyle(
-        //       const TextStyle(
-        //         fontSize: 32,
-        //         color: Colors.black,
-        //         height: 1.15,
-        //         fontWeight: FontWeight.w300,
-        //       ),
-        //       const Tuple2(16, 0),
-        //       const Tuple2(0, 0),
-        //       null),
-        //   sizeSmall: const TextStyle(fontSize: 9),
-        // )
+        customStyles: DefaultStyles(
+          h1: DefaultTextBlockStyle(
+              const TextStyle(
+                fontSize: 32,
+                color: Colors.black,
+                height: 1.15,
+                fontWeight: FontWeight.w300,
+              ),
+              const Tuple2(16, 0),
+              const Tuple2(0, 0),
+              null),
+          sizeSmall: const TextStyle(fontSize: 9),
+        )
     );
     if (kIsWeb) {
       quillEditor = QuillEditor(
