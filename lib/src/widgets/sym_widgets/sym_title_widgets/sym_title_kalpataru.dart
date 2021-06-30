@@ -28,6 +28,7 @@ class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
   @override
   void initState() {
     super.initState();
+    widget.focusNode.requestFocus();
     widget.focusNode.addListener(_onFocusChanged);
   }
 

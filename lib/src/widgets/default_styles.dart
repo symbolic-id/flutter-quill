@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_quill/src/utils/color.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tuple/tuple.dart';
 
@@ -93,6 +94,7 @@ class DefaultStyles {
     final themeData = Theme.of(context);
     final defaultTextStyle = DefaultTextStyle.of(context);
     final baseStyle = defaultTextStyle.style.copyWith(
+      color: SymColors.light_textPrimary,
       fontSize: 16,
       height: 1.3,
     ).merge(GoogleFonts.ibmPlexSans());
@@ -117,7 +119,7 @@ class DefaultStyles {
         h1: DefaultTextBlockStyle(
             defaultTextStyle.style.copyWith(
               fontSize: 34,
-              color: defaultTextStyle.style.color!.withOpacity(0.70),
+              color: baseStyle.color!.withOpacity(0.70),
               height: 1.15,
               fontWeight: FontWeight.w300,
             ),
@@ -127,7 +129,7 @@ class DefaultStyles {
         h2: DefaultTextBlockStyle(
             defaultTextStyle.style.copyWith(
               fontSize: 24,
-              color: defaultTextStyle.style.color!.withOpacity(0.70),
+              color: baseStyle.color!.withOpacity(0.70),
               height: 1.15,
               fontWeight: FontWeight.normal,
             ),
@@ -137,7 +139,7 @@ class DefaultStyles {
         h3: DefaultTextBlockStyle(
             defaultTextStyle.style.copyWith(
               fontSize: 20,
-              color: defaultTextStyle.style.color!.withOpacity(0.70),
+              color: baseStyle.color!.withOpacity(0.70),
               height: 1.25,
               fontWeight: FontWeight.w500,
             ),

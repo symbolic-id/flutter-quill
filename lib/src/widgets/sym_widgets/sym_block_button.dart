@@ -67,13 +67,16 @@ class _SymBlockButtonState extends State<SymBlockButton> {
           });
         },
         splashColor: SymColors.hoverColor,
-        child: SymAssetImage(
-          widget.type == _ButtonType.ADD ? Assets.CIRCLE_ADD : Assets.MORE,
-          size: const Size(22, 22),
-          fit: BoxFit.fill,
-          color: _onHover
-              ? SymColors.light_bluePrimary
-              : SymColors.light_textQuaternary,
+        child: Ink(
+          color: SymColors.light_line,
+          child: SymAssetImage(
+            widget.type == _ButtonType.ADD ? Assets.CIRCLE_ADD : Assets.MORE,
+            size: const Size(22, 22),
+            fit: BoxFit.fill,
+            color: _onHover
+                ? SymColors.light_bluePrimary
+                : SymColors.light_textQuaternary,
+          ),
         ),
       ),
     ));
