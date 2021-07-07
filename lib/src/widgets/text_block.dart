@@ -127,17 +127,17 @@ class EditableTextBlock extends StatelessWidget {
       final editableTextLine = EditableTextLine(
           editableTextLineKey,
           line,
-          SymBlockButton.typeAdd(editableTextLineKey,
+          kIsWeb ? SymBlockButton.typeAdd(editableTextLineKey,
               block.offset + line.offset, (textOffset, _) {
                 onBlockButtonAddTap(textOffset);
               }
-          ),
-          SymBlockButton.typeOption(editableTextLineKey,
+          ) : null,
+          kIsWeb ? SymBlockButton.typeOption(editableTextLineKey,
               block.offset + line.offset, (textOffset, btnKey) {
             final isEmbed = (line.children.first as Leaf).value is Embeddable;
                 onBlockButtonOptionTap(textOffset, btnKey, isEmbed);
               }
-          ),
+          ) : null,
           _buildLeading(context, line, index, indentLevelCounts, count),
           TextLine(
             line: line,

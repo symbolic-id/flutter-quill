@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_text.dart';
@@ -38,7 +39,8 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
       readOnly: false,
       placeholder: 'Add content',
       expands: false,
-      embedBuilder: _defaultEmbedBuilderWeb,);
+      embedBuilder: _defaultEmbedBuilderWeb,
+      padding: kIsWeb ? null : const EdgeInsets.only(left: 24),);
     return quillEditor;
   }
 }

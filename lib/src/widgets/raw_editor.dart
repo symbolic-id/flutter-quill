@@ -348,11 +348,11 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        SymBlockButton.typeAdd(editableTextLineKey, node.offset,
+        kIsWeb ? SymBlockButton.typeAdd(editableTextLineKey, node.offset,
             (textOffset, _) {
           _showMenuBlockCreation(selectionIndex: textOffset);
-        }),
-        SymBlockButton.typeOption(editableTextLineKey, node.offset,
+        }) : null,
+        kIsWeb ? SymBlockButton.typeOption(editableTextLineKey, node.offset,
             (textOffset, btnKey) {
           bool isEmbed;
           if (node.children.isEmpty) {
@@ -361,7 +361,7 @@ class RawEditorState extends EditorState
             isEmbed = (node.children.first as Leaf).value is Embeddable;
           }
           _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
-        }),
+        }) : null,
         null,
         textLine,
         _getIntentWidth(node),
