@@ -18,6 +18,7 @@ import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_text
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru_mobile.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -41,33 +42,34 @@ import 'text_selection.dart';
 
 class RawEditor extends StatefulWidget {
   const RawEditor(
-    Key key,
-    this.controller,
-    this.focusNode,
-    this.scrollController,
-    this.scrollable,
-    this.scrollBottomInset,
-    this.padding,
-    this.readOnly,
-    this.placeholder,
-    this.onLaunchUrl,
-    this.toolbarOptions,
-    this.showSelectionHandles,
-    bool? showCursor,
-    this.cursorStyle,
-    this.textCapitalization,
-    this.maxHeight,
-    this.minHeight,
-    this.customStyles,
-    this.expands,
-    this.autoFocus,
-    this.selectionColor,
-    this.selectionCtrls,
-    this.keyboardAppearance,
-    this.enableInteractiveSelection,
-    this.scrollPhysics,
-    this.embedBuilder,
-  )   : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
+      Key key,
+      this.controller,
+      this.focusNode,
+      this.scrollController,
+      this.scrollable,
+      this.scrollBottomInset,
+      this.padding,
+      this.readOnly,
+      this.placeholder,
+      this.onLaunchUrl,
+      this.toolbarOptions,
+      this.showSelectionHandles,
+      bool? showCursor,
+      this.cursorStyle,
+      this.textCapitalization,
+      this.maxHeight,
+      this.minHeight,
+      this.customStyles,
+      this.expands,
+      this.autoFocus,
+      this.selectionColor,
+      this.selectionCtrls,
+      this.keyboardAppearance,
+      this.enableInteractiveSelection,
+      this.scrollPhysics,
+      this.embedBuilder,
+      {required this.titleController})
+      : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
         assert(minHeight == null || minHeight >= 0, 'minHeight cannot be null'),
         assert(maxHeight == null || minHeight == null || maxHeight >= minHeight,
             'maxHeight cannot be null'),
@@ -99,6 +101,7 @@ class RawEditor extends StatefulWidget {
   final bool enableInteractiveSelection;
   final ScrollPhysics? scrollPhysics;
   final EmbedBuilder embedBuilder;
+  final TextEditingController titleController;
 
   @override
   State<StatefulWidget> createState() => RawEditorState();
@@ -156,14 +159,44 @@ class RawEditorState extends EditorState
     super.build(context);
 
     var _doc = widget.controller.document;
-    if (_doc.isEmpty() &&
-        widget.placeholder != null) {
+    if (_doc.isEmpty() && widget.placeholder != null) {
       _doc = Document.fromJson(jsonDecode(
           '[{"attributes":{"placeholder":true},"insert":"${widget.placeholder}\\n"}]'));
     }
 
     final defaultPadding = EdgeInsets.only(
         left: containerSize.width * 0.2, right: containerSize.width * 0.2);
+
+    widget.controller.titleKalpataru = kIsWeb ? SymTitleKalpataru(
+      controller: widget.titleController,
+      focusNode: titleFocusNode,
+      padding: EdgeInsets.only(
+          left: widget.padding?.horizontal ??
+              defaultPadding.left + SymBlockButton.buttonWidth * 2,
+          right: widget.padding?.horizontal ?? defaultPadding.right,
+          top: kIsWeb ? 82 : 24),
+      onSubmitted: () {
+        widget.controller.updateSelection(
+            const TextSelection.collapsed(offset: 0), ChangeSource.LOCAL);
+        widget.controller.notifyListeners();
+      },
+    ) : SymTitleKalpataruMobile(
+      controller: widget.titleController,
+      focusNode: titleFocusNode,
+      padding: EdgeInsets.only(
+          left: widget.padding?.horizontal ??
+              defaultPadding.left + SymBlockButton.buttonWidth * 2,
+          right: widget.padding?.horizontal ?? defaultPadding.right,
+          top: kIsWeb ? 82 : 24),
+      onSubmitted: () {
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          widget.controller.updateSelection(
+              const TextSelection.collapsed(offset: 0), ChangeSource.LOCAL);
+          // widget.controller.notifyListeners();
+          widget.focusNode.requestFocus();
+        });
+      },
+    );
 
     Widget child = CompositedTransformTarget(
       link: _toolbarLayerLink,
@@ -195,20 +228,8 @@ class RawEditorState extends EditorState
           physics: widget.scrollPhysics,
           child: Column(
             children: [
-              SymTitleKalpataru(
-                focusNode: titleFocusNode,
-                padding: EdgeInsets.only(
-                    left: widget.padding?.horizontal ??
-                        defaultPadding.left + SymBlockButton.buttonWidth * 2,
-                    right: widget.padding?.horizontal ?? defaultPadding.right,
-                    top: kIsWeb ? 82 : 24),
-                onSubmitted: () {
-                  widget.controller.updateSelection(
-                      const TextSelection.collapsed(offset: 0),
-                      ChangeSource.LOCAL);
-                  widget.controller.notifyListeners();
-                },
-              ),
+              if (widget.controller.titleKalpataru != null)
+                widget.controller.titleKalpataru!,
               child,
             ],
           ),
@@ -347,20 +368,24 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        kIsWeb ? SymBlockButton.typeAdd(editableTextLineKey, node.offset,
-            (textOffset, _) {
-          _showMenuBlockCreation(selectionIndex: textOffset);
-        }) : null,
-        kIsWeb ? SymBlockButton.typeOption(editableTextLineKey, node.offset,
-            (textOffset, btnKey) {
-          bool isEmbed;
-          if (node.children.isEmpty) {
-            isEmbed = false;
-          } else {
-            isEmbed = (node.children.first as Leaf).value is Embeddable;
-          }
-          _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
-        }) : null,
+        kIsWeb
+            ? SymBlockButton.typeAdd(editableTextLineKey, node.offset,
+                (textOffset, _) {
+                _showMenuBlockCreation(selectionIndex: textOffset);
+              })
+            : null,
+        kIsWeb
+            ? SymBlockButton.typeOption(editableTextLineKey, node.offset,
+                (textOffset, btnKey) {
+                bool isEmbed;
+                if (node.children.isEmpty) {
+                  isEmbed = false;
+                } else {
+                  isEmbed = (node.children.first as Leaf).value is Embeddable;
+                }
+                _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
+              })
+            : null,
         null,
         textLine,
         _getIntentWidth(node),

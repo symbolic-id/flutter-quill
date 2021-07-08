@@ -36,7 +36,8 @@ class SymTextField extends StatefulWidget {
       this.color = SymColors.light_textPrimary,
       this.bold = false,
       this.align,
-        this.onSubmitted,
+      this.onSubmitted,
+      this.controller,
       Key? key})
       : super(key: key);
 
@@ -46,6 +47,7 @@ class SymTextField extends StatefulWidget {
   final bool bold;
   final TextAlign? align;
   final EdgeInsetsGeometry padding;
+  final TextEditingController? controller;
 
   final FocusNode? focusNode;
   final Function? onSubmitted;
@@ -55,10 +57,10 @@ class SymTextField extends StatefulWidget {
 }
 
 class _SymTextFieldState extends State<SymTextField> {
-
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: widget.controller,
       focusNode: widget.focusNode,
       decoration: InputDecoration(
           border: InputBorder.none,
@@ -75,6 +77,11 @@ class _SymTextFieldState extends State<SymTextField> {
       maxLines: null,
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.done,
+      onChanged: (text) {
+        // widget.controller?.text = text;
+        // widget.controller?.selection = widget.controller?.selection ??
+        //     const TextSelection.collapsed(offset: 0);
+      },
       onSubmitted: (value) {
         widget.onSubmitted?.call();
       },

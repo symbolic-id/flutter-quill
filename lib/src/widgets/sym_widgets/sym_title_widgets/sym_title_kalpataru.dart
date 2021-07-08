@@ -5,16 +5,15 @@ import 'package:flutter_quill/src/widgets/common_widgets/gap.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
 
 import '../sym_text.dart';
+import 'sym_title_widget.dart';
 
-class SymTitleKalpataru extends StatefulWidget {
+class SymTitleKalpataru extends SymTitleWidget {
   const SymTitleKalpataru(
-      {required this.focusNode,
-      required this.padding,
-      required this.onSubmitted});
-
-  final FocusNode focusNode;
-  final EdgeInsetsGeometry padding;
-  final Function onSubmitted;
+      {required FocusNode focusNode,
+      required EdgeInsetsGeometry padding,
+      required Function onSubmitted,
+      required TextEditingController controller})
+      : super(focusNode, padding, onSubmitted, controller);
 
   @override
   _SymTitleKalpataruState createState() => _SymTitleKalpataruState();
@@ -38,9 +37,7 @@ class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
       focusNode: FocusNode(),
       onKey: (event) {
         if (!isExitedByArrow) {
-          if (
-            event.logicalKey == LogicalKeyboardKey.arrowDown
-          ) {
+          if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
             isExitedByArrow = true;
             widget.onSubmitted();
           }
@@ -86,10 +83,10 @@ class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
               size: 28,
               bold: true,
               padding: EdgeInsets.only(
-                left: (widget.padding as EdgeInsets).left,
-                right: (widget.padding as EdgeInsets).right
-              ),
+                  left: (widget.padding as EdgeInsets).left,
+                  right: (widget.padding as EdgeInsets).right),
               onSubmitted: widget.onSubmitted,
+              controller: widget.controller,
             )
           ],
         ),

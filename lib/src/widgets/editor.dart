@@ -144,7 +144,8 @@ class QuillEditor extends StatefulWidget {
       this.onSingleLongTapMoveUpdate,
       this.onSingleLongTapEnd,
       this.embedBuilder = _defaultEmbedBuilder,
-      this.padding,});
+      this.padding,
+      this.titleController});
 
   factory QuillEditor.basic({
     required QuillController controller,
@@ -181,6 +182,7 @@ class QuillEditor extends StatefulWidget {
   final Brightness keyboardAppearance;
   final ScrollPhysics? scrollPhysics;
   final ValueChanged<String>? onLaunchUrl;
+
   // Returns whether gesture is handled
   final bool Function(
       TapDownDetails details, TextPosition Function(Offset offset))? onTapDown;
@@ -197,12 +199,15 @@ class QuillEditor extends StatefulWidget {
   // Returns whether gesture is handled
   final bool Function(LongPressMoveUpdateDetails details,
       TextPosition Function(Offset offset))? onSingleLongTapMoveUpdate;
+
   // Returns whether gesture is handled
   final bool Function(
           LongPressEndDetails details, TextPosition Function(Offset offset))?
       onSingleLongTapEnd;
 
   final EmbedBuilder embedBuilder;
+
+  final TextEditingController? titleController;
 
   @override
   _QuillEditorState createState() => _QuillEditorState();
@@ -267,46 +272,48 @@ class _QuillEditorState extends State<QuillEditor>
     return _selectionGestureDetectorBuilder.build(
       HitTestBehavior.translucent,
       RawEditor(
-          _editorKey,
-          widget.controller,
-          widget.focusNode,
-          widget.scrollController,
-          widget.scrollable,
-          widget.scrollBottomInset,
-          widget.padding,
-          widget.readOnly,
-          widget.placeholder,
-          widget.onLaunchUrl,
-          ToolbarOptions(
-            copy: widget.enableInteractiveSelection,
-            cut: widget.enableInteractiveSelection,
-            paste: widget.enableInteractiveSelection,
-            selectAll: widget.enableInteractiveSelection,
-          ),
-          theme.platform == TargetPlatform.iOS ||
-              theme.platform == TargetPlatform.android,
-          widget.showCursor,
-          CursorStyle(
-            color: cursorColor,
-            backgroundColor: Colors.grey,
-            width: 2,
-            radius: cursorRadius,
-            offset: cursorOffset,
-            paintAboveText: widget.paintCursorAboveText ?? paintCursorAboveText,
-            opacityAnimates: cursorOpacityAnimates,
-          ),
-          widget.textCapitalization,
-          widget.maxHeight,
-          widget.minHeight,
-          widget.customStyles,
-          widget.expands,
-          widget.autoFocus,
-          selectionColor,
-          textSelectionControls,
-          widget.keyboardAppearance,
-          widget.enableInteractiveSelection,
-          widget.scrollPhysics,
-          widget.embedBuilder),
+        _editorKey,
+        widget.controller,
+        widget.focusNode,
+        widget.scrollController,
+        widget.scrollable,
+        widget.scrollBottomInset,
+        widget.padding,
+        widget.readOnly,
+        widget.placeholder,
+        widget.onLaunchUrl,
+        ToolbarOptions(
+          copy: widget.enableInteractiveSelection,
+          cut: widget.enableInteractiveSelection,
+          paste: widget.enableInteractiveSelection,
+          selectAll: widget.enableInteractiveSelection,
+        ),
+        theme.platform == TargetPlatform.iOS ||
+            theme.platform == TargetPlatform.android,
+        widget.showCursor,
+        CursorStyle(
+          color: cursorColor,
+          backgroundColor: Colors.grey,
+          width: 2,
+          radius: cursorRadius,
+          offset: cursorOffset,
+          paintAboveText: widget.paintCursorAboveText ?? paintCursorAboveText,
+          opacityAnimates: cursorOpacityAnimates,
+        ),
+        widget.textCapitalization,
+        widget.maxHeight,
+        widget.minHeight,
+        widget.customStyles,
+        widget.expands,
+        widget.autoFocus,
+        selectionColor,
+        textSelectionControls,
+        widget.keyboardAppearance,
+        widget.enableInteractiveSelection,
+        widget.scrollPhysics,
+        widget.embedBuilder,
+        titleController: widget.titleController ?? TextEditingController(),
+      ),
     );
   }
 
@@ -1047,9 +1054,9 @@ class RenderEditableContainerBox extends RenderBox
 
     if (closestChild is RenderEditableTextLine) {
       return closestChild;
-    } else if (closestChild is RenderEditableTextBlock){
-      final closestChildInBlock = closestChild.childAtOffset(closestChild
-          .globalToLocal(globalOffset));
+    } else if (closestChild is RenderEditableTextBlock) {
+      final closestChildInBlock =
+          closestChild.childAtOffset(closestChild.globalToLocal(globalOffset));
       if (closestChildInBlock is RenderEditableTextLine) {
         return closestChildInBlock;
       }
@@ -1086,7 +1093,6 @@ class RenderEditableContainerBox extends RenderBox
 
       line.nextLine;
 
-
       return lastTextIndex;
     }
     return null;
@@ -1095,10 +1101,10 @@ class RenderEditableContainerBox extends RenderBox
   Line? getLineFromGlobalOffset(Offset globalOffset) {
     return getRenderEditableTextLineAtGlobalOffset(globalOffset)?.line;
   }
-  
+
   Block? getBlockFromGlobalOffset(Offset globalOffset) {
-    final blockContainer = _renderEditableTextBlockAtGlobalOffset(globalOffset)
-        ?._container;
+    final blockContainer =
+        _renderEditableTextBlockAtGlobalOffset(globalOffset)?._container;
     if (blockContainer is Block) {
       return blockContainer;
     }
@@ -1121,8 +1127,7 @@ class RenderEditableContainerBox extends RenderBox
     assert(_resolvedPadding != null);
 
     var mainAxisExtent = _resolvedPadding!.top;
-    if (this is RenderEditableTextBlock) {
-    }
+    if (this is RenderEditableTextBlock) {}
     var child = firstChild;
     final innerConstraints =
         BoxConstraints.tightFor(width: constraints.maxWidth)

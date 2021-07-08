@@ -5,33 +5,43 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_text.dart';
 
 class SymEditorKalpataru extends StatefulWidget {
+  SymEditorKalpataru();
+
+  late QuillController? _controller;
+
   @override
   _SymEditorKalpataruState createState() => _SymEditorKalpataruState();
+
+  String getTitle() {
+    return _controller?.titleKalpataru?.controller.text ?? '';
+  }
+
+  String getContent() {
+    return _controller?.document.toPlainText() ?? '';
+  }
 }
 
 class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
 
-  QuillController? _controller;
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-
-    final doc = Document();
-    _controller = QuillController(
-        document: doc,
-        selection: const TextSelection.collapsed(offset: 0)
-    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_controller == null) { // in case loading an existing document
-      return const Scaffold(body: Center(child: SymText('Loading...'),),);
-    }
+    // if (widget._controller == null) { // in case loading an existing document
+    //   return const Scaffold(body: Center(child: SymText('Loading...'),),);
+    // }
+    final doc = Document();
+    widget._controller = QuillController(
+        document: doc,
+        selection: const TextSelection.collapsed(offset: 0)
+    );
     var quillEditor = QuillEditor(
-      controller: _controller!,
+      controller: widget._controller!,
       scrollController: ScrollController(),
       scrollable: true,
       focusNode: _focusNode,
@@ -40,7 +50,9 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
       placeholder: 'Add content',
       expands: false,
       embedBuilder: _defaultEmbedBuilderWeb,
-      padding: kIsWeb ? null : const EdgeInsets.only(left: 24),);
+      padding: kIsWeb ? null : const EdgeInsets.only(left: 24),
+      titleController: TextEditingController(),
+    );
     return quillEditor;
   }
 }

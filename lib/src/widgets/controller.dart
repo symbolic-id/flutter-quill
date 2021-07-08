@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_quill/src/models/documents/nodes/line.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -10,6 +11,7 @@ import '../models/documents/nodes/embed.dart';
 import '../models/documents/style.dart';
 import '../models/quill_delta.dart';
 import '../utils/diff_delta.dart';
+import 'sym_widgets/sym_title_widgets/sym_title_widget.dart';
 
 class QuillController extends ChangeNotifier {
   QuillController({
@@ -43,6 +45,8 @@ class QuillController extends ChangeNotifier {
   /// A safety mechanism to ensure that listeners don't crash when adding,
   /// removing or listeners to this instance.
   bool _isDisposed = false;
+
+  SymTitleWidget? titleKalpataru;
 
   // item1: Document state before [change].
   //
