@@ -201,7 +201,7 @@ class RawEditorState extends EditorState
                     left: widget.padding?.horizontal ??
                         defaultPadding.left + SymBlockButton.buttonWidth * 2,
                     right: widget.padding?.horizontal ?? defaultPadding.right,
-                    top: 82),
+                    top: kIsWeb ? 82 : 24),
                 onSubmitted: () {
                   widget.controller.updateSelection(
                       const TextSelection.collapsed(offset: 0),

@@ -424,19 +424,19 @@ class _QuillEditorSelectionGestureDetectorBuilder
       final blockEmbed = segment.value as BlockEmbed;
       if (blockEmbed.type == 'image') {
         final imageUrl = _standardizeImageUrl(blockEmbed.data);
-        Navigator.push(
-          getEditor()!.context,
-          MaterialPageRoute(
-            builder: (context) => ImageTapWrapper(
-              imageProvider: imageUrl.startsWith('http')
-                  ? NetworkImage(imageUrl)
-                  : isBase64(imageUrl)
-                      ? Image.memory(base64.decode(imageUrl))
-                          as ImageProvider<Object>?
-                      : FileImage(io.File(imageUrl)),
-            ),
-          ),
-        );
+        // Navigator.push(
+        //   getEditor()!.context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ImageTapWrapper(
+        //       imageProvider: imageUrl.startsWith('http')
+        //           ? NetworkImage(imageUrl)
+        //           : isBase64(imageUrl)
+        //               ? Image.memory(base64.decode(imageUrl))
+        //                   as ImageProvider<Object>?
+        //               : FileImage(io.File(imageUrl)),
+        //     ),
+        //   ),
+        // );
       }
     }
 
