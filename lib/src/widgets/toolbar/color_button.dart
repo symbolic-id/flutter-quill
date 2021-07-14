@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import '../../models/documents/attribute.dart';
 import '../../models/documents/style.dart';
@@ -143,10 +142,7 @@ class _ColorButtonState extends State<ColorButton> {
         title: const Text('Select Color'),
         backgroundColor: Theme.of(context).canvasColor,
         content: SingleChildScrollView(
-          child: MaterialPicker(
-            pickerColor: const Color(0x00000000),
-            onColorChanged: (color) => _changeColor(context, color),
-          ),
+          child: Container(child: Text('Color Picker Removed'),),
         ),
       ),
     );
