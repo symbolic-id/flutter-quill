@@ -20,10 +20,13 @@ import 'delegate.dart';
 import 'editor.dart';
 import 'text_block.dart';
 import 'text_line.dart';
+import 'video_app.dart';
+import 'youtube_video_app.dart';
 
 class QuillSimpleViewer extends StatefulWidget {
   const QuillSimpleViewer({
     required this.controller,
+    required this.readOnly,
     this.customStyles,
     this.truncate = false,
     this.truncateScale,
@@ -51,6 +54,7 @@ class QuillSimpleViewer extends StatefulWidget {
   final double scrollBottomInset;
   final EdgeInsetsGeometry padding;
   final EmbedBuilder? embedBuilder;
+  final bool readOnly;
 
   @override
   _QuillSimpleViewerState createState() => _QuillSimpleViewerState();
@@ -97,7 +101,8 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
 
   EmbedBuilder get embedBuilder => widget.embedBuilder ?? _defaultEmbedBuilder;
 
-  Widget _defaultEmbedBuilder(BuildContext context, leaf.Embed node) {
+  Widget _defaultEmbedBuilder(
+      BuildContext context, leaf.Embed node, bool readOnly) {
     assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
     switch (node.value.type) {
       case 'image':
@@ -107,6 +112,14 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             : isBase64(imageUrl)
                 ? Image.memory(base64.decode(imageUrl))
                 : Image.file(io.File(imageUrl));
+      case 'video':
+        final videoUrl = node.value.data;
+        if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+          return YoutubeVideoApp(
+              videoUrl: videoUrl, context: context, readOnly: readOnly);
+        }
+        return VideoApp(
+            videoUrl: videoUrl, context: context, readOnly: readOnly);
       default:
         throw UnimplementedError(
           'Embeddable type "${node.value.type}" is not supported by default '
@@ -208,6 +221,8 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             _cursorCont,
             indentLevelCounts,
             _handleCheckboxTap,
+            widget.readOnly);
+            _handleCheckboxTap,
           onBlockButtonAddTap: (_) {},
           onBlockButtonOptionTap: (_, __, ___) {},
         );
@@ -238,12 +253,8 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
       embedBuilder: embedBuilder,
       styles: _styles,
     );
-    final editableTextLineKey = GlobalKey();
     final editableTextLine = EditableTextLine(
-        editableTextLineKey,
         node,
-        null,
-        null,
         null,
         textLine,
         0,

@@ -7,15 +7,15 @@ import '../toolbar.dart';
 import 'image_video_utils.dart';
 import 'quill_icon_button.dart';
 
-class ImageButton extends StatelessWidget {
-  const ImageButton({
+class VideoButton extends StatelessWidget {
+  const VideoButton({
     required this.icon,
     required this.controller,
-    required this.onImagePickCallback,
+    required this.onVideoPickCallback,
     this.iconSize = kDefaultIconSize,
     this.fillColor,
     this.filePickImpl,
-    this.webImagePickImpl,
+    this.webVideoPickImpl,
     Key? key,
   }) : super(key: key);
 
@@ -26,9 +26,9 @@ class ImageButton extends StatelessWidget {
 
   final QuillController controller;
 
-  final OnImagePickCallback onImagePickCallback;
+  final OnVideoPickCallback onVideoPickCallback;
 
-  final WebImagePickImpl? webImagePickImpl;
+  final WebVideoPickImpl? webVideoPickImpl;
 
   final FilePickImpl? filePickImpl;
 
@@ -42,9 +42,9 @@ class ImageButton extends StatelessWidget {
       hoverElevation: 0,
       size: iconSize * 1.77,
       fillColor: fillColor ?? theme.canvasColor,
-      onPressed: () => ImageVideoUtils.handleImageButtonTap(
-          context, controller, ImageSource.gallery, onImagePickCallback,
-          filePickImpl: filePickImpl, webImagePickImpl: webImagePickImpl),
+      onPressed: () => ImageVideoUtils.handleVideoButtonTap(
+          context, controller, ImageSource.gallery, onVideoPickCallback,
+          filePickImpl: filePickImpl, webVideoPickImpl: webVideoPickImpl),
     );
   }
 }

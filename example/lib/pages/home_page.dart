@@ -1,12 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
@@ -41,7 +39,7 @@ class _HomePageState extends State<HomePage> {
             document: doc, selection: const TextSelection.collapsed(offset: 0));
       });
     } catch (error) {
-      final doc = Document();//..insert(0, 'Empty asset');
+      final doc = Document()..insert(0, 'Empty asset');
       setState(() {
         _controller = QuillController(
             document: doc, selection: const TextSelection.collapsed(offset: 0));
@@ -67,7 +65,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: Container(
         constraints:
-            BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
+        BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
         color: Colors.grey.shade800,
         child: _buildMenuBar(context),
       ),
@@ -75,20 +73,17 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         onKey: (event) {
           if (event.data.isControlPressed && event.character == 'b') {
-            // if (_controller!
-            //     .getSelectionStyle()
-            //     .attributes
-            //     .keys
-            //     .contains('bold')) {
-            //   _controller!
-            //       .formatSelection(Attribute.clone(Attribute.bold, null));
-            // } else {
-            //   _controller!.formatSelection(Attribute.bold);
-            // }
+            if (_controller!
+                .getSelectionStyle()
+                .attributes
+                .keys
+                .contains('bold')) {
+              _controller!
+                  .formatSelection(Attribute.clone(Attribute.bold, null));
+            } else {
+              _controller!.formatSelection(Attribute.bold);
+            }
           }
-          // if (event.character == '/') {
-          //   _controller!.showMenuBlockCreation();
-          // }
         },
         child: _buildWelcomeEditor(context),
       ),
@@ -105,6 +100,7 @@ class _HomePageState extends State<HomePage> {
         readOnly: false,
         placeholder: 'Add content',
         expands: false,
+        padding: EdgeInsets.zero,
         customStyles: DefaultStyles(
           h1: DefaultTextBlockStyle(
               const TextStyle(
@@ -117,8 +113,7 @@ class _HomePageState extends State<HomePage> {
               const Tuple2(0, 0),
               null),
           sizeSmall: const TextStyle(fontSize: 9),
-        )
-    );
+        ));
     if (kIsWeb) {
       quillEditor = QuillEditor(
           controller: _controller!,
@@ -129,6 +124,7 @@ class _HomePageState extends State<HomePage> {
           readOnly: false,
           placeholder: 'Add content',
           expands: false,
+          padding: EdgeInsets.zero,
           customStyles: DefaultStyles(
             h1: DefaultTextBlockStyle(
                 const TextStyle(
@@ -142,10 +138,12 @@ class _HomePageState extends State<HomePage> {
                 null),
             sizeSmall: const TextStyle(fontSize: 9),
           ),
-          embedBuilder: defaultEmbedBuilderWeb,);
+          /*embedBuilder: defaultEmbedBuilderWeb*/);
     }
     var toolbar = QuillToolbar.basic(
-        controller: _controller!, onImagePickCallback: _onImagePickCallback);
+        controller: _controller!,
+        onImagePickCallback: _onImagePickCallback,
+        onVideoPickCallback: _onVideoPickCallback);
     if (kIsWeb) {
       toolbar = QuillToolbar.basic(
           controller: _controller!,
@@ -172,14 +170,14 @@ class _HomePageState extends State<HomePage> {
               child: quillEditor,
             ),
           ),
-          // kIsWeb
-          //     ? Expanded(
-          //         child: Container(
-          //         padding:
-          //             const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          //         child: toolbar,
-          //       ))
-          //     : Container(child: toolbar)
+          kIsWeb
+              ? Expanded(
+              child: Container(
+                padding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                child: toolbar,
+              ))
+              : Container(child: toolbar)
         ],
       ),
     );
@@ -201,7 +199,7 @@ class _HomePageState extends State<HomePage> {
     // Copies the picked file from temporary cache to applications directory
     final appDocDir = await getApplicationDocumentsDirectory();
     final copiedFile =
-        await file.copy('${appDocDir.path}/${basename(file.path)}');
+    await file.copy('${appDocDir.path}/${basename(file.path)}');
     return copiedFile.path.toString();
   }
 
@@ -217,6 +215,17 @@ class _HomePageState extends State<HomePage> {
     final file = File(fileName);
 
     return onImagePickCallback(file);
+  }
+
+  // Renders the video picked by imagePicker from local file storage
+  // You can also upload the picked video to any server (eg : AWS s3
+  // or Firebase) and then return the uploaded video URL.
+  Future<String> _onVideoPickCallback(File file) async {
+    // Copies the picked file from temporary cache to applications directory
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final copiedFile =
+    await file.copy('${appDocDir.path}/${basename(file.path)}');
+    return copiedFile.path.toString();
   }
 
   Widget _buildMenuBar(BuildContext context) {

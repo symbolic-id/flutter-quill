@@ -135,7 +135,6 @@ class RawEditorState extends EditorState
   // Focus
   bool _didAutoFocus = false;
   FocusAttachment? _focusAttachment;
-
   bool get _hasFocus => widget.focusNode.hasFocus;
 
   DefaultStyles? _styles;
@@ -341,6 +340,7 @@ class RawEditorState extends EditorState
           _cursorCont,
           indentLevelCounts,
           _handleCheckboxTap,
+          widget.readOnly,
           onBlockButtonAddTap: (selectionIndex) {
             _showMenuBlockCreation(selectionIndex: selectionIndex);
           },
@@ -363,6 +363,7 @@ class RawEditorState extends EditorState
       textDirection: _textDirection,
       embedBuilder: widget.embedBuilder,
       styles: _styles!,
+      readOnly: widget.readOnly,
     );
     final editableTextLineKey = GlobalKey();
     final editableTextLine = EditableTextLine(
@@ -826,11 +827,9 @@ class RawEditorState extends EditorState
     // toolbar: copy, paste, select, cut. It might also provide additional
     // functionality depending on the browser (such as translate). Due to this
     // we should not show a Flutter toolbar for the editable text elements.
-
-    // if (kIsWeb) {
-    //   return false;
-    // }
-
+    if (kIsWeb) {
+      return false;
+    }
     if (_selectionOverlay == null || _selectionOverlay!.toolbar != null) {
       return false;
     }

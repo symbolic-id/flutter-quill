@@ -1,3 +1,21 @@
+## [1.7.2]
+* Fix static analysis error.
+
+## [1.7.1]
+* Support Youtube video.
+
+## [1.7.0]
+* Support video.
+
+## [1.6.4]
+* Bug fix for clear format button.
+
+## [1.6.3]
+* Fixed dragging right handle scrolling issue.
+
+## [1.6.2]
+* Fixed the position of the selection status drag handle.
+
 ## [1.6.1]
 * Upgrade image_picker and flutter_colorpicker.
 

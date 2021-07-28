@@ -28,6 +28,8 @@ import 'delegate.dart';
 import 'image.dart';
 import 'raw_editor.dart';
 import 'text_selection.dart';
+import 'video_app.dart';
+import 'youtube_video_app.dart';
 
 const linkPrefixes = [
   'mailto:', // email
@@ -98,7 +100,8 @@ String _standardizeImageUrl(String url) {
   return url;
 }
 
-Widget _defaultEmbedBuilder(BuildContext context, leaf.Embed node) {
+Widget _defaultEmbedBuilder(
+    BuildContext context, leaf.Embed node, bool readOnly) {
   assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
   switch (node.value.type) {
     case 'image':
@@ -108,6 +111,13 @@ Widget _defaultEmbedBuilder(BuildContext context, leaf.Embed node) {
           : isBase64(imageUrl)
               ? Image.memory(base64.decode(imageUrl))
               : Image.file(io.File(imageUrl));
+    case 'video':
+      final videoUrl = node.value.data;
+      if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
+        return YoutubeVideoApp(
+            videoUrl: videoUrl, context: context, readOnly: readOnly);
+      }
+      return VideoApp(videoUrl: videoUrl, context: context, readOnly: readOnly);
     default:
       throw UnimplementedError(
         'Embeddable type "${node.value.type}" is not supported by default '
@@ -913,7 +923,21 @@ class RenderEditor extends RenderEditableContainerBox
   double? getOffsetToRevealCursor(
       double viewportHeight, double scrollOffset, double offsetInViewport) {
     final endpoints = getEndpointsForSelection(selection);
-    final endpoint = endpoints.first;
+
+    // when we drag the right handle, we should get the last point
+    TextSelectionPoint endpoint;
+    if (selection.isCollapsed) {
+      endpoint = endpoints.first;
+    } else {
+      if (selection is DragTextSelection) {
+        endpoint = (selection as DragTextSelection).first
+            ? endpoints.first
+            : endpoints.last;
+      } else {
+        endpoint = endpoints.first;
+      }
+    }
+
     final child = childAtPosition(selection.extent);
     const kMargin = 8.0;
 

@@ -57,7 +57,7 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
   }
 }
 
-Widget _defaultEmbedBuilderWeb(BuildContext context, Embed node) {
+Widget _defaultEmbedBuilderWeb(BuildContext context, Embed node, bool readOnly) {
   switch (node.value.type) {
     case 'image':
       final String imageUrl = node.value.data;

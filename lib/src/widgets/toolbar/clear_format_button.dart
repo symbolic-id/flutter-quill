@@ -33,9 +33,14 @@ class _ClearFormatButtonState extends State<ClearFormatButton> {
         icon: Icon(widget.icon, size: widget.iconSize, color: iconColor),
         fillColor: fillColor,
         onPressed: () {
-          for (final k
-              in widget.controller.getSelectionStyle().attributes.values) {
-            widget.controller.formatSelection(Attribute.clone(k, null));
+          final attrs = <Attribute>{};
+          for (final style in widget.controller.getAllSelectionStyles()) {
+            for (final attr in style.attributes.values) {
+              attrs.add(attr);
+            }
+          }
+          for (final attr in attrs) {
+            widget.controller.formatSelection(Attribute.clone(attr, null));
           }
         });
   }

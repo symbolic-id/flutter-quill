@@ -25,6 +25,41 @@ TextSelection localSelection(Node node, TextSelection selection, fromParent) {
 
 enum _TextSelectionHandlePosition { START, END }
 
+/// internal use, used to get drag direction information
+class DragTextSelection extends TextSelection {
+  const DragTextSelection({
+    TextAffinity affinity = TextAffinity.downstream,
+    int baseOffset = 0,
+    int extentOffset = 0,
+    bool isDirectional = false,
+    this.first = true,
+  }) : super(
+          baseOffset: baseOffset,
+          extentOffset: extentOffset,
+          affinity: affinity,
+          isDirectional: isDirectional,
+        );
+
+  final bool first;
+
+  @override
+  DragTextSelection copyWith({
+    int? baseOffset,
+    int? extentOffset,
+    TextAffinity? affinity,
+    bool? isDirectional,
+    bool? first,
+  }) {
+    return DragTextSelection(
+      baseOffset: baseOffset ?? this.baseOffset,
+      extentOffset: extentOffset ?? this.extentOffset,
+      affinity: affinity ?? this.affinity,
+      isDirectional: isDirectional ?? this.isDirectional,
+      first: first ?? this.first,
+    );
+  }
+}
+
 class EditorTextSelectionOverlay {
   EditorTextSelectionOverlay(
     this.value,
@@ -172,9 +207,20 @@ class EditorTextSelectionOverlay {
       default:
         throw 'Invalid position';
     }
+
+    final currSelection = newSelection != null
+        ? DragTextSelection(
+            baseOffset: newSelection.baseOffset,
+            extentOffset: newSelection.extentOffset,
+            affinity: newSelection.affinity,
+            isDirectional: newSelection.isDirectional,
+            first: position == _TextSelectionHandlePosition.START,
+          )
+        : null;
+
     selectionDelegate
       ..userUpdateTextEditingValue(
-          value.copyWith(selection: newSelection, composing: TextRange.empty),
+          value.copyWith(selection: currSelection, composing: TextRange.empty),
           SelectionChangedCause.drag)
       ..bringIntoView(textPosition);
   }
@@ -303,6 +349,8 @@ class _TextSelectionHandleOverlay extends StatefulWidget {
 class _TextSelectionHandleOverlayState
     extends State<_TextSelectionHandleOverlay>
     with SingleTickerProviderStateMixin {
+  late Offset _dragPosition;
+  late Size _handleSize;
   late AnimationController _controller;
 
   Animation<double> get _opacity => _controller.view;
@@ -341,11 +389,13 @@ class _TextSelectionHandleOverlayState
     super.dispose();
   }
 
-  void _handleDragStart(DragStartDetails details) {}
+  void _handleDragStart(DragStartDetails details) {
+    _dragPosition = details.globalPosition + Offset(0, -_handleSize.height);
+  }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final position =
-        widget.renderObject!.getPositionForOffset(details.globalPosition);
+    _dragPosition += details.delta;
+    final position = widget.renderObject!.getPositionForOffset(_dragPosition);
     if (widget.selection.isCollapsed) {
       widget.onSelectionHandleChanged(TextSelection.fromPosition(position));
       return;
@@ -414,6 +464,7 @@ class _TextSelectionHandleOverlayState
     final handleAnchor =
         widget.selectionControls.getHandleAnchor(type!, lineHeight);
     final handleSize = widget.selectionControls.getHandleSize(lineHeight);
+    _handleSize = handleSize;
 
     final handleRect = Rect.fromLTWH(
       -handleAnchor.dx,

@@ -65,6 +65,7 @@ class EditableTextBlock extends StatelessWidget {
     this.cursorCont,
     this.indentLevelCounts,
     this.onCheckboxTap,
+    this.readOnly,
     {
       required this.onBlockButtonAddTap,
       required this.onBlockButtonOptionTap,
@@ -85,6 +86,7 @@ class EditableTextBlock extends StatelessWidget {
   final CursorCont cursorCont;
   final Map<int, int> indentLevelCounts;
   final Function(int, bool) onCheckboxTap;
+  final bool readOnly;
   final void Function(int?) onBlockButtonAddTap;
   final Function(int, GlobalKey, bool) onBlockButtonOptionTap;
 
@@ -144,6 +146,7 @@ class EditableTextBlock extends StatelessWidget {
             textDirection: textDirection,
             embedBuilder: embedBuilder,
             styles: styles!,
+            readOnly: readOnly,
           ),
           _getIndentWidth(),
           _getSpacingForLine(line, index, count, defaultStyles),

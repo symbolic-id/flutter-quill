@@ -60,10 +60,20 @@ class QuillController extends ChangeNotifier {
         selection: selection,
       );
 
+  /// Only attributes applied to all characters within this range are
+  /// included in the result.
   Style getSelectionStyle() {
     return document
         .collectStyle(selection.start, selection.end - selection.start)
         .mergeAll(toggledStyle);
+  }
+
+  /// Returns all styles for any character within the specified text range.
+  List<Style> getAllSelectionStyles() {
+    final styles = document.collectAllStyles(
+        selection.start, selection.end - selection.start)
+      ..add(toggledStyle);
+    return styles;
   }
 
   void undo() {
@@ -74,13 +84,13 @@ class QuillController extends ChangeNotifier {
   }
 
   void _handleHistoryChange(int? len) {
-    if (len != 0) {
+    if (len! > 0) {
       // if (this.selection.extentOffset >= document.length) {
       // // cursor exceeds the length of document, position it in the end
       // updateSelection(
       // TextSelection.collapsed(offset: document.length), ChangeSource.LOCAL);
       updateSelection(
-          TextSelection.collapsed(offset: selection.baseOffset + len!),
+          TextSelection.collapsed(offset: selection.baseOffset + len),
           ChangeSource.LOCAL);
     } else {
       // no need to move cursor
