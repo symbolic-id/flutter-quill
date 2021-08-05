@@ -221,8 +221,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
             _cursorCont,
             indentLevelCounts,
             _handleCheckboxTap,
-            widget.readOnly);
-            _handleCheckboxTap,
+            widget.readOnly,
           onBlockButtonAddTap: (_) {},
           onBlockButtonOptionTap: (_, __, ___) {},
         );
@@ -252,9 +251,13 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
       textDirection: _textDirection,
       embedBuilder: embedBuilder,
       styles: _styles,
+      readOnly: widget.readOnly,
     );
     final editableTextLine = EditableTextLine(
+        GlobalKey(),
         node,
+        null,
+        null,
         null,
         textLine,
         0,
