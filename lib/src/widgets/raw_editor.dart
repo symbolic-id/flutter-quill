@@ -11,12 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_quill/src/models/documents/nodes/embed.dart';
 import 'package:flutter_quill/src/models/documents/nodes/leaf.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_editable_text_title.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_creation.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_menu_block_option.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_text_title.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru_mobile.dart';
 import 'package:tuple/tuple.dart';
@@ -779,12 +775,13 @@ class RawEditorState extends EditorState
     if (value.text == textEditingValue.text) {
       widget.controller.updateSelection(value.selection, ChangeSource.LOCAL);
     } else {
-      __setEditingValue(value);
+      _setEditingValue(value);
     }
   }
 
-  Future<void> __setEditingValue(TextEditingValue value) async {
-    if (await __isItCut(value)) {
+  // set editing value from clipboard for mobile
+  Future<void> _setEditingValue(TextEditingValue value) async {
+    if (await _isItCut(value)) {
       widget.controller.replaceText(
         textEditingValue.selection.start,
         textEditingValue.text.length - value.text.length,
@@ -812,7 +809,7 @@ class RawEditorState extends EditorState
     }
   }
 
-  Future<bool> __isItCut(TextEditingValue value) async {
+  Future<bool> _isItCut(TextEditingValue value) async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
     if (data == null) {
       return false;

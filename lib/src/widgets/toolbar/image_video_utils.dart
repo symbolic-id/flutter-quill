@@ -5,10 +5,43 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../models/documents/nodes/embed.dart';
+import '../../utils/media_pick_setting.dart';
 import '../controller.dart';
 import '../toolbar.dart';
 
 class ImageVideoUtils {
+  static Future<MediaPickSetting?> selectMediaPickSetting(
+    BuildContext context,
+  ) =>
+      showDialog<MediaPickSetting>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton.icon(
+                icon: const Icon(
+                  Icons.collections,
+                  color: Colors.orangeAccent,
+                ),
+                label: const Text('Gallery'),
+                onPressed: () => Navigator.pop(ctx, MediaPickSetting.Gallery),
+              ),
+              TextButton.icon(
+                icon: const Icon(
+                  Icons.link,
+                  color: Colors.cyanAccent,
+                ),
+                label: const Text('Link'),
+                onPressed: () => Navigator.pop(ctx, MediaPickSetting.Link),
+              )
+            ],
+          ),
+        ),
+      );
+
   /// For image picking logic
   static Future<void> handleImageButtonTap(
       BuildContext context,
@@ -27,7 +60,7 @@ class ImageVideoUtils {
           'Please provide webImagePickImpl for Web '
           '(check out example directory for how to do it)');
       imageUrl = await webImagePickImpl!(onImagePickCallback);
-    } else if (Platform.isAndroid || Platform.isIOS) {
+    } else if (_isMobile()) {
       imageUrl = await _pickImage(imageSource, onImagePickCallback);
     } else {
       assert(filePickImpl != null, 'Desktop must provide filePickImpl');
@@ -79,7 +112,7 @@ class ImageVideoUtils {
           'Please provide webVideoPickImpl for Web '
           '(check out example directory for how to do it)');
       videoUrl = await webVideoPickImpl!(onVideoPickCallback);
-    } else if (Platform.isAndroid || Platform.isIOS) {
+    } else if (_isMobile()) {
       videoUrl = await _pickVideo(videoSource, onVideoPickCallback);
     } else {
       assert(filePickImpl != null, 'Desktop must provide filePickImpl');
@@ -91,6 +124,8 @@ class ImageVideoUtils {
       controller.replaceText(index, length, BlockEmbed.video(videoUrl), null);
     }
   }
+
+  static bool _isMobile() => Platform.isAndroid || Platform.isIOS;
 
   static Future<String?> _pickVideo(
       ImageSource source, OnVideoPickCallback onVideoPickCallback) async {

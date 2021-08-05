@@ -141,17 +141,22 @@ class _HomePageState extends State<HomePage> {
           /*embedBuilder: defaultEmbedBuilderWeb*/);
     }
     var toolbar = QuillToolbar.basic(
-        controller: _controller!,
-        onImagePickCallback: _onImagePickCallback,
-        onVideoPickCallback: _onVideoPickCallback);
+      controller: _controller!,
+      // provide a callback to enable picking images from device.
+      // if omit, "image" button only allows adding images from url.
+      // same goes for videos.
+      onImagePickCallback: _onImagePickCallback,
+      onVideoPickCallback: _onVideoPickCallback,
+      // uncomment to provide a custom "pick from" dialog.
+      // mediaPickSettingSelector: _selectMediaPickSetting,
+    );
     if (kIsWeb) {
       toolbar = QuillToolbar.basic(
           controller: _controller!,
           onImagePickCallback: _onImagePickCallback,
           webImagePickImpl: _webImagePickImpl);
     }
-    final isDesktop = !kIsWeb && !Platform.isAndroid && !Platform.isIOS;
-    if (isDesktop) {
+    if (_isDesktop()) {
       toolbar = QuillToolbar.basic(
           controller: _controller!,
           onImagePickCallback: _onImagePickCallback,
@@ -182,6 +187,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  bool _isDesktop() => !kIsWeb && !Platform.isAndroid && !Platform.isIOS;
 
   Future<String?> openFileSystemPickerForDesktop(BuildContext context) async {
     return await FilesystemPicker.open(
@@ -227,6 +234,29 @@ class _HomePageState extends State<HomePage> {
     await file.copy('${appDocDir.path}/${basename(file.path)}');
     return copiedFile.path.toString();
   }
+
+  Future<MediaPickSetting?> _selectMediaPickSetting(BuildContext context) =>
+      showDialog<MediaPickSetting>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton.icon(
+                icon: const Icon(Icons.collections),
+                label: const Text('Gallery'),
+                onPressed: () => Navigator.pop(ctx, MediaPickSetting.Gallery),
+              ),
+              TextButton.icon(
+                icon: const Icon(Icons.link),
+                label: const Text('Link'),
+                onPressed: () => Navigator.pop(ctx, MediaPickSetting.Link),
+              )
+            ],
+          ),
+        ),
+      );
 
   Widget _buildMenuBar(BuildContext context) {
     final size = MediaQuery.of(context).size;

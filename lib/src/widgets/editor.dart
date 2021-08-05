@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io' show File;
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
@@ -20,6 +20,7 @@ import '../models/documents/nodes/container.dart' as container_node;
 import '../models/documents/nodes/embed.dart';
 import '../models/documents/nodes/leaf.dart' as leaf;
 import '../models/documents/nodes/line.dart';
+import '../utils/string_helper.dart';
 import 'box.dart';
 import 'controller.dart';
 import 'cursor.dart';
@@ -100,17 +101,73 @@ String _standardizeImageUrl(String url) {
   return url;
 }
 
+bool _isMobile() =>
+    defaultTargetPlatform == TargetPlatform.android ||
+    defaultTargetPlatform == TargetPlatform.iOS;
+
 Widget _defaultEmbedBuilder(
     BuildContext context, leaf.Embed node, bool readOnly) {
   // assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
   switch (node.value.type) {
     case 'image':
       final imageUrl = _standardizeImageUrl(node.value.data);
+
+      final style = node.style.attributes['style'];
+      if (_isMobile() && style != null) {
+        final _attrs = parseKeyValuePairs(style.value.toString(),
+            {'mobileWidth', 'mobileHeight', 'mobileMargin', 'mobileAlignment'});
+        if (_attrs.isNotEmpty) {
+          assert(
+              _attrs['mobileWidth'] != null && _attrs['mobileHeight'] != null,
+              'mobileWidth and mobileHeight must be specified');
+          final w = double.parse(_attrs['mobileWidth']!);
+          final h = double.parse(_attrs['mobileHeight']!);
+          final m = _attrs['mobileMargin'] == null
+              ? 0.0
+              : double.parse(_attrs['mobileMargin']!);
+          var a = Alignment.center;
+          if (_attrs['mobileAlignment'] != null) {
+            final _index = [
+              'topLeft',
+              'topCenter',
+              'topRight',
+              'centerLeft',
+              'center',
+              'centerRight',
+              'bottomLeft',
+              'bottomCenter',
+              'bottomRight'
+            ].indexOf(_attrs['mobileAlignment']!);
+            if (_index >= 0) {
+              a = [
+                Alignment.topLeft,
+                Alignment.topCenter,
+                Alignment.topRight,
+                Alignment.centerLeft,
+                Alignment.center,
+                Alignment.centerRight,
+                Alignment.bottomLeft,
+                Alignment.bottomCenter,
+                Alignment.bottomRight
+              ][_index];
+            }
+          }
+          return Padding(
+              padding: EdgeInsets.all(m),
+              child: imageUrl.startsWith('http')
+                  ? Image.network(imageUrl, width: w, height: h, alignment: a)
+                  : isBase64(imageUrl)
+                      ? Image.memory(base64.decode(imageUrl),
+                          width: w, height: h, alignment: a)
+                      : Image.file(File(imageUrl),
+                          width: w, height: h, alignment: a));
+        }
+      }
       return imageUrl.startsWith('http')
           ? Image.network(imageUrl)
           : isBase64(imageUrl)
               ? Image.memory(base64.decode(imageUrl))
-              : Image.file(io.File(imageUrl));
+              : Image.file(File(imageUrl));
     case 'video':
       final videoUrl = node.value.data;
       if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {

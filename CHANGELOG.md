@@ -1,3 +1,12 @@
+## [1.8.1]
+* Support mobile custom size image.
+
+## [1.8.0]
+* Support entering link for image/video.
+
+## [1.7.3]
+* Bumps photo_view version.
+
 ## [1.7.2]
 * Fix static analysis error.
 
