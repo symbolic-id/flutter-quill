@@ -102,7 +102,7 @@ String _standardizeImageUrl(String url) {
 
 Widget _defaultEmbedBuilder(
     BuildContext context, leaf.Embed node, bool readOnly) {
-  assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
+  // assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
   switch (node.value.type) {
     case 'image':
       final imageUrl = _standardizeImageUrl(node.value.data);
