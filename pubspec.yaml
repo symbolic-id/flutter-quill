@@ -24,6 +24,7 @@ dependencies:
   characters: ^1.1.0
   youtube_player_flutter: ^8.0.0
   google_fonts: ^2.1.0
+  charcode: ^1.2.0
 
 dev_dependencies:
   flutter_test:
