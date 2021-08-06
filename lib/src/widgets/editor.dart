@@ -163,11 +163,9 @@ Widget _defaultEmbedBuilder(
                           width: w, height: h, alignment: a));
         }
       }
-      return imageUrl.startsWith('http')
-          ? Image.network(imageUrl)
-          : isBase64(imageUrl)
-              ? Image.memory(base64.decode(imageUrl))
-              : Image.file(File(imageUrl));
+      return SizedBox(
+          height: MediaQuery.of(context).size.height * 0.4,
+          child: Image.network(imageUrl));
     case 'video':
       final videoUrl = node.value.data;
       if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
@@ -379,7 +377,7 @@ class _QuillEditorState extends State<QuillEditor>
         widget.enableInteractiveSelection,
         widget.scrollPhysics,
         widget.embedBuilder,
-        titleController: widget.titleController ?? TextEditingController(),
+        titleController: widget.titleController,
       ),
     );
   }

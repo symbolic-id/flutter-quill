@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_text.dart';
+import 'package:flutter_quill/src/widgets/simple_viewer.dart';
 
 class SymEditorKalpataru extends StatefulWidget {
   SymEditorKalpataru();
 
-  late QuillController? _controller;
+  QuillController? _controller;
 
   @override
   _SymEditorKalpataruState createState() => _SymEditorKalpataruState();
@@ -22,7 +22,6 @@ class SymEditorKalpataru extends StatefulWidget {
 }
 
 class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
-
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -37,9 +36,7 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
     // }
     final doc = Document();
     widget._controller = QuillController(
-        document: doc,
-        selection: const TextSelection.collapsed(offset: 0)
-    );
+        document: doc, selection: const TextSelection.collapsed(offset: 0));
     var quillEditor = QuillEditor(
       controller: widget._controller!,
       scrollController: ScrollController(),
@@ -49,7 +46,7 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
       readOnly: false,
       placeholder: 'Add content',
       expands: false,
-      embedBuilder: _defaultEmbedBuilderWeb,
+      embedBuilder: defaultSymEmbedBuilderWeb,
       padding: kIsWeb ? null : const EdgeInsets.only(left: 24),
       titleController: TextEditingController(),
     );
@@ -57,20 +54,20 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
   }
 }
 
-Widget _defaultEmbedBuilderWeb(BuildContext context, Embed node, bool readOnly) {
+Widget defaultSymEmbedBuilderWeb(
+    BuildContext context, Embed node, bool readOnly) {
   switch (node.value.type) {
     case 'image':
       final String imageUrl = node.value.data;
       return SizedBox(
           height: MediaQuery.of(context).size.height * 0.4,
-          child: Image.network(imageUrl)
-      );
+          child: Image.network(imageUrl));
 
     default:
       throw UnimplementedError(
         'Embeddable type "${node.value.type}" is not supported by default '
-            'embed builder of QuillEditor. You must pass your own builder function '
-            'to embedBuilder property of QuillEditor or QuillField widgets.',
+        'embed builder of QuillEditor. You must pass your own builder function '
+        'to embedBuilder property of QuillEditor or QuillField widgets.',
       );
   }
 }

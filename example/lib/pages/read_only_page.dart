@@ -49,7 +49,7 @@ class _ReadOnlyPageState extends State<ReadOnlyPage> {
           readOnly: !_edit,
           expands: false,
           padding: EdgeInsets.zero,
-          embedBuilder: defaultEmbedBuilderWeb);
+          /*embedBuilder: defaultEmbedBuilderWeb*/);
     }
     return Padding(
       padding: const EdgeInsets.all(8),

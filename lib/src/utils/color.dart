@@ -125,6 +125,8 @@ Color stringToColor(String? s) {
 }
 
 class SymColors {
+  SymColors._();
+
   static const Color light_bluePrimary = Color(0xFF4267B2);
   static const Color light_bgWhite = Color(0xFFFFFFFF);
   static const Color light_line = Color(0xFFE0E0E0);

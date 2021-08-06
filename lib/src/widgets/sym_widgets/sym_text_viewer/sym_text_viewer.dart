@@ -1,73 +1,42 @@
-import 'dart:convert';
-import 'dart:io' as io;
-
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_quill/flutter_quill.dart';
-import 'package:string_validator/string_validator.dart';
+import 'package:flutter_quill/src/models/documents/nodes/block.dart';
+import 'package:flutter_quill/src/models/documents/nodes/line.dart';
+import 'package:flutter_quill/src/utils/color.dart';
 import 'package:tuple/tuple.dart';
 
-import '../models/documents/attribute.dart';
-import '../models/documents/document.dart';
-import '../models/documents/nodes/block.dart';
-import '../models/documents/nodes/leaf.dart' as leaf;
-import '../models/documents/nodes/line.dart';
-import 'controller.dart';
-import 'cursor.dart';
-import 'default_styles.dart';
-import 'delegate.dart';
-import 'editor.dart';
-import 'text_block.dart';
-import 'text_line.dart';
-import 'video_app.dart';
-import 'youtube_video_app.dart';
+import '../../cursor.dart';
+import '../../delegate.dart';
+import '../../text_block.dart';
+import '../../text_line.dart';
+import '../sym_text.dart';
 
-class QuillSimpleViewer extends StatefulWidget {
-  const QuillSimpleViewer({
-    required this.controller,
-    required this.readOnly,
-    this.customStyles,
-    this.truncate = false,
-    this.truncateScale,
-    this.truncateAlignment,
-    this.truncateHeight,
-    this.truncateWidth,
-    this.scrollBottomInset = 0,
-    this.padding = EdgeInsets.zero,
-    this.embedBuilder,
-    Key? key,
-  })  : assert(truncate ||
-            ((truncateScale == null) &&
-                (truncateAlignment == null) &&
-                (truncateHeight == null) &&
-                (truncateWidth == null))),
-        super(key: key);
+class SymTextViewer extends StatefulWidget {
+  SymTextViewer(this.markdownData, {this.scrollController, this.maxLine});
 
-  final QuillController controller;
-  final DefaultStyles? customStyles;
-  final bool truncate;
-  final double? truncateScale;
-  final Alignment? truncateAlignment;
-  final double? truncateHeight;
-  final double? truncateWidth;
-  final double scrollBottomInset;
-  final EdgeInsetsGeometry padding;
-  final EmbedBuilder? embedBuilder;
-  final bool readOnly;
+  final String markdownData;
+  final ScrollController? scrollController;
+  final int? maxLine;
+
+  late QuillController _controller;
 
   @override
-  _QuillSimpleViewerState createState() => _QuillSimpleViewerState();
+  _SymTextViewerState createState() => _SymTextViewerState();
 }
 
-class _QuillSimpleViewerState extends State<QuillSimpleViewer>
+class _SymTextViewerState extends State<SymTextViewer>
     with SingleTickerProviderStateMixin {
+
   late DefaultStyles _styles;
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
   final LayerLink _endHandleLayerLink = LayerLink();
   late CursorCont _cursorCont;
+  
+  bool _isExceededMaxLine = false;
+
+  bool get showPreviewImage => widget.maxLine != null;
 
   @override
   void initState() {
@@ -94,104 +63,89 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     _styles = (parentStyles != null)
         ? defaultStyles.merge(parentStyles)
         : defaultStyles;
-
-    if (widget.customStyles != null) {
-      _styles = _styles.merge(widget.customStyles!);
-    }
-  }
-
-  EmbedBuilder get embedBuilder => widget.embedBuilder ?? defaultSymEmbedBuilderWeb;
-
-  Widget _defaultEmbedBuilder(
-      BuildContext context, leaf.Embed node, bool readOnly) {
-    assert(!kIsWeb, 'Please provide EmbedBuilder for Web');
-    switch (node.value.type) {
-      case 'image':
-        final imageUrl = _standardizeImageUrl(node.value.data);
-        return imageUrl.startsWith('http')
-            ? Image.network(imageUrl)
-            : isBase64(imageUrl)
-                ? Image.memory(base64.decode(imageUrl))
-                : Image.file(io.File(imageUrl));
-      case 'video':
-        final videoUrl = node.value.data;
-        if (videoUrl.contains('youtube.com') || videoUrl.contains('youtu.be')) {
-          return YoutubeVideoApp(
-              videoUrl: videoUrl, context: context, readOnly: readOnly);
-        }
-        return VideoApp(
-            videoUrl: videoUrl, context: context, readOnly: readOnly);
-      default:
-        throw UnimplementedError(
-          'Embeddable type "${node.value.type}" is not supported by default '
-          'embed builder of QuillEditor. You must pass your own builder '
-          'function to embedBuilder property of QuillEditor or QuillField '
-          'widgets.',
-        );
-    }
-  }
-
-  String _standardizeImageUrl(String url) {
-    if (url.contains('base64')) {
-      return url.split(',')[1];
-    }
-    return url;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('LL:: SimpleViewer | truncateHeight: ${widget.truncateHeight}');
-    final _doc = widget.controller.document;
-    // if (_doc.isEmpty() &&
-    //     !widget.focusNode.hasFocus &&
-    //     widget.placeholder != null) {
-    //   _doc = Document.fromJson(jsonDecode(
-    //       '[{"attributes":{"placeholder":true},"insert":"${widget.placeholder}\\n"}]'));
-    // }
+    final doc = Document.fromMarkdown(widget.markdownData);
+    widget._controller = QuillController(
+        document: doc, selection: const TextSelection.collapsed(offset: 0));
 
     Widget child = CompositedTransformTarget(
       link: _toolbarLayerLink,
       child: Semantics(
-        child: _SimpleViewer(
-          document: _doc,
+        child: _SymTextViewer(
+          document: doc,
           textDirection: _textDirection,
           startHandleLayerLink: _startHandleLayerLink,
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _nullSelectionChanged,
-          scrollBottomInset: widget.scrollBottomInset,
-          padding: widget.padding,
-          children: _buildChildren(_doc, context),
+          scrollBottomInset: 0,
+          children: _buildChildren(doc, context),
         ),
       ),
     );
 
-    if (widget.truncate) {
-      print('LL:: SimpleViewer | truncate');
-      if (widget.truncateScale != null) {
-        print('LL:: SimpleViewer | widget.truncateScale != null');
-        child = Container(
-            height: widget.truncateHeight,
-            child: Align(
-                heightFactor: widget.truncateScale,
-                widthFactor: widget.truncateScale,
-                alignment: widget.truncateAlignment ?? Alignment.topLeft,
-                child: Container(
-                    width: widget.truncateWidth! / widget.truncateScale!,
-                    child: SingleChildScrollView(
-                        physics: const NeverScrollableScrollPhysics(),
-                        child: Transform.scale(
-                            scale: widget.truncateScale!,
-                            alignment:
-                                widget.truncateAlignment ?? Alignment.topLeft,
-                            child: child)))));
-      } else {
-        print('LL:: SimpleViewer | widget.truncateScale == null');
-        child = Container(
-            height: widget.truncateHeight,
-            width: widget.truncateWidth,
+    if (widget.maxLine != null) {
+      final _key = GlobalKey();
+      
+      if (!_isExceededMaxHeight) {
+        child = ConstrainedBox(
+            key: _key,
+            constraints: BoxConstraints(maxHeight: widget.maxHeight!),
             child: SingleChildScrollView(
                 physics: const NeverScrollableScrollPhysics(), child: child));
+      } else {
+        final readMore = Container(
+          margin: const EdgeInsets.only(bottom: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4),
+            color: SymColors.light_textQuaternary,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: SymText('Selengkapnya', color: Colors.white,),
+        );
+
+        child = Stack(
+          children: [
+            ConstrainedBox(
+                key: _key,
+                constraints: BoxConstraints(maxHeight: widget.maxHeight!),
+                child: SingleChildScrollView(
+                    physics: const NeverScrollableScrollPhysics(), child: child)),
+            Container(
+              height: widget.maxHeight!,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: FractionalOffset.topCenter,
+                  end: FractionalOffset.bottomCenter,
+                  colors: [Colors.white.withOpacity(0), Colors.white.withOpacity(0.8), Colors.white],
+                  stops: [
+                    0.0,
+                    0.8,
+                    1.0
+                  ]
+                )
+              ),
+            ),
+            Positioned(
+              bottom: widget.maxHeight! * 0.15,
+              child: Center(child: readMore),
+            )
+          ]
+        );
       }
+
+
+      WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+        final height = _key.currentContext!.size!.height;
+        if (height >= widget.maxHeight! && !_isExceededMaxHeight) {
+          setState(() {
+            _isExceededMaxHeight = true;
+          });
+        }
+        print('LL:: height: ${_key.currentContext?.size?.height}');
+      });
     }
 
     return QuillStyles(data: _styles, child: child);
@@ -207,26 +161,26 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
       } else if (node is Block) {
         final attrs = node.style.attributes;
         final editableTextBlock = EditableTextBlock(
-            node,
-            _textDirection,
-            widget.scrollBottomInset,
-            _getVerticalSpacingForBlock(node, _styles),
-            widget.controller.selection,
-            Colors.black,
-            // selectionColor,
-            _styles,
-            false,
-            // enableInteractiveSelection,
-            false,
-            // hasFocus,
-            attrs.containsKey(Attribute.codeBlock.key)
-                ? const EdgeInsets.all(16)
-                : null,
-            embedBuilder,
-            _cursorCont,
-            indentLevelCounts,
-            _handleCheckboxTap,
-            widget.readOnly,
+          node,
+          _textDirection,
+          0,
+          _getVerticalSpacingForBlock(node, _styles),
+          widget._controller.selection,
+          Colors.black,
+          // selectionColor,
+          _styles,
+          false,
+          // enableInteractiveSelection,
+          false,
+          // hasFocus,
+          attrs.containsKey(Attribute.codeBlock.key)
+              ? const EdgeInsets.all(16)
+              : null,
+          embedBuilder,
+          _cursorCont,
+          indentLevelCounts,
+          _handleCheckboxTap,
+          true,
           onBlockButtonAddTap: (_) {},
           onBlockButtonOptionTap: (_, __, ___) {},
         );
@@ -256,7 +210,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
       textDirection: _textDirection,
       embedBuilder: embedBuilder,
       styles: _styles,
-      readOnly: widget.readOnly,
+      readOnly: true,
     );
     final editableTextLine = EditableTextLine(
         GlobalKey(),
@@ -268,7 +222,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
         0,
         _getVerticalSpacingForLine(node, _styles),
         _textDirection,
-        widget.controller.selection,
+        widget._controller.selection,
         Colors.black,
         //widget.selectionColor,
         false,
@@ -315,10 +269,12 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
 
   void _nullSelectionChanged(
       TextSelection selection, SelectionChangedCause cause) {}
+
+  EmbedBuilder get embedBuilder => defaultSymEmbedBuilderWeb;
 }
 
-class _SimpleViewer extends MultiChildRenderObjectWidget {
-  _SimpleViewer({
+class _SymTextViewer extends MultiChildRenderObjectWidget {
+  _SymTextViewer({
     required List<Widget> children,
     required this.document,
     required this.textDirection,

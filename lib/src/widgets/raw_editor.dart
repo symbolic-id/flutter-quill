@@ -64,7 +64,7 @@ class RawEditor extends StatefulWidget {
       this.enableInteractiveSelection,
       this.scrollPhysics,
       this.embedBuilder,
-      {required this.titleController})
+      {this.titleController})
       : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
         assert(minHeight == null || minHeight >= 0, 'minHeight cannot be null'),
         assert(maxHeight == null || minHeight == null || maxHeight >= minHeight,
@@ -97,7 +97,7 @@ class RawEditor extends StatefulWidget {
   final bool enableInteractiveSelection;
   final ScrollPhysics? scrollPhysics;
   final EmbedBuilder embedBuilder;
-  final TextEditingController titleController;
+  final TextEditingController? titleController;
 
   @override
   State<StatefulWidget> createState() => RawEditorState();
@@ -131,6 +131,7 @@ class RawEditorState extends EditorState
   // Focus
   bool _didAutoFocus = false;
   FocusAttachment? _focusAttachment;
+
   bool get _hasFocus => widget.focusNode.hasFocus;
 
   DefaultStyles? _styles;
@@ -162,36 +163,42 @@ class RawEditorState extends EditorState
     final defaultPadding = EdgeInsets.only(
         left: containerSize.width * 0.2, right: containerSize.width * 0.2);
 
-    widget.controller.titleKalpataru = kIsWeb ? SymTitleKalpataru(
-      controller: widget.titleController,
-      focusNode: titleFocusNode,
-      padding: EdgeInsets.only(
-          left: widget.padding?.horizontal ??
-              defaultPadding.left + SymBlockButton.buttonWidth * 2,
-          right: widget.padding?.horizontal ?? defaultPadding.right,
-          top: kIsWeb ? 82 : 24),
-      onSubmitted: () {
-        widget.controller.updateSelection(
-            const TextSelection.collapsed(offset: 0), ChangeSource.LOCAL);
-        widget.controller.notifyListeners();
-      },
-    ) : SymTitleKalpataruMobile(
-      controller: widget.titleController,
-      focusNode: titleFocusNode,
-      padding: EdgeInsets.only(
-          left: widget.padding?.horizontal ??
-              defaultPadding.left + SymBlockButton.buttonWidth * 2,
-          right: widget.padding?.horizontal ?? defaultPadding.right,
-          top: kIsWeb ? 82 : 24),
-      onSubmitted: () {
-        WidgetsBinding.instance!.addPostFrameCallback((_) {
-          widget.controller.updateSelection(
-              const TextSelection.collapsed(offset: 0), ChangeSource.LOCAL);
-          // widget.controller.notifyListeners();
-          widget.focusNode.requestFocus();
-        });
-      },
-    );
+    widget.controller.titleKalpataru = widget.titleController != null
+        ? kIsWeb
+            ? SymTitleKalpataru(
+                controller: widget.titleController!,
+                focusNode: titleFocusNode,
+                padding: EdgeInsets.only(
+                    left: widget.padding?.horizontal ??
+                        defaultPadding.left + SymBlockButton.buttonWidth * 2,
+                    right: widget.padding?.horizontal ?? defaultPadding.right,
+                    top: kIsWeb ? 82 : 24),
+                onSubmitted: () {
+                  widget.controller.updateSelection(
+                      const TextSelection.collapsed(offset: 0),
+                      ChangeSource.LOCAL);
+                  widget.controller.notifyListeners();
+                },
+              )
+            : SymTitleKalpataruMobile(
+                controller: widget.titleController!,
+                focusNode: titleFocusNode,
+                padding: EdgeInsets.only(
+                    left: widget.padding?.horizontal ??
+                        defaultPadding.left + SymBlockButton.buttonWidth * 2,
+                    right: widget.padding?.horizontal ?? defaultPadding.right,
+                    top: kIsWeb ? 82 : 24),
+                onSubmitted: () {
+                  WidgetsBinding.instance!.addPostFrameCallback((_) {
+                    widget.controller.updateSelection(
+                        const TextSelection.collapsed(offset: 0),
+                        ChangeSource.LOCAL);
+                    // widget.controller.notifyListeners();
+                    widget.focusNode.requestFocus();
+                  });
+                },
+              )
+        : null;
 
     Widget child = CompositedTransformTarget(
       link: _toolbarLayerLink,
@@ -365,13 +372,13 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        kIsWeb
+        kIsWeb && !widget.readOnly
             ? SymBlockButton.typeAdd(editableTextLineKey, node.offset,
                 (textOffset, _) {
                 _showMenuBlockCreation(selectionIndex: textOffset);
               })
             : null,
-        kIsWeb
+        kIsWeb && !widget.readOnly
             ? SymBlockButton.typeOption(editableTextLineKey, node.offset,
                 (textOffset, btnKey) {
                 bool isEmbed;

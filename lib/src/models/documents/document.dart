@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_quill/src/utils/delta_markdown/markdown_converter.dart';
 import 'package:tuple/tuple.dart';
 
 import '../quill_delta.dart';
@@ -25,6 +26,11 @@ class Document {
 
   Document.fromDelta(Delta delta) : _delta = delta {
     _loadDocument(delta);
+  }
+
+  Document.fromMarkdown(String data)
+      : _delta = _transform(MarkdownConverter.fromMarkdown(data)) {
+    _loadDocument(_delta);
   }
 
   /// The root node of the document tree
@@ -78,8 +84,8 @@ class Document {
 
     final delta = line.toDelta();
     for (final op in delta.toList()) {
-      final style = op.attributes != null
-          ? Style.fromJson(op.attributes) : null;
+      final style =
+          op.attributes != null ? Style.fromJson(op.attributes) : null;
 
       final data = _normalize(op.data);
       _root.insert(_index, data, style);
@@ -107,8 +113,8 @@ class Document {
 
     final delta = newBlock?.toDelta() ?? newLine.toDelta();
     for (final op in delta.toList()) {
-      final style = op.attributes != null
-          ? Style.fromJson(op.attributes) : null;
+      final style =
+          op.attributes != null ? Style.fromJson(op.attributes) : null;
 
       final data = _normalize(op.data);
       _root.insert(index, data, style);
@@ -172,7 +178,6 @@ class Document {
 
   /* Get string from entire line by text index */
   String getTextInLineFromTextIndex(int index) {
-
     var delta = Delta()..retain(index);
     final itr = DeltaIterator(toDelta())..skip(index);
 
