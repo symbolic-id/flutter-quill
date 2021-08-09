@@ -136,30 +136,10 @@ class _SymTextViewerState extends State<SymTextViewer>
               child: SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(), child: child)),
           Positioned(
-            left: 20,
+            left: 0,
             right: 0,
             bottom: 0,
-            child: Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 20,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: FractionalOffset.centerLeft,
-                          end: FractionalOffset.centerRight,
-                          colors: [
-                            Colors.white.withOpacity(0.3),
-                            Colors.white.withOpacity(1),
-                          ],
-                          stops: [
-                            0.0,
-                            1.0
-                          ])),
-                ),
-                Expanded(child: readMore),
-              ],
-            ),
+            child: readMore,
           )
         ]);
       }

@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_quill/src/utils/sym_regex.dart';
 import 'package:tuple/tuple.dart';
 
 import '../models/documents/attribute.dart';
@@ -196,7 +197,7 @@ class TextLine extends StatelessWidget {
       res = res.merge(TextStyle(backgroundColor: backgroundColor));
     }
 
-    return TextSpan(text: textNode.value, style: res);
+    return TextSpan(text: textNode.value.replaceAll(SymRegex.BLOCK_IDENTIFIER, ''), style: res);
   }
 
   TextStyle _merge(TextStyle a, TextStyle b) {
