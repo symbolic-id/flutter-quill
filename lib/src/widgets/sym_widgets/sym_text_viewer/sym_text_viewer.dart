@@ -14,8 +14,10 @@ import '../../text_line.dart';
 import '../sym_text.dart';
 
 class SymTextViewer extends StatefulWidget {
-  SymTextViewer(this.markdownData, {this.scrollController, this.maxHeight});
+  SymTextViewer(this.markdownData,
+      {this.scrollController, this.maxHeight, this.darkMode = false});
 
+  final bool darkMode;
   final String markdownData;
   final ScrollController? scrollController;
   final double? maxHeight;
@@ -58,15 +60,20 @@ class _SymTextViewerState extends State<SymTextViewer>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final parentStyles = QuillStyles.getStyles(context, true);
-    final defaultStyles = DefaultStyles.getInstance(context);
-    _styles = (parentStyles != null)
-        ? defaultStyles.merge(parentStyles)
-        : defaultStyles;
+
+    final textColor = widget.darkMode
+        ? SymColors.dark_textPrimary
+        : SymColors.light_textPrimary;
+    final defaultStyles =
+        DefaultStyles.getInstance(context, baseTextColor: textColor);
+    _styles = defaultStyles;
   }
 
   @override
   Widget build(BuildContext context) {
+    final bgColor =
+        widget.darkMode ? SymColors.dark_bgSurface2 : SymColors.light_bgWhite;
+
     var markdownToDecode = widget.markdownData;
     if (widget.maxHeight != null) {
       markdownToDecode = widget.markdownData
@@ -108,19 +115,21 @@ class _SymTextViewerState extends State<SymTextViewer>
                   begin: FractionalOffset.topCenter,
                   end: FractionalOffset.bottomCenter,
                   colors: [
-                    Colors.white.withOpacity(0),
-                    Colors.white.withOpacity(0.8),
-                    Colors.white,
-                    Colors.white
-                  ],
+                bgColor.withOpacity(0),
+                bgColor.withOpacity(0.8),
+                bgColor,
+                bgColor
+              ],
                   stops: [
-                    0.0,
-                    0.2,
-                    0.3,
-                    1.0
-                  ])),
+                0.0,
+                0.2,
+                0.3,
+                1.0
+              ])),
           child: Padding(
-            padding: const EdgeInsets.only(top: 2,),
+            padding: const EdgeInsets.only(
+              top: 2,
+            ),
             child: SymText(
               '...Lihat selengkapnya',
               size: 16,
@@ -145,15 +154,18 @@ class _SymTextViewerState extends State<SymTextViewer>
       }
 
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-        final height = _key.currentContext!.size!.height;
-        if (height >= widget.maxHeight! && !_isExceededMaxHeight) {
-          setState(() {
-            _isExceededMaxHeight = true;
-          });
+        final height = _key.currentContext?.size?.height;
+        if (height != null) {
+          if (height >= widget.maxHeight! && !_isExceededMaxHeight) {
+            setState(() {
+              _isExceededMaxHeight = true;
+            });
+          }
         }
       });
     }
 
+    // final textViewer = QuillStyles(data: _styles, child: child);
     final textViewer = QuillStyles(data: _styles, child: child);
 
     if (widget.maxHeight != null) {
@@ -168,16 +180,16 @@ class _SymTextViewerState extends State<SymTextViewer>
           if (imageUrl != null) {
             return Column(
               children: [
-                if (images.isNotEmpty && image != null) SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.4,
-                    child: Image.network(imageUrl)),
-                QuillStyles(data: _styles, child: child)
+                if (images.isNotEmpty && image != null)
+                  SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      child: Image.network(imageUrl)),
+                textViewer
               ],
             );
           } else {
             return textViewer;
           }
-
         } else {
           return textViewer;
         }

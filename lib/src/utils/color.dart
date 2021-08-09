@@ -135,5 +135,8 @@ class SymColors {
   static const Color light_textQuaternary = Color(0xFF9E9E9E);
   static const Color light_bgSurface1 = Color(0xFFF5F5F5);
 
+  static const Color dark_bgSurface2 = Color(0xFF242424);
+  static const Color dark_textPrimary = Color(0xFFFAFAFA);
+
   static Color hoverColor = light_line;
 }

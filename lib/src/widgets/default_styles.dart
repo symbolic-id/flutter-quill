@@ -90,14 +90,17 @@ class DefaultStyles {
   final DefaultTextBlockStyle? align;
   final DefaultTextBlockStyle? leading;
 
-  static DefaultStyles getInstance(BuildContext context) {
+  static DefaultStyles getInstance(BuildContext context,
+      {Color baseTextColor = SymColors.light_textPrimary}) {
     final themeData = Theme.of(context);
     final defaultTextStyle = DefaultTextStyle.of(context);
-    final baseStyle = defaultTextStyle.style.copyWith(
-      color: SymColors.light_textPrimary,
-      fontSize: 16,
-      height: 1.3,
-    ).merge(GoogleFonts.ibmPlexSans());
+    final baseStyle = defaultTextStyle.style
+        .copyWith(
+          color: baseTextColor,
+          fontSize: 16,
+          height: 1.3,
+        )
+        .merge(GoogleFonts.ibmPlexSans());
     const baseSpacing = Tuple2<double, double>(6, 0);
     String fontFamily;
     switch (themeData.platform) {
