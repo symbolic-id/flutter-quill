@@ -13,8 +13,8 @@ class DemoLoadFromMarkdownPage extends StatefulWidget {
 }
 
 class _KalpataruLoadFromMarkdownPage extends State<DemoLoadFromMarkdownPage> {
-  List<String> examples = [_markdownExample1, _markdownExample2, _markdownExample3];
-  // List<String> examples = [_markdownExample3];
+  // List<String> examples = [_markdownExample1, _markdownExample2, _markdownExample3];
+  List<String> examples = [_markdownExample4];
 
   @override
   void initState() {
@@ -69,3 +69,6 @@ final _markdownExample2 =
 
 final _markdownExample3 =
     "# Markdown[[^space-22b480bd-440b-4805-84c8-e38cc3275c87]]\\n![Minion](https://octodex.github.com/images/minion.png)[[^space-22b480bd-440b-4805-84c8-e38cc3275c87]]\\n";
+
+final _markdownExample4 =
+    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.[[^space-5dc9b91c-0960-419b-ad5a-af984034de1e]]\\n[[^space-3be2b2ae-ae50-4f8a-abfc-092db73bc84a]]\\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.[[^space-18519ef1-af32-4856-9791-493e7c8b5b6c]]\\n[[^space-83731ff4-00cf-46db-a7e5-3499cab17596]]\\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.[[^space-4a4ee6f8-f62e-42f0-bf19-bc1bf3e61a2e]]\\n[[^space-3bc0025a-df04-416c-8a01-b100ff32193b]]\\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.[[^space-33b0a9c9-1c73-42d6-ba8b-ec97d8a448c0]]\\n";

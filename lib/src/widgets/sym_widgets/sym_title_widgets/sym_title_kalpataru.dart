@@ -1,14 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_quill/src/widgets/common_widgets/gap.dart';
-import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_button.dart';
+import '../../common_widgets/gap.dart';
+import 'sym_title_button.dart';
 
 import '../sym_text.dart';
 import 'sym_title_widget.dart';
 
 class SymTitleKalpataru extends SymTitleWidget {
-  const SymTitleKalpataru(
+  SymTitleKalpataru(
       {required FocusNode focusNode,
       required EdgeInsetsGeometry padding,
       required Function onSubmitted,
@@ -22,13 +21,16 @@ class SymTitleKalpataru extends SymTitleWidget {
 class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
   var isHovered = false;
 
-  var isExitedByArrow = false;
-
   @override
   void initState() {
     super.initState();
-    widget.focusNode.requestFocus();
-    widget.focusNode.addListener(_onFocusChanged);
+    widget.init();
+  }
+
+  @override
+  void dispose() {
+    widget.dispose();
+    super.dispose();
   }
 
   @override
@@ -36,9 +38,9 @@ class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
     return RawKeyboardListener(
       focusNode: FocusNode(),
       onKey: (event) {
-        if (!isExitedByArrow) {
+        if (!widget.isExitedByArrow) {
           if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-            isExitedByArrow = true;
+            widget.isExitedByArrow = true;
             widget.onSubmitted();
           }
         }
@@ -92,17 +94,5 @@ class _SymTitleKalpataruState extends State<SymTitleKalpataru> {
         ),
       ),
     );
-  }
-
-  void _onFocusChanged() {
-    if (widget.focusNode.hasFocus) {
-      isExitedByArrow = false;
-    }
-  }
-
-  @override
-  void dispose() {
-    widget.focusNode.removeListener(_onFocusChanged);
-    super.dispose();
   }
 }

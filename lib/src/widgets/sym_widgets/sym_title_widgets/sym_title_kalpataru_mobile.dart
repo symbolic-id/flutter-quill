@@ -8,7 +8,7 @@ import '../sym_text.dart';
 import 'sym_title_widget.dart';
 
 class SymTitleKalpataruMobile extends SymTitleWidget {
-  const SymTitleKalpataruMobile(
+  SymTitleKalpataruMobile(
       {required FocusNode focusNode,
       required EdgeInsetsGeometry padding,
       required Function onSubmitted,
@@ -49,6 +49,7 @@ class _SymTitleKalpataruMobileState extends State<SymTitleKalpataruMobile> {
 
   @override
   void dispose() {
+    widget.dispose();
     super.dispose();
   }
 }

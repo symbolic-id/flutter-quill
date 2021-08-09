@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/src/models/documents/nodes/block.dart';
-import 'package:flutter_quill/src/models/documents/nodes/line.dart';
-import 'package:flutter_quill/src/utils/color.dart';
-import 'package:flutter_quill/src/utils/sym_regex.dart';
 import 'package:tuple/tuple.dart';
 
+import '../../../../flutter_quill.dart';
+import '../../../models/documents/nodes/block.dart';
+import '../../../models/documents/nodes/line.dart';
+import '../../../utils/color.dart';
+import '../../../utils/sym_regex.dart';
 import '../../cursor.dart';
 import '../../delegate.dart';
 import '../../text_block.dart';
 import '../../text_line.dart';
+import '../sym_editors/default_sym_embed_builder.dart';
 import '../sym_text.dart';
 
 class SymTextViewer extends StatefulWidget {
@@ -126,8 +127,8 @@ class _SymTextViewerState extends State<SymTextViewer>
                 0.3,
                 1.0
               ])),
-          child: Padding(
-            padding: const EdgeInsets.only(
+          child: const Padding(
+            padding: EdgeInsets.only(
               top: 2,
             ),
             child: SymText(

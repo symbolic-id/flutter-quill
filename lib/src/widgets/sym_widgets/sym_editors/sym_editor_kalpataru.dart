@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart';
-import 'package:flutter_quill/src/widgets/simple_viewer.dart';
+import '../../../../flutter_quill.dart';
+import 'default_sym_embed_builder.dart';
+import 'sym_editor_type.dart';
 
 class SymEditorKalpataru extends StatefulWidget {
   SymEditorKalpataru();
@@ -25,11 +26,6 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
   final FocusNode _focusNode = FocusNode();
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     // if (widget._controller == null) { // in case loading an existing document
     //   return const Scaffold(body: Center(child: SymText('Loading...'),),);
@@ -48,26 +44,8 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
       expands: false,
       embedBuilder: defaultSymEmbedBuilderWeb,
       padding: kIsWeb ? null : const EdgeInsets.only(left: 24),
-      titleController: TextEditingController(),
+      editorType: SymEditorTypeKalpataru(TextEditingController()),
     );
     return quillEditor;
-  }
-}
-
-Widget defaultSymEmbedBuilderWeb(
-    BuildContext context, Embed node, bool readOnly) {
-  switch (node.value.type) {
-    case 'image':
-      final String imageUrl = node.value.data;
-      return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.4,
-          child: Image.network(imageUrl));
-
-    default:
-      throw UnimplementedError(
-        'Embeddable type "${node.value.type}" is not supported by default '
-        'embed builder of QuillEditor. You must pass your own builder function '
-        'to embedBuilder property of QuillEditor or QuillField widgets.',
-      );
   }
 }

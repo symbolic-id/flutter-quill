@@ -9,5 +9,6 @@ export 'src/widgets/controller.dart';
 export 'src/widgets/default_styles.dart';
 export 'src/widgets/editor.dart';
 export 'src/widgets/sym_widgets/sym_editors/sym_editor_kalpataru.dart';
+export 'src/widgets/sym_widgets/sym_editors/sym_editor_face.dart';
 export 'src/widgets/sym_widgets/sym_text_viewer/sym_text_viewer.dart';
 export 'src/widgets/toolbar.dart';

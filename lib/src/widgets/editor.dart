@@ -28,6 +28,7 @@ import 'default_styles.dart';
 import 'delegate.dart';
 import 'image.dart';
 import 'raw_editor.dart';
+import 'sym_widgets/sym_editors/sym_editor_type.dart';
 import 'text_selection.dart';
 import 'video_app.dart';
 import 'youtube_video_app.dart';
@@ -210,7 +211,7 @@ class QuillEditor extends StatefulWidget {
       this.onSingleLongTapEnd,
       this.embedBuilder = _defaultEmbedBuilder,
       this.padding,
-      this.titleController});
+      this.editorType});
 
   factory QuillEditor.basic({
     required QuillController controller,
@@ -272,7 +273,7 @@ class QuillEditor extends StatefulWidget {
 
   final EmbedBuilder embedBuilder;
 
-  final TextEditingController? titleController;
+  final SymEditorType? editorType;
 
   @override
   _QuillEditorState createState() => _QuillEditorState();
@@ -377,7 +378,7 @@ class _QuillEditorState extends State<QuillEditor>
         widget.enableInteractiveSelection,
         widget.scrollPhysics,
         widget.embedBuilder,
-        titleController: widget.titleController,
+        editorType: widget.editorType,
       ),
     );
   }
