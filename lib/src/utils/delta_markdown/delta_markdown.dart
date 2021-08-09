@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter_quill/src/utils/sym_regex.dart';
+
 import '../../models/quill_delta.dart';
 
 import 'delta_markdown_src/md_delta_markdown_decorder.dart';
@@ -17,12 +19,17 @@ String deltaToMarkdown(String delta) {
 }
 
 Delta markdownToDelta(String markdown, {bool removeImage = false}) {
-  final deltaString = _kCodec.decode(markdown);
+  var markdownToDecode = markdown;
+  if (removeImage) {
+    markdownToDecode =
+        markdown.replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '');
+  }
+  final deltaString = _kCodec.decode(markdownToDecode);
   var delta = Delta.fromJson(jsonDecode(deltaString));
 
-  if (removeImage) {
+  print('LL:: $delta');
 
-  }
+  if (removeImage) {}
 
   return delta;
 }

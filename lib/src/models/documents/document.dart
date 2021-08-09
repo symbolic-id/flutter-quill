@@ -28,8 +28,9 @@ class Document {
     _loadDocument(delta);
   }
 
-  Document.fromMarkdown(String data)
-      : _delta = _transform(MarkdownConverter.fromMarkdown(data)) {
+  Document.fromMarkdown(String data, {bool removeImage = false})
+      : _delta = _transform(
+            MarkdownConverter.fromMarkdown(data, removeImage: removeImage)) {
     _loadDocument(_delta);
   }
 

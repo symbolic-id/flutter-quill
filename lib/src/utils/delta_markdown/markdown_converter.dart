@@ -6,9 +6,9 @@ import '../../models/quill_delta.dart';
 class MarkdownConverter {
   MarkdownConverter._();
 
-  static Delta fromMarkdown(String data) {
+  static Delta fromMarkdown(String data, {bool removeImage = false}) {
     return markdownToDelta(data
         .replaceAll(SymRegex.LINEBREAK_BLOCK_IDENTIFIER, '')
-        .replaceAll('\\n', '\n'));
+        .replaceAll('\\n', '\n'), removeImage: removeImage);
   }
 }

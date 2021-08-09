@@ -4,6 +4,7 @@ import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/src/models/documents/nodes/block.dart';
 import 'package:flutter_quill/src/models/documents/nodes/line.dart';
 import 'package:flutter_quill/src/utils/color.dart';
+import 'package:flutter_quill/src/utils/sym_regex.dart';
 import 'package:tuple/tuple.dart';
 
 import '../../cursor.dart';
@@ -13,11 +14,11 @@ import '../../text_line.dart';
 import '../sym_text.dart';
 
 class SymTextViewer extends StatefulWidget {
-  SymTextViewer(this.markdownData, {this.scrollController, this.maxLine});
+  SymTextViewer(this.markdownData, {this.scrollController, this.maxHeight});
 
   final String markdownData;
   final ScrollController? scrollController;
-  final int? maxLine;
+  final double? maxHeight;
 
   late QuillController _controller;
 
@@ -27,16 +28,15 @@ class SymTextViewer extends StatefulWidget {
 
 class _SymTextViewerState extends State<SymTextViewer>
     with SingleTickerProviderStateMixin {
-
   late DefaultStyles _styles;
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
   final LayerLink _endHandleLayerLink = LayerLink();
   late CursorCont _cursorCont;
-  
-  bool _isExceededMaxLine = false;
 
-  bool get showPreviewImage => widget.maxLine != null;
+  bool _isExceededMaxHeight = false;
+
+  bool get showPreviewImage => widget.maxHeight != null;
 
   @override
   void initState() {
@@ -67,7 +67,10 @@ class _SymTextViewerState extends State<SymTextViewer>
 
   @override
   Widget build(BuildContext context) {
-    final doc = Document.fromMarkdown(widget.markdownData);
+    final doc = Document.fromMarkdown(widget.markdownData
+        .replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '')
+        .replaceAll(SymRegex.REMOVE_IMAGE, ''),
+        removeImage: widget.maxHeight != null);
     widget._controller = QuillController(
         document: doc, selection: const TextSelection.collapsed(offset: 0));
 
@@ -86,9 +89,9 @@ class _SymTextViewerState extends State<SymTextViewer>
       ),
     );
 
-    if (widget.maxLine != null) {
+    if (widget.maxHeight != null) {
       final _key = GlobalKey();
-      
+
       if (!_isExceededMaxHeight) {
         child = ConstrainedBox(
             key: _key,
@@ -103,39 +106,41 @@ class _SymTextViewerState extends State<SymTextViewer>
             color: SymColors.light_textQuaternary,
           ),
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          child: SymText('Selengkapnya', color: Colors.white,),
+          child: SymText(
+            'Selengkapnya',
+            color: Colors.white,
+          ),
         );
 
-        child = Stack(
-          children: [
-            ConstrainedBox(
-                key: _key,
-                constraints: BoxConstraints(maxHeight: widget.maxHeight!),
-                child: SingleChildScrollView(
-                    physics: const NeverScrollableScrollPhysics(), child: child)),
-            Container(
-              height: widget.maxHeight!,
-              decoration: BoxDecoration(
+        child = Stack(children: [
+          ConstrainedBox(
+              key: _key,
+              constraints: BoxConstraints(maxHeight: widget.maxHeight!),
+              child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(), child: child)),
+          Container(
+            height: widget.maxHeight!,
+            decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: FractionalOffset.topCenter,
-                  end: FractionalOffset.bottomCenter,
-                  colors: [Colors.white.withOpacity(0), Colors.white.withOpacity(0.8), Colors.white],
-                  stops: [
-                    0.0,
-                    0.8,
-                    1.0
-                  ]
-                )
-              ),
-            ),
-            Positioned(
-              bottom: widget.maxHeight! * 0.15,
-              child: Center(child: readMore),
-            )
-          ]
-        );
+                    begin: FractionalOffset.topCenter,
+                    end: FractionalOffset.bottomCenter,
+                    colors: [
+                  Colors.white.withOpacity(0),
+                  Colors.white.withOpacity(0.8),
+                  Colors.white
+                ],
+                    stops: [
+                  0.0,
+                  0.8,
+                  1.0
+                ])),
+          ),
+          Positioned(
+            bottom: widget.maxHeight! * 0.15,
+            child: Center(child: readMore),
+          )
+        ]);
       }
-
 
       WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
         final height = _key.currentContext!.size!.height;
@@ -148,7 +153,28 @@ class _SymTextViewerState extends State<SymTextViewer>
       });
     }
 
-    return QuillStyles(data: _styles, child: child);
+    final textViewer = QuillStyles(data: _styles, child: child);
+
+    if (widget.maxHeight != null) {
+      final images = SymRegex.REMOVE_IMAGE.allMatches(widget.markdownData);
+      images.forEach((element) {
+        print('LL:: image: $element');
+      });
+
+
+      final image = images.first.group(0);
+
+      return Column(
+        children: [
+          if (images.isNotEmpty && image != null) SizedBox(
+              height: MediaQuery.of(context).size.height * 0.4,
+              child: Image.network(image)),
+          QuillStyles(data: _styles, child: child)
+        ],
+      );
+    } else {
+      return textViewer;
+    }
   }
 
   List<Widget> _buildChildren(Document doc, BuildContext context) {
