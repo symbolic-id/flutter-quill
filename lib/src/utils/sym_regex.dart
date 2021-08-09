@@ -6,4 +6,6 @@ class SymRegex {
 
   static final REMOVE_IMAGE_BLOCK_IDENTIFIER = RegExp(r'!\[[^\]]*\]\((.*?)\s*("(?:.*[^"])")?\s*\)(\[\[\^.{40,43}\]\]\\\\n)');
   static final REMOVE_IMAGE = RegExp(r'!\[[^\]]*\]\((.*?)\s*("(?:.*[^"])")?\s*\)');
+
+  static final TEXTS_INSIDE_BRACKET = RegExp(r'(?<=\().+?(?=\))');
 }

@@ -18,20 +18,9 @@ String deltaToMarkdown(String delta) {
   return _kCodec.encode(delta);
 }
 
-Delta markdownToDelta(String markdown, {bool removeImage = false}) {
-  var markdownToDecode = markdown;
-  if (removeImage) {
-    markdownToDecode =
-        markdown.replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '');
-  }
-  final deltaString = _kCodec.decode(markdownToDecode);
-  var delta = Delta.fromJson(jsonDecode(deltaString));
-
-  print('LL:: $delta');
-
-  if (removeImage) {}
-
-  return delta;
+Delta markdownToDelta(String markdown) {
+  final deltaString = _kCodec.decode(markdown);
+  return Delta.fromJson(jsonDecode(deltaString));
 }
 
 class DeltaMarkdownCodec extends Codec<String, String> {

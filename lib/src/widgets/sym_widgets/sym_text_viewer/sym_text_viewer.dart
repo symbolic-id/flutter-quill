@@ -67,10 +67,13 @@ class _SymTextViewerState extends State<SymTextViewer>
 
   @override
   Widget build(BuildContext context) {
-    final doc = Document.fromMarkdown(widget.markdownData
-        .replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '')
-        .replaceAll(SymRegex.REMOVE_IMAGE, ''),
-        removeImage: widget.maxHeight != null);
+    var markdownToDecode = widget.markdownData;
+    if (widget.maxHeight != null) {
+      markdownToDecode = widget.markdownData
+          .replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '')
+          .replaceAll(SymRegex.REMOVE_IMAGE, '');
+    }
+    final doc = Document.fromMarkdown(markdownToDecode);
     widget._controller = QuillController(
         document: doc, selection: const TextSelection.collapsed(offset: 0));
 
@@ -100,15 +103,29 @@ class _SymTextViewerState extends State<SymTextViewer>
                 physics: const NeverScrollableScrollPhysics(), child: child));
       } else {
         final readMore = Container(
-          margin: const EdgeInsets.only(bottom: 20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
-            color: SymColors.light_textQuaternary,
-          ),
-          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-          child: SymText(
-            'Selengkapnya',
-            color: Colors.white,
+              gradient: LinearGradient(
+                  begin: FractionalOffset.topCenter,
+                  end: FractionalOffset.bottomCenter,
+                  colors: [
+                    Colors.white.withOpacity(0),
+                    Colors.white.withOpacity(0.8),
+                    Colors.white,
+                    Colors.white
+                  ],
+                  stops: [
+                    0.0,
+                    0.2,
+                    0.3,
+                    1.0
+                  ])),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 2,),
+            child: SymText(
+              '...Lihat selengkapnya',
+              size: 16,
+              color: SymColors.light_textQuaternary,
+            ),
           ),
         );
 
@@ -118,26 +135,31 @@ class _SymTextViewerState extends State<SymTextViewer>
               constraints: BoxConstraints(maxHeight: widget.maxHeight!),
               child: SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(), child: child)),
-          Container(
-            height: widget.maxHeight!,
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: FractionalOffset.topCenter,
-                    end: FractionalOffset.bottomCenter,
-                    colors: [
-                  Colors.white.withOpacity(0),
-                  Colors.white.withOpacity(0.8),
-                  Colors.white
-                ],
-                    stops: [
-                  0.0,
-                  0.8,
-                  1.0
-                ])),
-          ),
           Positioned(
-            bottom: widget.maxHeight! * 0.15,
-            child: Center(child: readMore),
+            left: 20,
+            right: 0,
+            bottom: 0,
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 20,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          begin: FractionalOffset.centerLeft,
+                          end: FractionalOffset.centerRight,
+                          colors: [
+                            Colors.white.withOpacity(0.3),
+                            Colors.white.withOpacity(1),
+                          ],
+                          stops: [
+                            0.0,
+                            1.0
+                          ])),
+                ),
+                Expanded(child: readMore),
+              ],
+            ),
           )
         ]);
       }
@@ -149,7 +171,6 @@ class _SymTextViewerState extends State<SymTextViewer>
             _isExceededMaxHeight = true;
           });
         }
-        print('LL:: height: ${_key.currentContext?.size?.height}');
       });
     }
 
@@ -157,21 +178,32 @@ class _SymTextViewerState extends State<SymTextViewer>
 
     if (widget.maxHeight != null) {
       final images = SymRegex.REMOVE_IMAGE.allMatches(widget.markdownData);
-      images.forEach((element) {
-        print('LL:: image: $element');
-      });
 
+      if (images.isNotEmpty) {
+        final image = images.first.group(0);
+        if (image != null) {
+          final imageUrls = SymRegex.TEXTS_INSIDE_BRACKET.allMatches(image);
+          final imageUrl = imageUrls.last.group(0);
 
-      final image = images.first.group(0);
+          if (imageUrl != null) {
+            return Column(
+              children: [
+                if (images.isNotEmpty && image != null) SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.4,
+                    child: Image.network(imageUrl)),
+                QuillStyles(data: _styles, child: child)
+              ],
+            );
+          } else {
+            return textViewer;
+          }
 
-      return Column(
-        children: [
-          if (images.isNotEmpty && image != null) SizedBox(
-              height: MediaQuery.of(context).size.height * 0.4,
-              child: Image.network(image)),
-          QuillStyles(data: _styles, child: child)
-        ],
-      );
+        } else {
+          return textViewer;
+        }
+      } else {
+        return textViewer;
+      }
     } else {
       return textViewer;
     }
