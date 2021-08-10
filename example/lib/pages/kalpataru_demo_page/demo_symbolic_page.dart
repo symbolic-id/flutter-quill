@@ -39,7 +39,6 @@ class DemoSymbolicPage extends StatelessWidget {
                 height: 20,
               ),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
                     'INTER-FACE',

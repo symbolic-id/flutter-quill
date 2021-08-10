@@ -11,6 +11,8 @@ class FaceCreatePostPage extends StatefulWidget {
 class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
   SymEditorFace? editor;
 
+  ValueNotifier<String> textListener = ValueNotifier('');
+
   @override
   void initState() {
     super.initState();
@@ -21,8 +23,11 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
     if (editor == null) {
       setState(() {
         editor = SymEditorFace(
-          padding:
-              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.1, top: 80),
+          padding: EdgeInsets.only(
+              left: MediaQuery.of(context).size.width * 0.1, top: 80),
+          onChangeListener: (plainText) {
+            textListener.value = plainText;
+          },
         );
       });
     }
@@ -79,19 +84,31 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
-        TextButton(
-            onPressed: () {},
-            child: Text('Kirim'),
-            style: ButtonStyle(
-                padding:
-                    MaterialStateProperty.all<EdgeInsets>(EdgeInsets.all(15)),
-                foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                )),
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    SymColors.light_bluePrimary)))
+        ValueListenableBuilder(
+          valueListenable: textListener,
+          builder: (context, String value, _) {
+            return TextButton(
+                onPressed: value.isNotEmpty ? () {
+                  final md = editor!.getMarkdown();
+                  print('========= markdown:\n$md');
+                  Navigator.pop(context);
+                } : null,
+                child: Text('Kirim'),
+                style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        EdgeInsets.all(15)),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    )),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        value.isNotEmpty
+                            ? SymColors.light_bluePrimary
+                            : SymColors.light_iconPrimary)));
+          },
+        )
       ],
     );
   }

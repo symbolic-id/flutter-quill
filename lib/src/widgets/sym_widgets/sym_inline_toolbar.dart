@@ -34,6 +34,9 @@ class SymInlineToolbar extends StatefulWidget {
 class _SymInlineToolbarState extends State<SymInlineToolbar> {
   @override
   Widget build(BuildContext context) {
+    const buttonCount = 4;
+    const containerWidth = _toggledButtonSize * (buttonCount + 1);
+
     final endpoints =
         widget.renderObject.getEndpointsForSelection(widget.selection);
 
@@ -51,9 +54,10 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
     final isMultiline = endpoints.last.point.dy - endpoints.first.point.dy >
         smallestLineHeight / 2;
 
-    final midX = isMultiline
-        ? editingRegion.width / 2
-        : (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
+    var midX = /*isMultiline
+        ? editingRegion.left + editingRegion.width / 2
+        :*/ editingRegion.left +
+            (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
 
     final midpoint = Offset(
       midX,
@@ -63,6 +67,12 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
     const paddingToolbar = 40;
 
     final topOffset = midpoint.dy + editingRegion.top - paddingToolbar;
+
+    var leftOffset = midpoint.dx - (containerWidth / 2);
+
+    if (leftOffset + containerWidth > editingRegion.right) {
+      leftOffset = editingRegion.right - containerWidth;
+    }
 
     return CompositedTransformFollower(
       link: widget.toolbarLayerLink,
@@ -74,7 +84,7 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
           child: Stack(
             children: [
               Positioned(
-                  left: midpoint.dx - ((2) * _toggledButtonSize / 2),
+                  left: leftOffset,
                   top: topOffset,
                   child: FractionalTranslation(
                       translation: const Offset(0, -0.2),
@@ -86,7 +96,7 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
                         clipBehavior: Clip.hardEdge,
                         child: SizedBox(
                           height: _toggledButtonSize,
-                          width: _toggledButtonSize * 5,
+                          width: containerWidth,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
