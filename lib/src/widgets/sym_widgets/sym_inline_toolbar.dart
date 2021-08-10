@@ -48,15 +48,8 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
 
     final baseLineHeight =
         widget.renderObject.preferredLineHeight(widget.selection.base);
-    final extentLineHeight =
-        widget.renderObject.preferredLineHeight(widget.selection.extent);
-    final smallestLineHeight = math.min(baseLineHeight, extentLineHeight);
-    final isMultiline = endpoints.last.point.dy - endpoints.first.point.dy >
-        smallestLineHeight / 2;
 
-    var midX = /*isMultiline
-        ? editingRegion.left + editingRegion.width / 2
-        :*/ editingRegion.left +
+    var midX = editingRegion.left +
             (endpoints.first.point.dx + endpoints.last.point.dx) / 2;
 
     final midpoint = Offset(

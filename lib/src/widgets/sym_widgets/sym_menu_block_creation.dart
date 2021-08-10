@@ -156,7 +156,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     final baseLineHeight =
         widget.renderObject.preferredLineHeight(selectionIndex.base);
 
-    var offsetX = endpoints.first.point.dx;
+    var offsetX = endpoints.first.point.dx + editingRegion.left;
     var offsetY = endpoints[0].point.dy + editingRegion.top;
 
     final screenSize = MediaQuery.of(context).size;
