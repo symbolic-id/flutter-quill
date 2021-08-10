@@ -9,3 +9,4 @@ class SymEditorTypeKalpataru extends SymEditorType {
 }
 
 class SymEditorTypeFace extends SymEditorType {}
+class SymEditorTypeSpace extends SymEditorType {}

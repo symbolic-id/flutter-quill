@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' hide Text;
 import 'package:flutter_quill/utils/color.dart';
 
-class FaceCreatePostPage extends StatefulWidget {
+class SpaceCreatePostPage extends StatefulWidget {
   @override
-  _FaceCreateCardPageState createState() => _FaceCreateCardPageState();
+  _SpaceCreatePostPage createState() => _SpaceCreatePostPage();
 }
 
-class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
-  SymEditorFace? editor;
+class _SpaceCreatePostPage extends State<SpaceCreatePostPage> {
+  SymEditorSpace? editor;
 
   ValueNotifier<String> textListener = ValueNotifier('');
 
@@ -17,9 +17,9 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
   Widget build(BuildContext context) {
     if (editor == null) {
       setState(() {
-        editor = SymEditorFace(
-          padding: EdgeInsets.only(
-              left: MediaQuery.of(context).size.width * 0.1, top: 80),
+        editor = SymEditorSpace(
+          padding:
+              EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.1),
           onChangeListener: (plainText) {
             textListener.value = plainText;
           },
@@ -31,10 +31,40 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
           EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.2),
       clipBehavior: Clip.antiAlias,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _toolbar(),
+            Padding(
+              padding: EdgeInsets.only(
+                  left: (MediaQuery.of(context).size.width * 0.1) + 60,
+                  top: 80,
+                  bottom: 24),
+              child: TextButton(
+                onPressed: () {},
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.select_all_outlined),
+                    SizedBox(width: 7),
+                    Text('Pilih Corner')
+                  ],
+                ),
+                style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 22)),
+                    foregroundColor: MaterialStateProperty.all<Color>(
+                        SymColors.light_textQuaternary),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    )),
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        SymColors.light_bgSurface1)),
+              ),
+            ),
             Expanded(
                 child: editor != null
                     ? Container(
@@ -75,7 +105,7 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
         ),
         const Expanded(
           child: Text(
-            'Buat kiriman Veranda',
+            'Buat kiriman Hall',
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
         ),
@@ -83,11 +113,13 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
           valueListenable: textListener,
           builder: (context, String value, _) {
             return TextButton(
-                onPressed: value.isNotEmpty ? () {
-                  final md = editor!.getMarkdown();
-                  print('========= markdown:\n$md');
-                  Navigator.pop(context);
-                } : null,
+                onPressed: value.isNotEmpty
+                    ? () {
+                        final md = editor!.getMarkdown();
+                        print('========= markdown:\n$md');
+                        Navigator.pop(context);
+                      }
+                    : null,
                 child: Text('Kirim'),
                 style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsets>(

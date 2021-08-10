@@ -9,8 +9,8 @@ import '../../controller.dart';
 import '../../editor.dart';
 import 'default_sym_embed_builder.dart';
 
-class SymEditorFace extends StatefulWidget {
-  SymEditorFace({this.padding = EdgeInsets.zero, this.onChangeListener});
+class SymEditorSpace extends StatefulWidget {
+  SymEditorSpace({this.padding = EdgeInsets.zero, this.onChangeListener});
 
   QuillController? _controller;
 
@@ -19,7 +19,7 @@ class SymEditorFace extends StatefulWidget {
   final EdgeInsets padding;
 
   @override
-  _SymEditorFaceState createState() => _SymEditorFaceState();
+  _SymEditorSpace createState() => _SymEditorSpace();
 
   String getMarkdown() {
     final delta = _controller?.document.toDelta();
@@ -28,7 +28,6 @@ class SymEditorFace extends StatefulWidget {
 
     final deltaJsonString = deltaJson != null ? jsonEncode(deltaJson) : null;
 
-
     final md = deltaToMarkdown(
         deltaJsonString ?? '');
 
@@ -36,7 +35,7 @@ class SymEditorFace extends StatefulWidget {
   }
 }
 
-class _SymEditorFaceState extends State<SymEditorFace> {
+class _SymEditorSpace extends State<SymEditorSpace> {
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -57,11 +56,11 @@ class _SymEditorFaceState extends State<SymEditorFace> {
       scrollable: true,
       autoFocus: true,
       readOnly: false,
-      placeholder: 'Ada kabar apa hari ini?',
+      placeholder: 'Mulai tulisanmu dari sini',
       expands: false,
       embedBuilder: defaultSymEmbedBuilderWeb,
       padding: widget.padding,
-      editorType: SymEditorTypeFace(),
+      editorType: SymEditorTypeSpace(),
     );
 
     return quillEditor;
