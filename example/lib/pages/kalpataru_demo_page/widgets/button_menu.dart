@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/utils/color.dart';
 
 class ButtonMenu extends StatefulWidget {
-
   const ButtonMenu({required this.onSelectEmptyDoc});
 
   final Function onSelectEmptyDoc;
@@ -20,6 +19,7 @@ class _ButtonMenuState extends State<ButtonMenu>
   late Animation<double> openAnimation;
 
   final buttonSize = 40.0;
+  OverlayEntry? _menuOverlayEntry;
 
   @override
   void initState() {
@@ -41,23 +41,7 @@ class _ButtonMenuState extends State<ButtonMenu>
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: Stack(
-        alignment: Alignment.topLeft,
-        clipBehavior: Clip.none,
-        children: [
-          GestureDetector(
-            onTap: () {
-              if (isOpened) {
-                _toggle();
-              }
-            },
-          ),
-          _buildMenus(),
-          _buildTapToOpenFab(),
-        ],
-      ),
-    );
+    return _buildTapToOpenFab();
   }
 
   Widget _buildTapToOpenFab() {
@@ -72,7 +56,7 @@ class _ButtonMenuState extends State<ButtonMenu>
             color: SymColors.light_bluePrimary,
             child: SizedBox.fromSize(
               size: Size(buttonSize, buttonSize),
-              child: const Icon(
+              child: Icon(
                 Icons.add,
                 color: Colors.white,
               ),
@@ -83,20 +67,15 @@ class _ButtonMenuState extends State<ButtonMenu>
     );
   }
 
-  Widget _buildMenus() {
+  Widget _buildMenus(Offset buttonOffset) {
     return AnimatedBuilder(
-        animation: openAnimation,
-        builder: (context, child) {
-          final actualOffset = buttonSize + 13;
-
-          return Positioned(
-              top: openAnimation.value * actualOffset,
-              child: Visibility(
-                visible: openAnimation.value > 0,
-                  child: child!
-              )
-          );
-        },
+      animation: openAnimation,
+      builder: (context, child) {
+        return Positioned(
+            left: buttonOffset.dx,
+            top: buttonOffset.dy + openAnimation.value * (buttonSize + 13),
+            child: Visibility(visible: openAnimation.value > 0, child: child!));
+      },
       child: FadeTransition(
         opacity: openAnimation,
         child: Material(
@@ -108,7 +87,7 @@ class _ButtonMenuState extends State<ButtonMenu>
             children: [
               const Padding(
                 padding:
-                EdgeInsets.only(left: 17, right: 17, top: 17, bottom: 7),
+                    EdgeInsets.only(left: 17, right: 17, top: 17, bottom: 7),
                 child: Text(
                   'BUAT',
                   style: TextStyle(
@@ -123,8 +102,8 @@ class _ButtonMenuState extends State<ButtonMenu>
                   widget.onSelectEmptyDoc();
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10, horizontal: 17),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 17),
                   child: Row(
                     children: [
                       ClipOval(
@@ -165,9 +144,45 @@ class _ButtonMenuState extends State<ButtonMenu>
       isOpened = !isOpened;
       if (isOpened) {
         controller.forward();
+        _showMenu();
       } else {
         controller.reverse();
+        late AnimationStatusListener statusListener;
+        statusListener = (status) {
+          if (status == AnimationStatus.dismissed) {
+            _hideMenu();
+            controller.removeStatusListener(statusListener);
+          }
+        };
+
+        controller.addStatusListener(statusListener);
       }
     });
+  }
+
+  void _showMenu() {
+    _menuOverlayEntry ??= _buildMenuOverlay();
+    Overlay.of(context)!.insert(_menuOverlayEntry!);
+  }
+
+  void _hideMenu() {
+    _menuOverlayEntry?.remove();
+  }
+
+  OverlayEntry _buildMenuOverlay() {
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final offset = box.localToGlobal(Offset.zero);
+
+    return OverlayEntry(
+        builder: (context) => Stack(children: [
+              GestureDetector(
+                onTap: () {
+                  if (isOpened) {
+                    _toggle();
+                  }
+                },
+              ),
+              _buildMenus(offset)
+            ]));
   }
 }

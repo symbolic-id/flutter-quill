@@ -121,12 +121,10 @@ class DemoSymbolicPage extends StatelessWidget {
                     const SizedBox(
                       width: 79,
                     ),
-                    Expanded(
-                      child: ButtonMenu(
-                        onSelectEmptyDoc: () {
-                          _openEmptyKalpataru(context);
-                        },
-                      ),
+                    ButtonMenu(
+                      onSelectEmptyDoc: () {
+                        _openEmptyKalpataru(context);
+                      },
                     ),
                   ],
                 ),

@@ -140,7 +140,6 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
 
   @override
   Widget build(BuildContext context) {
-    print('LL:: SimpleViewer | truncateHeight: ${widget.truncateHeight}');
     final _doc = widget.controller.document;
     // if (_doc.isEmpty() &&
     //     !widget.focusNode.hasFocus &&
@@ -166,9 +165,7 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
     );
 
     if (widget.truncate) {
-      print('LL:: SimpleViewer | truncate');
       if (widget.truncateScale != null) {
-        print('LL:: SimpleViewer | widget.truncateScale != null');
         child = Container(
             height: widget.truncateHeight,
             child: Align(
@@ -185,7 +182,6 @@ class _QuillSimpleViewerState extends State<QuillSimpleViewer>
                                 widget.truncateAlignment ?? Alignment.topLeft,
                             child: child)))));
       } else {
-        print('LL:: SimpleViewer | widget.truncateScale == null');
         child = Container(
             height: widget.truncateHeight,
             width: widget.truncateWidth,

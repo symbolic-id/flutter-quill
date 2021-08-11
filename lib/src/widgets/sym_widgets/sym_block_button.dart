@@ -68,7 +68,6 @@ class _SymBlockButtonState extends State<SymBlockButton> {
         },
         splashColor: SymColors.hoverColor,
         child: Ink(
-          color: SymColors.light_line,
           child: SymAssetImage(
             widget.type == _ButtonType.ADD ? Assets.CIRCLE_ADD : Assets.MORE,
             size: const Size(22, 22),
