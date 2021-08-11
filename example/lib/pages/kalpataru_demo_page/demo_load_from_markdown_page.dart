@@ -49,10 +49,9 @@ class _KalpataruLoadFromMarkdownPage extends State<DemoLoadFromMarkdownPage> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: SymTextViewer(
-                            examples[_random.nextInt(examples.length)],
-                            maxHeight: 84,
-                            darkMode: true
-                          ))),
+                              examples[_random.nextInt(examples.length)],
+                              maxHeight: 84,
+                              darkMode: true))),
                 ))
           ],
         ),

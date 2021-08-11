@@ -215,7 +215,7 @@ class TextLine extends StatelessWidget {
 }
 
 class EditableTextLine extends RenderObjectWidget {
-  const EditableTextLine(
+  EditableTextLine(
       Key key,
       this.line,
       this.buttonAdd,
@@ -231,7 +231,10 @@ class EditableTextLine extends RenderObjectWidget {
       this.hasFocus,
       this.devicePixelRatio,
       this.cursorCont,
-      {this.isLineSelected = false})
+      {
+        this.isLineSelected = false,
+        this.hoveredCallback,
+      })
       : super(key: key);
 
   final Line line;
@@ -249,6 +252,7 @@ class EditableTextLine extends RenderObjectWidget {
   final double devicePixelRatio;
   final CursorCont cursorCont;
   final bool isLineSelected;
+  Function(bool, RenderEditableTextLine)? hoveredCallback;
 
   @override
   RenderObjectElement createElement() {
@@ -268,7 +272,9 @@ class EditableTextLine extends RenderObjectWidget {
         buttonAdd?.width ?? 0,
         color,
         cursorCont,
-        isLineSelected: isLineSelected);
+        isLineSelected: isLineSelected,
+        hoveredCallback: hoveredCallback
+    );
   }
 
   @override
@@ -310,7 +316,10 @@ class RenderEditableTextLine extends RenderEditableBox
       this.buttonWidth,
       this.color,
       this.cursorCont,
-      {this.isLineSelected = false});
+      {
+        this.isLineSelected = false,
+        this.hoveredCallback
+      });
 
   RenderBox? _buttonAdd;
   RenderBox? _buttonOption;
@@ -331,6 +340,7 @@ class RenderEditableTextLine extends RenderEditableBox
   List<TextBox>? _selectedRects;
   Rect? _caretPrototype;
   final Map<TextLineSlot, RenderBox> children = <TextLineSlot, RenderBox>{};
+  Function(bool, RenderEditableTextLine)? hoveredCallback;
 
   final buttonRightMargin = 8;
 
@@ -340,6 +350,7 @@ class RenderEditableTextLine extends RenderEditableBox
 
   void setHovered(bool isHovered) {
     if (_onHover != isHovered) {
+      hoveredCallback?.call(isHovered, this);
       _onHover = isHovered;
       markNeedsPaint();
     }
@@ -961,29 +972,31 @@ class RenderEditableTextLine extends RenderEditableBox
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    for (RenderBox? child in [_buttonAdd, _buttonOption, _leading, body]) {
-      if (child != null) {
-        final parentData = child.parentData as BoxParentData;
-        var isHit = result.addWithPaintOffset(
-            offset: parentData.offset,
-            position: position,
-            hitTest: (BoxHitTestResult result, Offset tranformed) {
-              assert(tranformed == position - parentData.offset);
-              return child.hitTest(result, position: tranformed);
-            });
-        if (child == body && !isHit) {
-          isHit = result.addWithPaintOffset(
+    if (_buttonOption != null || hoveredCallback != null) {
+      for (RenderBox? child in [_buttonAdd, _buttonOption, _leading, body]) {
+        if (child != null) {
+          final parentData = child.parentData as BoxParentData;
+          var isHit = result.addWithPaintOffset(
               offset: parentData.offset,
               position: position,
               hitTest: (BoxHitTestResult result, Offset tranformed) {
                 assert(tranformed == position - parentData.offset);
-                return child.hitTest(result,
-                    position: tranformed + Offset(_resolvedPadding!.left, 0));
+                return child.hitTest(result, position: tranformed);
               });
-        }
-        if (isHit) {
-          setHovered(true);
-          return true;
+          if (child == body && !isHit) {
+            isHit = result.addWithPaintOffset(
+                offset: parentData.offset,
+                position: position,
+                hitTest: (BoxHitTestResult result, Offset tranformed) {
+                  assert(tranformed == position - parentData.offset);
+                  return child.hitTest(result,
+                      position: tranformed + Offset(_resolvedPadding!.left, 0));
+                });
+          }
+          if (isHit) {
+            setHovered(true);
+            return true;
+          }
         }
       }
     }
@@ -1001,7 +1014,7 @@ class RenderEditableTextLine extends RenderEditableBox
 
   @override
   PointerExitEventListener? get onExit => (event) {
-        if (_buttonOption != null) {
+        if (_buttonOption != null || hoveredCallback != null) {
           setHovered(false);
         }
       };

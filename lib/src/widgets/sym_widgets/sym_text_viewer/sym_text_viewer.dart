@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:tuple/tuple.dart';
 
 import '../../../../flutter_quill.dart';
@@ -16,14 +17,19 @@ import '../sym_text.dart';
 
 class SymTextViewer extends StatefulWidget {
   SymTextViewer(this.markdownData,
-      {this.scrollController, this.maxHeight, this.darkMode = false});
+      {this.maxHeight,
+      this.darkMode = false,
+      this.padding = EdgeInsets.zero,
+      this.lineHoveredCallback});
 
   final bool darkMode;
   final String markdownData;
-  final ScrollController? scrollController;
   final double? maxHeight;
+  final EdgeInsetsGeometry padding;
 
   late QuillController _controller;
+
+  Function(bool, RenderEditableTextLine)? lineHoveredCallback;
 
   @override
   _SymTextViewerState createState() => _SymTextViewerState();
@@ -31,6 +37,7 @@ class SymTextViewer extends StatefulWidget {
 
 class _SymTextViewerState extends State<SymTextViewer>
     with SingleTickerProviderStateMixin {
+  final _widgetKey = GlobalKey();
   late DefaultStyles _styles;
   final LayerLink _toolbarLayerLink = LayerLink();
   final LayerLink _startHandleLayerLink = LayerLink();
@@ -40,6 +47,46 @@ class _SymTextViewerState extends State<SymTextViewer>
   bool _isExceededMaxHeight = false;
 
   bool get showPreviewImage => widget.maxHeight != null;
+
+  late Function(bool, RenderEditableTextLine) hoverCallback;
+
+  final Map<String, Tuple2<RenderEditableTextLine, OverlayEntry>>
+      _hoveredLines = {};
+
+  void _addHoveredLines(RenderEditableTextLine box) {
+    if (!_hoveredLines.containsKey(box.line.lineId)) {
+      final lineBodyOffset = box.body!.localToGlobal(Offset.zero);
+
+      final viewerRegionBox =
+          _widgetKey.currentContext!.findRenderObject() as RenderBox;
+      final viewerRegionBoxOffset = viewerRegionBox.localToGlobal(Offset.zero);
+      final optionOffsetX =
+          viewerRegionBox.size.width - (widget.padding as EdgeInsets).right;
+      final optionOffsetY = lineBodyOffset.dy - viewerRegionBoxOffset.dy;
+
+      _hoveredLines.addAll({
+        box.line.lineId: Tuple2(box, OverlayEntry(builder: (context) {
+          return Positioned(
+              top: 0,
+              left: 0,
+              child: CompositedTransformFollower(
+                offset: Offset(optionOffsetX, optionOffsetY),
+                link: _toolbarLayerLink,
+                child: Icon(
+                  Icons.more_vert,
+                  size: math.min(box.size.height, 17),
+                ),
+              ));
+        }))
+      });
+      Overlay.of(context)!.insert(_hoveredLines[box.line.lineId]!.item2);
+    }
+  }
+
+  void _removeHoveredLines(RenderEditableTextLine box) {
+    _hoveredLines[box.line.lineId]?.item2.remove();
+    _hoveredLines.removeWhere((key, value) => key == box.line.lineId);
+  }
 
   @override
   void initState() {
@@ -56,6 +103,13 @@ class _SymTextViewerState extends State<SymTextViewer>
       ),
       tickerProvider: this,
     );
+    hoverCallback = (isHovered, renderBox) {
+      if (isHovered) {
+        _addHoveredLines(renderBox);
+      } else {
+        _removeHoveredLines(renderBox);
+      }
+    };
   }
 
   @override
@@ -89,6 +143,7 @@ class _SymTextViewerState extends State<SymTextViewer>
       link: _toolbarLayerLink,
       child: Semantics(
         child: _SymTextViewer(
+          key: _widgetKey,
           document: doc,
           textDirection: _textDirection,
           startHandleLayerLink: _startHandleLayerLink,
@@ -96,6 +151,7 @@ class _SymTextViewerState extends State<SymTextViewer>
           onSelectionChanged: _nullSelectionChanged,
           scrollBottomInset: 0,
           children: _buildChildren(doc, context),
+          padding: widget.padding,
         ),
       ),
     );
@@ -234,6 +290,7 @@ class _SymTextViewerState extends State<SymTextViewer>
           true,
           onBlockButtonAddTap: (_) {},
           onBlockButtonOptionTap: (_, __, ___) {},
+          lineHoveredCallback: hoverCallback,
         );
         result.add(editableTextBlock);
       } else {
@@ -264,24 +321,26 @@ class _SymTextViewerState extends State<SymTextViewer>
       readOnly: true,
     );
     final editableTextLine = EditableTextLine(
-        GlobalKey(),
-        node,
-        null,
-        null,
-        null,
-        textLine,
-        0,
-        _getVerticalSpacingForLine(node, _styles),
-        _textDirection,
-        widget._controller.selection,
-        Colors.black,
-        //widget.selectionColor,
-        false,
-        //enableInteractiveSelection,
-        false,
-        //_hasFocus,
-        MediaQuery.of(context).devicePixelRatio,
-        _cursorCont);
+      GlobalKey(),
+      node,
+      null,
+      null,
+      null,
+      textLine,
+      0,
+      _getVerticalSpacingForLine(node, _styles),
+      _textDirection,
+      widget._controller.selection,
+      Colors.black,
+      //widget.selectionColor,
+      false,
+      //enableInteractiveSelection,
+      false,
+      //_hasFocus,
+      MediaQuery.of(context).devicePixelRatio,
+      _cursorCont,
+      hoveredCallback: hoverCallback,
+    );
     return editableTextLine;
   }
 

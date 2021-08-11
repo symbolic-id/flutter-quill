@@ -50,27 +50,25 @@ const List<String> romanNumbers = [
 ];
 
 class EditableTextBlock extends StatelessWidget {
-  const EditableTextBlock(
-    this.block,
-    this.textDirection,
-    this.scrollBottomInset,
-    this.verticalSpacing,
-    this.textSelection,
-    this.color,
-    this.styles,
-    this.enableInteractiveSelection,
-    this.hasFocus,
-    this.contentPadding,
-    this.embedBuilder,
-    this.cursorCont,
-    this.indentLevelCounts,
-    this.onCheckboxTap,
-    this.readOnly,
-    {
-      required this.onBlockButtonAddTap,
+  EditableTextBlock(
+      this.block,
+      this.textDirection,
+      this.scrollBottomInset,
+      this.verticalSpacing,
+      this.textSelection,
+      this.color,
+      this.styles,
+      this.enableInteractiveSelection,
+      this.hasFocus,
+      this.contentPadding,
+      this.embedBuilder,
+      this.cursorCont,
+      this.indentLevelCounts,
+      this.onCheckboxTap,
+      this.readOnly,
+      {required this.onBlockButtonAddTap,
       required this.onBlockButtonOptionTap,
-    }
-  );
+      this.lineHoveredCallback});
 
   final Block block;
   final TextDirection textDirection;
@@ -89,6 +87,7 @@ class EditableTextBlock extends StatelessWidget {
   final bool readOnly;
   final void Function(int?) onBlockButtonAddTap;
   final Function(int, GlobalKey, bool) onBlockButtonOptionTap;
+  Function(bool, RenderEditableTextLine)? lineHoveredCallback;
 
   @override
   Widget build(BuildContext context) {
@@ -127,36 +126,43 @@ class EditableTextBlock extends StatelessWidget {
       index++;
       final editableTextLineKey = GlobalKey();
       final editableTextLine = EditableTextLine(
-          editableTextLineKey,
-          line,
-          kIsWeb && !readOnly ? SymBlockButton.typeAdd(editableTextLineKey,
-              block.offset + line.offset, (textOffset, _) {
+        editableTextLineKey,
+        line,
+        kIsWeb && !readOnly
+            ? SymBlockButton.typeAdd(
+                editableTextLineKey, block.offset + line.offset,
+                (textOffset, _) {
                 onBlockButtonAddTap(textOffset);
-              }
-          ) : null,
-          kIsWeb && !readOnly ? SymBlockButton.typeOption(editableTextLineKey,
-              block.offset + line.offset, (textOffset, btnKey) {
-            final isEmbed = (line.children.first as Leaf).value is Embeddable;
+              })
+            : null,
+        kIsWeb && !readOnly
+            ? SymBlockButton.typeOption(
+                editableTextLineKey, block.offset + line.offset,
+                (textOffset, btnKey) {
+                final isEmbed =
+                    (line.children.first as Leaf).value is Embeddable;
                 onBlockButtonOptionTap(textOffset, btnKey, isEmbed);
-              }
-          ) : null,
-          _buildLeading(context, line, index, indentLevelCounts, count),
-          TextLine(
-            line: line,
-            textDirection: textDirection,
-            embedBuilder: embedBuilder,
-            styles: styles!,
-            readOnly: readOnly,
-          ),
-          _getIndentWidth(),
-          _getSpacingForLine(line, index, count, defaultStyles),
-          textDirection,
-          textSelection,
-          color,
-          enableInteractiveSelection,
-          hasFocus,
-          MediaQuery.of(context).devicePixelRatio,
-          cursorCont);
+              })
+            : null,
+        _buildLeading(context, line, index, indentLevelCounts, count),
+        TextLine(
+          line: line,
+          textDirection: textDirection,
+          embedBuilder: embedBuilder,
+          styles: styles!,
+          readOnly: readOnly,
+        ),
+        _getIndentWidth(),
+        _getSpacingForLine(line, index, count, defaultStyles),
+        textDirection,
+        textSelection,
+        color,
+        enableInteractiveSelection,
+        hasFocus,
+        MediaQuery.of(context).devicePixelRatio,
+        cursorCont,
+        hoveredCallback: lineHoveredCallback,
+      );
       children.add(editableTextLine);
     }
     return children.toList(growable: false);
@@ -254,8 +260,8 @@ class EditableTextBlock extends StatelessWidget {
     final blockAttrs = block.style.attributes;
     final lineAttrs = node.style.attributes;
 
-    final headerAttr = blockAttrs[Attribute.header.key]
-        ?? lineAttrs[Attribute.header.key];
+    final headerAttr =
+        blockAttrs[Attribute.header.key] ?? lineAttrs[Attribute.header.key];
     if (headerAttr != null) {
       final level = headerAttr.value;
       switch (level) {

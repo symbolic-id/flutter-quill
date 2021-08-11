@@ -19,10 +19,10 @@ import 'node.dart';
 /// When a line contains an embed, it fully occupies the line, no other embeds
 /// or text nodes are allowed.
 class Line extends Container<Leaf?> {
-  String? get lineId {
+  String get lineId {
     final matchId =
-        SymRegex.LINEBREAK_BLOCK_IDENTIFIER.firstMatch(super.toPlainText());
-    return matchId?.group(0);
+        SymRegex.BLOCK_IDENTIFIER.firstMatch(super.toPlainText());
+    return matchId?.group(0) ?? '';
   }
 
   @override
