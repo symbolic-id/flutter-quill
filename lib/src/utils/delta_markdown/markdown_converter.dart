@@ -1,8 +1,9 @@
 import 'package:flutter_quill/src/utils/delta_markdown/delta_markdown.dart';
-import 'package:flutter_quill/src/utils/sym_regex.dart';
 
 import '../../models/quill_delta.dart';
 
+
+/* original library from https://github.com/friebetill/delta_markdown */
 class MarkdownConverter {
   MarkdownConverter._();
 

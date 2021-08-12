@@ -57,6 +57,7 @@ class _SymBlockButtonState extends State<SymBlockButton> {
   Widget build(BuildContext context) {
     return ButtonClipper(
         child: Material(
+          color: SymColors.light_bgWhite,
       child: InkWell(
         onTap: () {
           widget.onTap(widget.offset, widget.editableTextLineKey);
