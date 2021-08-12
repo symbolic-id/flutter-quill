@@ -65,6 +65,12 @@ class _SymTextViewerState extends State<SymTextViewer>
   final Map<String, Tuple3<RenderEditableTextLine, GlobalKey, OverlayEntry>>
       _hoveredLines = {};
 
+  late Color textColor;
+  late Color bgColor =
+      widget.darkMode ? SymColors.dark_bgSurface2 : SymColors.light_bgWhite;
+  late Color bgAccentColor =
+      widget.darkMode ? SymColors.light_bgWhite : SymColors.dark_bgSurface2;
+
   @override
   void initState() {
     super.initState();
@@ -95,7 +101,7 @@ class _SymTextViewerState extends State<SymTextViewer>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    final textColor = widget.darkMode
+    textColor = widget.darkMode
         ? SymColors.dark_textPrimary
         : SymColors.light_textPrimary;
     final defaultStyles =
@@ -133,6 +139,7 @@ class _SymTextViewerState extends State<SymTextViewer>
                   },
                   onExit: (_) => _removeHoveredLine(box),
                   child: Material(
+                    color: bgColor,
                     key: _optionButtonKey,
                     shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4))),
@@ -145,16 +152,17 @@ class _SymTextViewerState extends State<SymTextViewer>
                             const EdgeInsets.only(top: 4, bottom: 4, right: 6),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.more_vert,
+                              color: bgAccentColor,
                               size: preferredButtonWidth,
                             ),
                             const GapH(4),
-                            const SymText(
+                            SymText(
                               'Lihat opsi block',
                               size: 12,
                               bold: true,
-                              color: SymColors.light_textQuaternary,
+                              color: textColor,
                             )
                           ],
                         ),
@@ -180,7 +188,10 @@ class _SymTextViewerState extends State<SymTextViewer>
     final buttonBox =
         buttonKey?.currentContext?.findRenderObject() as RenderBox?;
     if (buttonBox != null) {
-      box.setLineSelected(true);
+      box.setLineSelected(true,
+          color: widget.darkMode
+              ? SymColors.dark_textQuaternary
+              : SymColors.light_bgSurface2);
       final buttonOffset = buttonBox.localToGlobal(Offset.zero);
       final controller = AnimationController(
           duration: const Duration(milliseconds: 100),
@@ -231,8 +242,8 @@ class _SymTextViewerState extends State<SymTextViewer>
     }
   }
 
-  Widget _buildMenuOption(String rawMarkdown, double buttonBoxHeight, Offset offset,
-      AnimationController controller, Function onHide) {
+  Widget _buildMenuOption(String rawMarkdown, double buttonBoxHeight,
+      Offset offset, AnimationController controller, Function onHide) {
     final openAnimation = CurvedAnimation(
         parent: controller,
         curve: Curves.fastOutSlowIn,
@@ -257,6 +268,7 @@ class _SymTextViewerState extends State<SymTextViewer>
       child: FadeTransition(
         opacity: openAnimation,
         child: Material(
+            color: bgColor,
             borderRadius: BorderRadius.circular(8),
             elevation: 5,
             clipBehavior: Clip.antiAlias,
@@ -290,18 +302,24 @@ class _SymTextViewerState extends State<SymTextViewer>
     return InkWell(
       onTap: onTap,
       child: Container(
+        color: SymColors.dark_bgSurface2,
         padding: const EdgeInsets.only(left: 16),
         child: Row(
           children: [
             Image(
-              image: AssetImage(assetName, package: PACKAGE_NAME),
+              image: AssetImage(
+                assetName,
+                package: PACKAGE_NAME,
+              ),
               width: 21,
               height: 21,
+              color: bgAccentColor,
             ),
             GapH(8),
             SymText(
               label,
               size: 15,
+              color: textColor,
               bold: true,
             )
           ],
@@ -312,9 +330,6 @@ class _SymTextViewerState extends State<SymTextViewer>
 
   @override
   Widget build(BuildContext context) {
-    final bgColor =
-        widget.darkMode ? SymColors.dark_bgSurface2 : SymColors.light_bgWhite;
-
     var markdownToDecode = widget.markdownData;
     if (widget.maxHeight != null) {
       markdownToDecode = widget.markdownData

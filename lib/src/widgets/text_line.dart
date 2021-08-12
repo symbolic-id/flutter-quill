@@ -197,7 +197,10 @@ class TextLine extends StatelessWidget {
       res = res.merge(TextStyle(backgroundColor: backgroundColor));
     }
 
-    return TextSpan(text: textNode.value.replaceAll(SymRegex.BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET, ''), style: res);
+    return TextSpan(
+        text: textNode.value.replaceAll(
+            SymRegex.BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET, ''),
+        style: res);
   }
 
   TextStyle _merge(TextStyle a, TextStyle b) {
@@ -216,26 +219,24 @@ class TextLine extends StatelessWidget {
 
 class EditableTextLine extends RenderObjectWidget {
   EditableTextLine(
-      Key key,
-      this.line,
-      this.buttonAdd,
-      this.buttonOption,
-      this.leading,
-      this.body,
-      this.indentWidth,
-      this.verticalSpacing,
-      this.textDirection,
-      this.textSelection,
-      this.color,
-      this.enableInteractiveSelection,
-      this.hasFocus,
-      this.devicePixelRatio,
-      this.cursorCont,
-      {
-        this.isLineSelected = false,
-        this.hoveredCallback,
-      })
-      : super(key: key);
+    Key key,
+    this.line,
+    this.buttonAdd,
+    this.buttonOption,
+    this.leading,
+    this.body,
+    this.indentWidth,
+    this.verticalSpacing,
+    this.textDirection,
+    this.textSelection,
+    this.color,
+    this.enableInteractiveSelection,
+    this.hasFocus,
+    this.devicePixelRatio,
+    this.cursorCont, {
+    this.isLineSelected = false,
+    this.hoveredCallback,
+  }) : super(key: key);
 
   final Line line;
   final SymBlockButton? buttonAdd;
@@ -273,8 +274,7 @@ class EditableTextLine extends RenderObjectWidget {
         color,
         cursorCont,
         isLineSelected: isLineSelected,
-        hoveredCallback: hoveredCallback
-    );
+        hoveredCallback: hoveredCallback);
   }
 
   @override
@@ -316,10 +316,8 @@ class RenderEditableTextLine extends RenderEditableBox
       this.buttonWidth,
       this.color,
       this.cursorCont,
-      {
-        this.isLineSelected = false,
-        this.hoveredCallback
-      });
+      {this.isLineSelected = false,
+      this.hoveredCallback});
 
   RenderBox? _buttonAdd;
   RenderBox? _buttonOption;
@@ -356,11 +354,14 @@ class RenderEditableTextLine extends RenderEditableBox
     }
   }
 
+  Color _lineSelectColor = SymColors.light_bgSurface2;
   bool isLineSelected = false;
 
-  void setLineSelected(bool isSelected) {
+  void setLineSelected(bool isSelected,
+      {Color color = SymColors.light_bgSurface2}) {
     if (isLineSelected != isSelected) {
       isLineSelected = isSelected;
+      _lineSelectColor = color;
       markNeedsPaint();
     }
   }
@@ -922,7 +923,7 @@ class RenderEditableTextLine extends RenderEditableBox
       }
 
       if (isLineSelected) {
-        _paintLineBody(context, effectiveOffset, SymColors.light_bgSurface2);
+        _paintLineBody(context, effectiveOffset, _lineSelectColor);
       }
 
       if (hasFocus &&

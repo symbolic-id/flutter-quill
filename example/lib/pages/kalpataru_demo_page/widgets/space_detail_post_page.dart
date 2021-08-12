@@ -15,18 +15,19 @@ class _SpaceDetailPostPageState extends State<SpaceDetailPostPage> {
       appBar: AppBar(
         title: Text('Detail Post'),
       ),
-      backgroundColor: SymColors.light_bgSurface1,
+      backgroundColor: SymColors.dark_bgSurface2,
       body: SafeArea(
         child: Padding(
           padding:
               EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.3),
           child: Container(
-            color: SymColors.light_bgWhite,
+            color: SymColors.dark_bgSurface2,
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   SymTextViewer.blockSelector(
                       _markdownData,
+                      darkMode: true,
                       padding: EdgeInsets.symmetric(
                           horizontal: MediaQuery.of(context).size.width * 0.15),
                       selectedBlock: (rawMarkdown) =>
