@@ -112,6 +112,8 @@ abstract class Node extends LinkedListEntry<Node> {
 
   Delta toDelta();
 
+  Delta toDeltaWithLineId({String? postTypePrefix});
+
   void insert(int index, Object data, Style? style);
 
   void retain(int index, int? len, Style? style);
@@ -132,5 +134,10 @@ class Root extends Container<Container<Node?>> {
   @override
   Delta toDelta() => children
       .map((child) => child.toDelta())
+      .fold(Delta(), (a, b) => a.concat(b));
+
+  @override
+  Delta toDeltaWithLineId({String? postTypePrefix}) => children
+      .map((child) => child.toDeltaWithLineId(postTypePrefix: postTypePrefix))
       .fold(Delta(), (a, b) => a.concat(b));
 }

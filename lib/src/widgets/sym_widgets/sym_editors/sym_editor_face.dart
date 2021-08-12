@@ -22,15 +22,14 @@ class SymEditorFace extends StatefulWidget {
   _SymEditorFaceState createState() => _SymEditorFaceState();
 
   String getMarkdown() {
-    final delta = _controller?.document.toDelta();
+    final delta =
+        _controller?.document.toDeltaWithLineId(postTypePrefix: 'face');
 
     final deltaJson = delta?.toJson();
 
     final deltaJsonString = deltaJson != null ? jsonEncode(deltaJson) : null;
 
-
-    final md = deltaToMarkdown(
-        deltaJsonString ?? '');
+    final md = deltaToMarkdown(deltaJsonString ?? '');
 
     return md;
   }

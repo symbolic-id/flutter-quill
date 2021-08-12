@@ -22,14 +22,14 @@ class SymEditorSpace extends StatefulWidget {
   _SymEditorSpace createState() => _SymEditorSpace();
 
   String getMarkdown() {
-    final delta = _controller?.document.toDelta();
+    final delta =
+        _controller?.document.toDeltaWithLineId(postTypePrefix: 'space');
 
     final deltaJson = delta?.toJson();
 
     final deltaJsonString = deltaJson != null ? jsonEncode(deltaJson) : null;
 
-    final md = deltaToMarkdown(
-        deltaJsonString ?? '');
+    final md = deltaToMarkdown(deltaJsonString ?? '');
 
     return md;
   }

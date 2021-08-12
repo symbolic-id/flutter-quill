@@ -117,7 +117,7 @@ class _SpaceCreatePostPage extends State<SpaceCreatePostPage> {
                     ? () {
                         final md = editor!.getMarkdown();
                         print('========= markdown:\n$md');
-                        Navigator.pop(context);
+                        // Navigator.pop(context);
                       }
                     : null,
                 child: Text('Kirim'),

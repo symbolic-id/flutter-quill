@@ -52,6 +52,13 @@ abstract class Leaf extends Node {
   }
 
   @override
+  Delta toDeltaWithLineId({String? postTypePrefix}) {
+    final data =
+        _value is Embeddable ? (_value as Embeddable).toJson() : _value;
+    return Delta()..insert(data, style.toJson());
+  }
+
+  @override
   void insert(int index, Object data, Style? style) {
     assert(index >= 0 && index <= length);
     final node = Leaf(data);

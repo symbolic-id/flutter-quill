@@ -138,7 +138,6 @@ class _SymTextViewerState extends State<SymTextViewer>
                         borderRadius: BorderRadius.all(Radius.circular(4))),
                     child: InkWell(
                       onTap: () {
-                        print('LL:: line id: ${box.line.lineId}');
                         _showMenuOptionOverlay(box);
                       },
                       child: Padding(

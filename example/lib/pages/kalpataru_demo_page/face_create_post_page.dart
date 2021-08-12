@@ -86,7 +86,7 @@ class _FaceCreateCardPageState extends State<FaceCreatePostPage> {
                 onPressed: value.isNotEmpty ? () {
                   final md = editor!.getMarkdown();
                   print('========= markdown:\n$md');
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                 } : null,
                 child: Text('Kirim'),
                 style: ButtonStyle(

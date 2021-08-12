@@ -29,6 +29,13 @@ class Block extends Container<Line?> {
   }
 
   @override
+  Delta toDeltaWithLineId({String? postTypePrefix}) {
+    return children
+        .map((child) => child.toDeltaWithLineId(postTypePrefix: postTypePrefix))
+        .fold(Delta(), (a, b) => a.concat(b));
+  }
+
+  @override
   void adjust() {
     if (isEmpty) {
       final sibling = previous;

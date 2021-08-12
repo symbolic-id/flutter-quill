@@ -31,9 +31,9 @@ class Line extends Container<Leaf?> {
     final matchId = SymRegex.TEXTS_INSIDE_DOUBLE_SQUARE_BRACKET
         .firstMatch(super.toPlainText());
     return matchId?.group(0)
-        ?.replaceAll('space-', '')
+        /*?.replaceAll('space-', '')
         .replaceAll('face-', '')
-        .replaceAll('zet-', '') ?? _generatedLineId;
+        .replaceAll('zet-', '')*/ ?? _generatedLineId;
   }
 
   @override
@@ -82,6 +82,30 @@ class Line extends Container<Leaf?> {
       attributes = attributes.mergeAll(block.style);
     }
     delta.insert('\n', attributes.toJson());
+    return delta;
+  }
+
+  @override
+  Delta toDeltaWithLineId({String? postTypePrefix}) {
+    final delta = children
+        .map((child) => child.toDelta())
+        .fold(Delta(), (dynamic a, b) => a.concat(b));
+    var attributes = style;
+    if (parent is Block) {
+      final block = parent as Block;
+      attributes = attributes.mergeAll(block.style);
+    }
+
+    if (delta.isEmpty && next == null) {
+      // do nothing
+    } else {
+      if (postTypePrefix != null) {
+        delta.insert('[[^$postTypePrefix-$lineId]]\n', attributes.toJson());
+      } else {
+        delta.insert('[[^$lineId]]\n', attributes.toJson());
+      }
+    }
+
     return delta;
   }
 

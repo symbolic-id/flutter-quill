@@ -29,8 +29,7 @@ class Document {
   }
 
   Document.fromMarkdown(String data)
-      : _delta = _transform(
-            MarkdownConverter.fromMarkdown(data)) {
+      : _delta = _transform(MarkdownConverter.fromMarkdown(data)) {
     _loadDocument(_delta);
   }
 
@@ -44,6 +43,9 @@ class Document {
   Delta _delta;
 
   Delta toDelta() => Delta.from(_delta);
+
+  Delta toDeltaWithLineId({String? postTypePrefix}) =>
+      Delta.from(_root.toDeltaWithLineId(postTypePrefix: postTypePrefix));
 
   final Rules _rules = Rules.getInstance();
 

@@ -49,6 +49,19 @@ class SymTitle extends Container<Leaf?> {
   }
 
   @override
+  Delta toDeltaWithLineId({String? postTypePrefix}) {
+    final delta = children
+        .map((child) => child.toDelta())
+        .fold(Delta(), (dynamic a, b) => a.concat(b));
+
+    var attributes = style;
+
+    attributes = attributes/*.merge(Attribute.h1).merge(Attribute.bold)*/;
+    delta.insert('\n');
+    return delta;
+  }
+
+  @override
   String toPlainText() => '${super.toPlainText()}\n';
 
   @override
