@@ -200,6 +200,7 @@ class _SymTextViewerState extends State<SymTextViewer>
                         _hideMenuOptionOverlay(box, controller, menuOverlay),
                   ),
                   _buildMenuOption(
+                      box.line.toPlainText(),
                       buttonBox.size.height,
                       menuOffset,
                       controller,
@@ -230,7 +231,7 @@ class _SymTextViewerState extends State<SymTextViewer>
     }
   }
 
-  Widget _buildMenuOption(double buttonBoxHeight, Offset offset,
+  Widget _buildMenuOption(String rawMarkdown, double buttonBoxHeight, Offset offset,
       AnimationController controller, Function onHide) {
     final openAnimation = CurvedAnimation(
         parent: controller,
@@ -270,11 +271,13 @@ class _SymTextViewerState extends State<SymTextViewer>
                       child: _itemMenuOption(
                           'Kutip ke komentar', Assets.QUOTE_BLOCK, () {
                     onHide();
+                    widget.selectedBlock?.call(rawMarkdown);
                   })),
                   Expanded(
                       child: _itemMenuOption(
                           'Jadikan catatan', Assets.CREATE_NOTE, () {
                     onHide();
+                    widget.selectedBlock?.call(rawMarkdown);
                   })),
                 ],
               ),

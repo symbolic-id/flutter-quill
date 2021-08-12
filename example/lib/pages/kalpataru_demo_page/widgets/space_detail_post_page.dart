@@ -30,9 +30,7 @@ class _SpaceDetailPostPageState extends State<SpaceDetailPostPage> {
                       padding: EdgeInsets.symmetric(
                           horizontal: MediaQuery.of(context).size.width * 0.15),
                       selectedBlock: (rawMarkdown) =>
-                  {
-
-                  })
+                          print('LL:: selectedBlock: ${rawMarkdown}'))
                 ],
               ),
             ),
