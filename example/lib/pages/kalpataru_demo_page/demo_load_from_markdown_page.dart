@@ -13,8 +13,12 @@ class DemoLoadFromMarkdownPage extends StatefulWidget {
 }
 
 class _KalpataruLoadFromMarkdownPage extends State<DemoLoadFromMarkdownPage> {
-  // List<String> examples = [_markdownExample1, _markdownExample2, _markdownExample3];
-  List<String> examples = [_markdownExample4];
+  List<String> examples = [
+    _markdownExample1,
+    _markdownExample2,
+    _markdownExample3,
+    _markdownExample4
+  ];
 
   @override
   void initState() {

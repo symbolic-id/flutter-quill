@@ -138,6 +138,7 @@ class _SymTextViewerState extends State<SymTextViewer>
                         borderRadius: BorderRadius.all(Radius.circular(4))),
                     child: InkWell(
                       onTap: () {
+                        print('LL:: line id: ${box.line.lineId}');
                         _showMenuOptionOverlay(box);
                       },
                       child: Padding(
@@ -315,8 +316,11 @@ class _SymTextViewerState extends State<SymTextViewer>
     var markdownToDecode = widget.markdownData;
     if (widget.maxHeight != null) {
       markdownToDecode = widget.markdownData
-          .replaceAll(SymRegex.REMOVE_IMAGE_BLOCK_IDENTIFIER, '')
-          .replaceAll(SymRegex.REMOVE_IMAGE, '');
+          .replaceAll(
+              SymRegex
+                  .IMAGE_MD_BEFORE_BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET_BEFORE_LINEBREAK,
+              '')
+          .replaceAll(SymRegex.IMAGE_MD, '');
     }
     final doc = Document.fromMarkdown(markdownToDecode);
     widget._controller = QuillController(
@@ -409,7 +413,7 @@ class _SymTextViewerState extends State<SymTextViewer>
     final textViewer = QuillStyles(data: _styles, child: child);
 
     if (widget.maxHeight != null) {
-      final images = SymRegex.REMOVE_IMAGE.allMatches(widget.markdownData);
+      final images = SymRegex.IMAGE_MD.allMatches(widget.markdownData);
 
       if (images.isNotEmpty) {
         final image = images.first.group(0);

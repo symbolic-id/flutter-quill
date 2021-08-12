@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter_quill/src/utils/sym_regex.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../quill_delta.dart';
 import '../attribute.dart';
@@ -19,9 +20,20 @@ import 'node.dart';
 /// When a line contains an embed, it fully occupies the line, no other embeds
 /// or text nodes are allowed.
 class Line extends Container<Leaf?> {
+  Line() : super() {
+    const uuid = Uuid();
+    _generatedLineId = uuid.v5(Uuid.NAMESPACE_NIL, uuid.v1());
+  }
+
+  late String _generatedLineId;
+
   String get lineId {
-    final matchId = SymRegex.BLOCK_IDENTIFIER.firstMatch(super.toPlainText());
-    return matchId?.group(0) ?? '';
+    final matchId = SymRegex.TEXTS_INSIDE_DOUBLE_SQUARE_BRACKET
+        .firstMatch(super.toPlainText());
+    return matchId?.group(0)
+        ?.replaceAll('space-', '')
+        .replaceAll('face-', '')
+        .replaceAll('zet-', '') ?? _generatedLineId;
   }
 
   @override
@@ -76,8 +88,9 @@ class Line extends Container<Leaf?> {
   @override
   String toPlainText() => '${super.toPlainText()}\n';
 
-  String toPlainTextWithoutLineId() =>
-      super.toPlainText().replaceAll(SymRegex.BLOCK_IDENTIFIER, '');
+  String toPlainTextWithoutLineId() => super
+      .toPlainText()
+      .replaceAll(SymRegex.BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET, '');
 
   @override
   String toString() {

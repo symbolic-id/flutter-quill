@@ -197,7 +197,7 @@ class TextLine extends StatelessWidget {
       res = res.merge(TextStyle(backgroundColor: backgroundColor));
     }
 
-    return TextSpan(text: textNode.value.replaceAll(SymRegex.BLOCK_IDENTIFIER, ''), style: res);
+    return TextSpan(text: textNode.value.replaceAll(SymRegex.BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET, ''), style: res);
   }
 
   TextStyle _merge(TextStyle a, TextStyle b) {
@@ -922,7 +922,7 @@ class RenderEditableTextLine extends RenderEditableBox
       }
 
       if (isLineSelected) {
-        _paintLineBody(context, effectiveOffset, SymColors.hoverColor);
+        _paintLineBody(context, effectiveOffset, SymColors.light_bgSurface2);
       }
 
       if (hasFocus &&
