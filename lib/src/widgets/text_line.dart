@@ -349,8 +349,8 @@ class RenderEditableTextLine extends RenderEditableBox
   bool get onHover => _onHover;
 
   void setHovered(bool isHovered) {
+    hoveredCallback?.call(isHovered, this);
     if (_onHover != isHovered) {
-      hoveredCallback?.call(isHovered, this);
       _onHover = isHovered;
       markNeedsPaint();
     }

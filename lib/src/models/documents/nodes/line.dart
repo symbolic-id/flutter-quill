@@ -20,8 +20,7 @@ import 'node.dart';
 /// or text nodes are allowed.
 class Line extends Container<Leaf?> {
   String get lineId {
-    final matchId =
-        SymRegex.BLOCK_IDENTIFIER.firstMatch(super.toPlainText());
+    final matchId = SymRegex.BLOCK_IDENTIFIER.firstMatch(super.toPlainText());
     return matchId?.group(0) ?? '';
   }
 
@@ -76,6 +75,9 @@ class Line extends Container<Leaf?> {
 
   @override
   String toPlainText() => '${super.toPlainText()}\n';
+
+  String toPlainTextWithoutLineId() =>
+      super.toPlainText().replaceAll(SymRegex.BLOCK_IDENTIFIER, '');
 
   @override
   String toString() {

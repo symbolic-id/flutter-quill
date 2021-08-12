@@ -1,6 +1,8 @@
 
 // ignore_for_file: lines_longer_than_80_chars
 class Assets {
+  Assets._();
+
   static const String _FOLDER = 'assets/icons/';
   static const String _PNG = '.png';
 
@@ -46,4 +48,7 @@ class Assets {
   static const String HASHTAG_14PX = '$_FOLDER''ic_hashtag_14px''$_PNG';
   static const String IMAGE_14PX = '$_FOLDER''ic_image_14px''$_PNG';
   static const String STICKER_HAPPY_14PX = '$_FOLDER''ic_sticker_happy_14px''$_PNG';
+
+  static const String CREATE_NOTE = '$_FOLDER''ic_create_note_17px''$_PNG';
+  static const String QUOTE_BLOCK = '$_FOLDER''ic_quote_outline_17px''$_PNG';
 }

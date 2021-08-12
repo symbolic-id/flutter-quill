@@ -25,15 +25,14 @@ class _SpaceDetailPostPageState extends State<SpaceDetailPostPage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  SymTextViewer(
-                    _markdownData,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.15),
-                    lineHoveredCallback: (isHovered, renderEditableLine) { // Should it be sepaarated as own widget such as SymTextViewerLineHovered? cause its only used in Public Space on Web
-                      print(
-                          'LL:: isHovered: $isHovered | text: ${renderEditableLine.line.toPlainText()}');
-                    },
-                  )
+                  SymTextViewer.blockSelector(
+                      _markdownData,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.of(context).size.width * 0.15),
+                      selectedBlock: (rawMarkdown) =>
+                  {
+
+                  })
                 ],
               ),
             ),

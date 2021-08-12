@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/src/utils/app_constant.dart';
+import 'package:flutter_quill/src/widgets/common_widgets/gap.dart';
+import 'package:flutter_quill/utils/assets.dart';
 import 'dart:math' as math;
 import 'package:tuple/tuple.dart';
 
@@ -16,11 +19,20 @@ import '../sym_editors/default_sym_embed_builder.dart';
 import '../sym_text.dart';
 
 class SymTextViewer extends StatefulWidget {
-  SymTextViewer(this.markdownData,
-      {this.maxHeight,
-      this.darkMode = false,
-      this.padding = EdgeInsets.zero,
-      this.lineHoveredCallback});
+  SymTextViewer(
+    this.markdownData, {
+    this.maxHeight,
+    this.darkMode = false,
+    this.padding = EdgeInsets.zero,
+  });
+
+  SymTextViewer.blockSelector(
+    this.markdownData, {
+    required this.selectedBlock,
+    this.maxHeight,
+    this.darkMode = false,
+    this.padding = EdgeInsets.zero,
+  });
 
   final bool darkMode;
   final String markdownData;
@@ -29,14 +41,14 @@ class SymTextViewer extends StatefulWidget {
 
   late QuillController _controller;
 
-  Function(bool, RenderEditableTextLine)? lineHoveredCallback;
+  void Function(String rawMarkdown)? selectedBlock;
 
   @override
   _SymTextViewerState createState() => _SymTextViewerState();
 }
 
 class _SymTextViewerState extends State<SymTextViewer>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _widgetKey = GlobalKey();
   late DefaultStyles _styles;
   final LayerLink _toolbarLayerLink = LayerLink();
@@ -48,45 +60,10 @@ class _SymTextViewerState extends State<SymTextViewer>
 
   bool get showPreviewImage => widget.maxHeight != null;
 
-  late Function(bool, RenderEditableTextLine) hoverCallback;
+  void Function(bool, RenderEditableTextLine) hoverCallback = (_, __) {};
 
-  final Map<String, Tuple2<RenderEditableTextLine, OverlayEntry>>
+  final Map<String, Tuple3<RenderEditableTextLine, GlobalKey, OverlayEntry>>
       _hoveredLines = {};
-
-  void _addHoveredLines(RenderEditableTextLine box) {
-    if (!_hoveredLines.containsKey(box.line.lineId)) {
-      final lineBodyOffset = box.body!.localToGlobal(Offset.zero);
-
-      final viewerRegionBox =
-          _widgetKey.currentContext!.findRenderObject() as RenderBox;
-      final viewerRegionBoxOffset = viewerRegionBox.localToGlobal(Offset.zero);
-      final optionOffsetX =
-          viewerRegionBox.size.width - (widget.padding as EdgeInsets).right;
-      final optionOffsetY = lineBodyOffset.dy - viewerRegionBoxOffset.dy;
-
-      _hoveredLines.addAll({
-        box.line.lineId: Tuple2(box, OverlayEntry(builder: (context) {
-          return Positioned(
-              top: 0,
-              left: 0,
-              child: CompositedTransformFollower(
-                offset: Offset(optionOffsetX, optionOffsetY),
-                link: _toolbarLayerLink,
-                child: Icon(
-                  Icons.more_vert,
-                  size: math.min(box.size.height, 17),
-                ),
-              ));
-        }))
-      });
-      Overlay.of(context)!.insert(_hoveredLines[box.line.lineId]!.item2);
-    }
-  }
-
-  void _removeHoveredLines(RenderEditableTextLine box) {
-    _hoveredLines[box.line.lineId]?.item2.remove();
-    _hoveredLines.removeWhere((key, value) => key == box.line.lineId);
-  }
 
   @override
   void initState() {
@@ -103,13 +80,15 @@ class _SymTextViewerState extends State<SymTextViewer>
       ),
       tickerProvider: this,
     );
-    hoverCallback = (isHovered, renderBox) {
-      if (isHovered) {
-        _addHoveredLines(renderBox);
-      } else {
-        _removeHoveredLines(renderBox);
-      }
-    };
+    if (widget.selectedBlock != null) {
+      hoverCallback = (isHovered, renderBox) {
+        if (isHovered) {
+          _addHoveredLine(renderBox);
+        } else {
+          _removeHoveredLine(renderBox);
+        }
+      };
+    }
   }
 
   @override
@@ -122,6 +101,210 @@ class _SymTextViewerState extends State<SymTextViewer>
     final defaultStyles =
         DefaultStyles.getInstance(context, baseTextColor: textColor);
     _styles = defaultStyles;
+  }
+
+  void _addHoveredLine(RenderEditableTextLine box) {
+    if (!_hoveredLines.containsKey(box.line.lineId) &&
+        box.line.toPlainTextWithoutLineId().trim().isNotEmpty) {
+      const preferredButtonWidth = 17.0;
+      final lineBodyOffset = box.body!.localToGlobal(Offset.zero);
+
+      final viewerRegionBox =
+          _widgetKey.currentContext!.findRenderObject() as RenderBox;
+      final viewerRegionBoxOffset = viewerRegionBox.localToGlobal(Offset.zero);
+      final optionOffsetX = viewerRegionBox.size.width -
+          math.max((widget.padding as EdgeInsets).right, preferredButtonWidth);
+      final optionOffsetY = lineBodyOffset.dy - viewerRegionBoxOffset.dy;
+
+      final _optionButtonKey = GlobalKey();
+
+      _hoveredLines.addAll({
+        box.line.lineId:
+            Tuple3(box, _optionButtonKey, OverlayEntry(builder: (context) {
+          return Positioned(
+              top: 0,
+              left: 0,
+              child: CompositedTransformFollower(
+                offset: Offset(optionOffsetX, optionOffsetY),
+                link: _toolbarLayerLink,
+                child: MouseRegion(
+                  onEnter: (event) {
+                    _addHoveredLine(box);
+                  },
+                  onExit: (_) => _removeHoveredLine(box),
+                  child: Material(
+                    key: _optionButtonKey,
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(4))),
+                    child: InkWell(
+                      onTap: () {
+                        _showMenuOptionOverlay(box);
+                      },
+                      child: Padding(
+                        padding:
+                            const EdgeInsets.only(top: 4, bottom: 4, right: 6),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.more_vert,
+                              size: preferredButtonWidth,
+                            ),
+                            const GapH(4),
+                            const SymText(
+                              'Lihat opsi block',
+                              size: 12,
+                              bold: true,
+                              color: SymColors.light_textQuaternary,
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ));
+        }))
+      });
+      Overlay.of(context)!.insert(_hoveredLines[box.line.lineId]!.item3);
+    }
+  }
+
+  void _removeHoveredLine(RenderEditableTextLine box) {
+    _hoveredLines[box.line.lineId]?.item3.remove();
+    _hoveredLines.removeWhere((key, value) => key == box.line.lineId);
+  }
+
+  void _showMenuOptionOverlay(RenderEditableTextLine box) {
+    OverlayEntry? menuOverlay;
+    final buttonKey = _hoveredLines[box.line.lineId]?.item2;
+    final buttonBox =
+        buttonKey?.currentContext?.findRenderObject() as RenderBox?;
+    if (buttonBox != null) {
+      box.setLineSelected(true);
+      final buttonOffset = buttonBox.localToGlobal(Offset.zero);
+      final controller = AnimationController(
+          duration: const Duration(milliseconds: 100),
+          vsync: this,
+          reverseDuration: const Duration(milliseconds: 100));
+
+      final menuOffset = Offset(buttonOffset.dx + buttonBox.size.width,
+          buttonOffset.dy + buttonBox.size.height);
+
+      menuOverlay = OverlayEntry(
+          builder: (context) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  const AbsorbPointer(),
+                  GestureDetector(
+                    onTap: () =>
+                        _hideMenuOptionOverlay(box, controller, menuOverlay),
+                  ),
+                  _buildMenuOption(
+                      buttonBox.size.height,
+                      menuOffset,
+                      controller,
+                      () =>
+                          _hideMenuOptionOverlay(box, controller, menuOverlay))
+                ],
+              ));
+
+      controller.forward();
+      Overlay.of(context)!.insert(menuOverlay);
+    }
+  }
+
+  void _hideMenuOptionOverlay(RenderEditableTextLine box,
+      AnimationController controller, OverlayEntry? menuOverlay) {
+    if (menuOverlay != null) {
+      box.setLineSelected(false);
+      controller.reverse();
+      late AnimationStatusListener statusListener;
+      statusListener = (status) {
+        if (status == AnimationStatus.dismissed) {
+          menuOverlay?.remove();
+          menuOverlay = null;
+          controller.removeStatusListener(statusListener);
+        }
+      };
+      controller.addStatusListener(statusListener);
+    }
+  }
+
+  Widget _buildMenuOption(double buttonBoxHeight, Offset offset,
+      AnimationController controller, Function onHide) {
+    final openAnimation = CurvedAnimation(
+        parent: controller,
+        curve: Curves.fastOutSlowIn,
+        reverseCurve: Curves.easeOutQuad);
+
+    const MENU_SIZE = Size(220, 96);
+
+    return AnimatedBuilder(
+      animation: openAnimation,
+      builder: (context, child) {
+        return Positioned(
+          left: offset.dx - MENU_SIZE.width,
+          top: offset.dy -
+              buttonBoxHeight +
+              openAnimation.value * buttonBoxHeight,
+          child: Visibility(
+            visible: openAnimation.value > 0,
+            child: child!,
+          ),
+        );
+      },
+      child: FadeTransition(
+        opacity: openAnimation,
+        child: Material(
+            borderRadius: BorderRadius.circular(8),
+            elevation: 5,
+            clipBehavior: Clip.antiAlias,
+            child: Container(
+              width: MENU_SIZE.width,
+              height: MENU_SIZE.height,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Expanded(
+                      child: _itemMenuOption(
+                          'Kutip ke komentar', Assets.QUOTE_BLOCK, () {
+                    onHide();
+                  })),
+                  Expanded(
+                      child: _itemMenuOption(
+                          'Jadikan catatan', Assets.CREATE_NOTE, () {
+                    onHide();
+                  })),
+                ],
+              ),
+            )),
+      ),
+    );
+  }
+
+  Widget _itemMenuOption(String label, String assetName, Function() onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.only(left: 16),
+        child: Row(
+          children: [
+            Image(
+              image: AssetImage(assetName, package: PACKAGE_NAME),
+              width: 21,
+              height: 21,
+            ),
+            GapH(8),
+            SymText(
+              label,
+              size: 15,
+              bold: true,
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -150,8 +333,8 @@ class _SymTextViewerState extends State<SymTextViewer>
           endHandleLayerLink: _endHandleLayerLink,
           onSelectionChanged: _nullSelectionChanged,
           scrollBottomInset: 0,
-          children: _buildChildren(doc, context),
           padding: widget.padding,
+          children: _buildChildren(doc, context),
         ),
       ),
     );
