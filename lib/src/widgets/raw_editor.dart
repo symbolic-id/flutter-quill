@@ -184,7 +184,7 @@ class RawEditorState extends EditorState
         },
       )
           : SymTitleKalpataruMobile(
-        controller: TextEditingController(),
+        controller: (widget.editorType as SymEditorTypeKalpataru).controller,
         focusNode: titleFocusNode,
         padding: EdgeInsets.only(
             left: widget.padding?.horizontal ??
