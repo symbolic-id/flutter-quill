@@ -61,7 +61,7 @@ class _SymTitleButton extends State<SymTitleButton> {
           splashColor: SymColors.hoverColor,
           hoverColor: SymColors.hoverColor,
           child: Ink(
-            color: SymColors.light_bgSurface1,
+            color: SymColors.light_backgroundSurfaceOne,
             child: Padding(
               padding: const EdgeInsets.only(
                   top: 4, bottom: 4, left: 7, right: 7),

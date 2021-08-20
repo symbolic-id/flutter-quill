@@ -386,11 +386,11 @@ class RenderEditableTextLine extends RenderEditableBox
     }
   }
 
-  Color _lineSelectColor = SymColors.light_bgSurface2;
+  Color _lineSelectColor = SymColors.light_backgroundSurfaceTwo;
   bool isLineSelected = false;
 
   void setLineSelected(bool isSelected,
-      {Color color = SymColors.light_bgSurface2}) {
+      {Color color = SymColors.light_backgroundSurfaceTwo}) {
     if (isLineSelected != isSelected) {
       isLineSelected = isSelected;
       _lineSelectColor = color;

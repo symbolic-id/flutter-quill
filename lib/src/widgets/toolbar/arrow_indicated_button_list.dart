@@ -60,12 +60,15 @@ class _ArrowIndicatedButtonListState extends State<ArrowIndicatedButtonList>
   }
 
   void _handleScroll() {
-    setState(() {
-      _showLeftArrow =
-          _controller.position.minScrollExtent != _controller.position.pixels;
-      _showRightArrow =
-          _controller.position.maxScrollExtent != _controller.position.pixels;
-    });
+    if (!mounted) {
+
+      setState(() {
+        _showLeftArrow =
+            _controller.position.minScrollExtent != _controller.position.pixels;
+        _showRightArrow =
+            _controller.position.maxScrollExtent != _controller.position.pixels;
+      });
+    }
   }
 
   Widget _buildLeftArrow() {

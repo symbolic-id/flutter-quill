@@ -133,8 +133,8 @@ class SymColors {
   static const Color light_textPrimary = Color(0xFF212121);
   static const Color light_textTertiary = Color(0xFF757575);
   static const Color light_textQuaternary = Color(0xFF9E9E9E);
-  static const Color light_bgSurface1 = Color(0xFFF5F5F5);
-  static const Color light_bgSurface2 = Color(0xFFEEEEEE);
+  static const Color light_backgroundSurfaceOne = Color(0xFFF5F5F5);
+  static const Color light_backgroundSurfaceTwo = Color(0xFFEEEEEE);
   static const Color light_iconPrimary = Color(0xFF212121);
 
   static const Color dark_bgSurface2 = Color(0xFF242424);

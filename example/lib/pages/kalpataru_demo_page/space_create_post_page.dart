@@ -62,7 +62,7 @@ class _SpaceCreatePostPage extends State<SpaceCreatePostPage> {
                       borderRadius: BorderRadius.circular(16),
                     )),
                     backgroundColor: MaterialStateProperty.all<Color>(
-                        SymColors.light_bgSurface1)),
+                        SymColors.light_backgroundSurfaceOne)),
               ),
             ),
             Expanded(

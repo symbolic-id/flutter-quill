@@ -191,7 +191,7 @@ class _SymTextViewerState extends State<SymTextViewer>
       box.setLineSelected(true,
           color: widget.darkMode
               ? SymColors.dark_textQuaternary
-              : SymColors.light_bgSurface2);
+              : SymColors.light_backgroundSurfaceTwo);
       final buttonOffset = buttonBox.localToGlobal(Offset.zero);
       final controller = AnimationController(
           duration: const Duration(milliseconds: 100),

@@ -187,7 +187,8 @@ class DemoSymbolicPage extends StatelessWidget {
   }
 
   void _openEmptyKalpataru(BuildContext context) {
-    _showDialog(context, KalpataruCreateCardPage());
+    KalpataruCreateCardPage.open(context);
+    // _showDialog(context, KalpataruCreateCardPage());
   }
 
   void _openCreateInterFace(BuildContext context) {

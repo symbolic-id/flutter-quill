@@ -6,7 +6,8 @@ class Assets {
   static const String _FOLDER = 'assets/icons/';
   static const String _PNG = '.png';
 
-  static const String MORE = '$_FOLDER''ic_more_20px''$_PNG';
+  static const String MORE_VERT = '$_FOLDER''ic_more_vert_20px''$_PNG';
+  static const String MORE_HORIZ = '$_FOLDER''ic_more_horiz_20px''$_PNG';
   static const String COPY = '$_FOLDER''ic_copy_18px''$_PNG';
   static const String DUPLICATE = '$_FOLDER''ic_duplicate_18px''$_PNG';
   static const String INDENT_LEFT_ACTIVE = '$_FOLDER''ic_indent_left_active_18px''$_PNG';
@@ -19,10 +20,10 @@ class Assets {
   static const String TODO_LIST = '$_FOLDER''ic_todo_list_18px''$_PNG';
   static const String NUMBERING_LIST = '$_FOLDER''ic_numbering_list_18px''$_PNG';
   static const String BULLET_LIST = '$_FOLDER''ic_bullet_list_18px''$_PNG';
-  static const String FORMAT_BOLD = '$_FOLDER''ic_format_bold_20px''$_PNG';
-  static const String FORMAT_INLINECODE = '$_FOLDER''ic_format_inlinecode_20px''$_PNG';
-  static const String FORMAT_ITALIC = '$_FOLDER''ic_format_italic_20px''$_PNG';
-  static const String FORMAT_STRIKETHROUGH = '$_FOLDER''ic_format_strikethrough_20px''$_PNG';
+  static const String FORMAT_BOLD_INACTIVE = '$_FOLDER''ic_format_bold_inactive_21px''$_PNG';
+  static const String FORMAT_INLINECODE_INACTIVE = '$_FOLDER''ic_format_inlinecode_inactive_21px''$_PNG';
+  static const String FORMAT_ITALIC_INACTIVE = '$_FOLDER''ic_format_italic_inactive_21px''$_PNG';
+  static const String FORMAT_STRIKETHROUGH_INACTIVE = '$_FOLDER''ic_format_strikethrough_inactive_21px''$_PNG';
 
   static const String CIRCLE_ADD = '$_FOLDER''ic_circle_add_20_px''$_PNG';
   static const String CIRCLE_CLOCK = '$_FOLDER''ic_circle_clock_40px''$_PNG';

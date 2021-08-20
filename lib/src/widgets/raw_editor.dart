@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -167,7 +167,7 @@ class RawEditorState extends EditorState
         left: containerSize.width * 0.2, right: containerSize.width * 0.2);
 
     if (widget.editorType is SymEditorTypeKalpataru) {
-      widget.controller.titleKalpataru = kIsWeb
+      widget.controller.titleKalpataru = !widget.editorType!.isMobile
           ? SymTitleKalpataru(
         controller: (widget.editorType as SymEditorTypeKalpataru).controller,
         focusNode: titleFocusNode,
@@ -175,7 +175,7 @@ class RawEditorState extends EditorState
             left: widget.padding?.horizontal ??
                 defaultPadding.left + SymBlockButton.buttonWidth * 2,
             right: widget.padding?.horizontal ?? defaultPadding.right,
-            top: kIsWeb ? 82 : 24),
+            top: 82),
         onSubmitted: () {
           widget.controller.updateSelection(
               const TextSelection.collapsed(offset: 0),
@@ -188,17 +188,14 @@ class RawEditorState extends EditorState
         focusNode: titleFocusNode,
         padding: EdgeInsets.only(
             left: widget.padding?.horizontal ??
-                defaultPadding.left + SymBlockButton.buttonWidth * 2,
+                defaultPadding.left,
             right: widget.padding?.horizontal ?? defaultPadding.right,
-            top: kIsWeb ? 82 : 24),
+            top: 24),
         onSubmitted: () {
-          WidgetsBinding.instance!.addPostFrameCallback((_) {
-            widget.controller.updateSelection(
-                const TextSelection.collapsed(offset: 0),
-                ChangeSource.LOCAL);
-            // widget.controller.notifyListeners();
-            widget.focusNode.requestFocus();
-          });
+          widget.controller.updateSelection(
+              const TextSelection.collapsed(offset: 0),
+              ChangeSource.LOCAL);
+          widget.focusNode.requestFocus();
         },
       );
     }
@@ -375,13 +372,13 @@ class RawEditorState extends EditorState
     final editableTextLine = EditableTextLine(
         editableTextLineKey,
         node,
-        kIsWeb && !widget.readOnly
+        !widget.editorType!.isMobile && !widget.readOnly
             ? SymBlockButton.typeAdd(editableTextLineKey, node.offset,
                 (textOffset, _) {
                 _showMenuBlockCreation(selectionIndex: textOffset);
               })
             : null,
-        kIsWeb && !widget.readOnly
+        !widget.editorType!.isMobile && !widget.readOnly
             ? SymBlockButton.typeOption(editableTextLineKey, node.offset,
                 (textOffset, btnKey) {
                 bool isEmbed;
@@ -591,7 +588,7 @@ class RawEditorState extends EditorState
   }
 
   void _didChangeTextEditingValue([bool ignoreFocus = false]) {
-    if (kIsWeb) {
+    if (!widget.editorType!.isMobile) {
       _onChangeTextEditingValue(ignoreFocus);
       if (!ignoreFocus) {
         requestKeyboard();
@@ -666,7 +663,8 @@ class RawEditorState extends EditorState
           DragStartBehavior.start,
           null,
           _clipboardStatus,
-          quillController: widget.controller);
+          quillController: widget.controller,
+      isMobile: widget.editorType?.isMobile ?? false);
       _selectionOverlay!.handlesVisible = _shouldShowSelectionHandles();
       _selectionOverlay!.showHandles();
     }

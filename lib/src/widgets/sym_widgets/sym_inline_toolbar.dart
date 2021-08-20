@@ -94,32 +94,32 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              SymToggleStyleButton(
-                                  assetName: Assets.FORMAT_BOLD,
+                              SymInlineToggleStyleButton(
+                                  assetName: Assets.FORMAT_BOLD_INACTIVE,
                                   onAfterPressed: () {
                                     setState(() {});
                                   },
                                   tooltipLabel: 'Bold',
                                   controller: widget.controller,
                                   attribute: Attribute.bold),
-                              SymToggleStyleButton(
-                                  assetName: Assets.FORMAT_ITALIC,
+                              SymInlineToggleStyleButton(
+                                  assetName: Assets.FORMAT_ITALIC_INACTIVE,
                                   onAfterPressed: () {
                                     setState(() {});
                                   },
                                   tooltipLabel: 'Italic',
                                   controller: widget.controller,
                                   attribute: Attribute.italic),
-                              SymToggleStyleButton(
-                                  assetName: Assets.FORMAT_STRIKETHROUGH,
+                              SymInlineToggleStyleButton(
+                                  assetName: Assets.FORMAT_STRIKETHROUGH_INACTIVE,
                                   onAfterPressed: () {
                                     setState(() {});
                                   },
                                   tooltipLabel: 'Strikethrough',
                                   controller: widget.controller,
                                   attribute: Attribute.strikeThrough),
-                              SymToggleStyleButton(
-                                  assetName: Assets.FORMAT_INLINECODE,
+                              SymInlineToggleStyleButton(
+                                  assetName: Assets.FORMAT_INLINECODE_INACTIVE,
                                   onAfterPressed: () {
                                     setState(() {});
                                   },
@@ -153,7 +153,7 @@ class _SymInlineToolbarState extends State<SymInlineToolbar> {
   }
 }
 
-Widget SymToggleStyleButton(
+Widget SymInlineToggleStyleButton(
     {required String assetName,
     required Function onAfterPressed,
     required String tooltipLabel,

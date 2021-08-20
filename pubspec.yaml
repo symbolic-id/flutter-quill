@@ -38,7 +38,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - packages/flutter_quill/assets/icons/ic_more_20px.png
+    - packages/flutter_quill/assets/icons/ic_more_vert_20px.png
+    - packages/flutter_quill/assets/icons/ic_more_horiz_20px.png
     - packages/flutter_quill/assets/icons/ic_copy_18px.png
     - packages/flutter_quill/assets/icons/ic_duplicate_18px.png
     - packages/flutter_quill/assets/icons/ic_indent_left_active_18px.png
@@ -51,10 +52,10 @@ flutter:
     - packages/flutter_quill/assets/icons/ic_todo_list_18px.png
     - packages/flutter_quill/assets/icons/ic_numbering_list_18px.png
     - packages/flutter_quill/assets/icons/ic_bullet_list_18px.png
-    - packages/flutter_quill/assets/icons/ic_format_bold_20px.png
-    - packages/flutter_quill/assets/icons/ic_format_inlinecode_20px.png
-    - packages/flutter_quill/assets/icons/ic_format_italic_20px.png
-    - packages/flutter_quill/assets/icons/ic_format_strikethrough_20px.png
+    - packages/flutter_quill/assets/icons/ic_format_bold_inactive_21px.png
+    - packages/flutter_quill/assets/icons/ic_format_inlinecode_inactive_21px.png
+    - packages/flutter_quill/assets/icons/ic_format_italic_inactive_21px.png
+    - packages/flutter_quill/assets/icons/ic_format_strikethrough_inactive_21px.png
     - packages/flutter_quill/assets/icons/ic_circle_clock_40px.png
     - packages/flutter_quill/assets/icons/ic_circle_date_40px.png
     - packages/flutter_quill/assets/icons/ic_circle_divider_40px.png

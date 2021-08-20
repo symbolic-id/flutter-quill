@@ -280,7 +280,7 @@ class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
     return [
       _titleSubMenu('Aksi'),
       GapV(8),
-      _itemMenuContent(Assets.TRASH, 'Hapis blok', maxMenuWidth, onTap: () {
+      _itemMenuContent(Assets.TRASH, 'Hapus blok', maxMenuWidth, onTap: () {
         actionListener.onDelete();
       }),
       _itemMenuContent(Assets.COPY, 'Salin Teks', maxMenuWidth, onTap: () {

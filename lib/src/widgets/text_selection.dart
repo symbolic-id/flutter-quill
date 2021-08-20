@@ -75,7 +75,8 @@ class EditorTextSelectionOverlay {
     this.dragStartBehavior,
     this.onSelectionHandleTapped,
     this.clipboardStatus,
-    {required this.quillController}
+    {required this.quillController,
+    this.isMobile = false}
   ) {
     final overlay = Overlay.of(context, rootOverlay: true)!;
 
@@ -105,6 +106,8 @@ class EditorTextSelectionOverlay {
   TextSelection get _selection => value.selection;
 
   Animation<double> get _toolbarOpacity => _toolbarController.view;
+
+  bool isMobile = false;
 
   void setHandlesVisible(bool visible) {
     if (handlesVisible == visible) {
@@ -137,7 +140,7 @@ class EditorTextSelectionOverlay {
 
   void showToolbar() {
     assert(toolbar == null);
-    if (!kIsWeb) {
+    if (isMobile) {
       toolbar = OverlayEntry(builder: _buildToolbar);
       Overlay.of(
           context, rootOverlay: true, debugRequiredFor: debugRequiredFor)!
