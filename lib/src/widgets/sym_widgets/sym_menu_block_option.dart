@@ -291,7 +291,7 @@ class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
         actionListener.onDuplicate();
       }),
       if (!widget.isEmbeddable)
-        _itemMenuContent(Assets.INDENT_LEFT_ACTIVE, 'Indent kiri', maxMenuWidth,
+        _itemMenuContent(Assets.INDENT_LEFT_INACTIVE, 'Indent kiri', maxMenuWidth,
             enabled: (indentLevel ?? 0) > 0, onTap: () {
           if (indentLevel == 1) {
             widget.controller.formatLine(

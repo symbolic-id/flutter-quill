@@ -15,8 +15,8 @@ import 'sym_asset_image.dart';
 import 'sym_block_button.dart';
 import 'sym_text.dart';
 
-class _MenuBlockItem {
-  _MenuBlockItem({
+class MenuBlockCreationItem {
+  MenuBlockCreationItem({
     required this.key,
     required this.attr,
     required this.title,
@@ -42,19 +42,19 @@ class _MenuBlockItem {
   }
 }
 
-class _MenuBlockSection {
-  _MenuBlockSection(this.blockType,
-      {required List<_MenuBlockItem> defaultItems})
-      : _defaultItems = defaultItems;
+class MenuBlockCreationSection {
+  MenuBlockCreationSection(this.blockType,
+      {required List<MenuBlockCreationItem> defaultItems})
+      : defaultItems = defaultItems;
 
   final String blockType;
-  final List<_MenuBlockItem> _defaultItems;
+  final List<MenuBlockCreationItem> defaultItems;
 
   bool itemsContainKeyword(String? keyword) {
     if (keyword == null) {
       return true;
     }
-    for (final item in _defaultItems) {
+    for (final item in defaultItems) {
       if (item.title.toLowerCase().contains(keyword.toLowerCase()) ||
           item.desc?.toLowerCase().contains(keyword.toLowerCase()) == true) {
         return true;
@@ -63,13 +63,13 @@ class _MenuBlockSection {
     return false;
   }
 
-  List<_MenuBlockItem> getItemsContainKeyword(String? keyword) {
+  List<MenuBlockCreationItem> getItemsContainKeyword(String? keyword) {
     if (keyword == null) {
-      return _defaultItems;
+      return defaultItems;
     }
-    final itemsMatch = <_MenuBlockItem>[];
+    final itemsMatch = <MenuBlockCreationItem>[];
 
-    for (final item in _defaultItems) {
+    for (final item in defaultItems) {
       if (item.title.toLowerCase().contains(keyword.toLowerCase()) ||
           item.desc?.toLowerCase().contains(keyword.toLowerCase()) == true) {
         itemsMatch.add(item);
@@ -107,8 +107,8 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
   bool onScroll = false;
 
-  final filteredSections = <_MenuBlockSection>[];
-  final filteredItems = <_MenuBlockItem>[];
+  final filteredSections = <MenuBlockCreationSection>[];
+  final filteredItems = <MenuBlockCreationItem>[];
 
   void _setSelectedIndex(int index) {
     if (filteredItems.isNotEmpty) {
@@ -192,7 +192,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
     var itemCount = 0;
 
-    for (final section in _defaultMenuSections) {
+    for (final section in defaultMenuBlockCreationSections) {
       if (section.itemsContainKeyword(keyword)) {
         filteredSections.add(section);
         filteredItems.addAll(section.getItemsContainKeyword(keyword));
@@ -316,7 +316,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     }
   }
 
-  Widget _buildSection(String blockType, List<_MenuBlockItem> items,
+  Widget _buildSection(String blockType, List<MenuBlockCreationItem> items,
       bool withDivider, int itemStartIndex) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +339,7 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
     );
   }
 
-  Widget _buildItem(_MenuBlockItem item, int index) {
+  Widget _buildItem(MenuBlockCreationItem item, int index) {
     final key = item.key;
     final title = item.title;
     final titleSize = item.titleSize;
@@ -486,11 +486,11 @@ class _SymMenuBlockCreationState extends State<SymMenuBlockCreation> {
 
 /* DEFAULT MENU ITEM */
 
-final List<_MenuBlockSection> _defaultMenuSections = [
-  _MenuBlockSection(
+final List<MenuBlockCreationSection> defaultMenuBlockCreationSections = [
+  MenuBlockCreationSection(
     'Format Teks',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: null,
           title: 'Teks Biasa',
@@ -498,24 +498,24 @@ final List<_MenuBlockSection> _defaultMenuSections = [
           desc: 'Format teks standar dalam paragraf')
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Format Judul',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.h1,
           title: 'Judul Besar',
           titleSize: 20,
           iconAssetName: Assets.CIRCLE_FORMAT_H1,
           shortcutChar: '#'),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.h2,
           title: 'Judul Sedang',
           titleSize: 16,
           iconAssetName: Assets.CIRCLE_FORMAT_H2,
           shortcutChar: '##'),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.h3,
           title: 'Judul Kecil',
@@ -523,24 +523,24 @@ final List<_MenuBlockSection> _defaultMenuSections = [
           shortcutChar: '###'),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Format Daftar',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.ul,
           title: 'Bullet List',
           iconAssetName: Assets.CIRCLE_FORMAT_BULLET_LIST,
           desc: '• Buat daftar dengan pointer lingkaran',
           shortcutChar: '*'),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.ol,
           title: 'Number List',
           iconAssetName: Assets.CIRCLE_FORMAT_NUMBER_LIST,
           desc: '1. Buat daftar dengan urutan angka',
           shortcutChar: '1.'),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.unchecked,
           title: 'To do List',
@@ -549,17 +549,17 @@ final List<_MenuBlockSection> _defaultMenuSections = [
           descAssetName: Assets.CHECK_12PX),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Hashtag',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Tag Section',
         iconAssetName: Assets.CIRCLE_FORMAT_TAG,
         desc: 'Menambahkan tag di suatu section',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Tag Card',
@@ -568,24 +568,24 @@ final List<_MenuBlockSection> _defaultMenuSections = [
       ),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Referensi',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Card Reference',
         iconAssetName: Assets.CIRCLE_FORMAT_REFERENCE,
         desc: 'Menambahkan card lain',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Block Embed',
         iconAssetName: Assets.CIRCLE_FORMAT_TAG,
         desc: 'Menambahkan section card lain',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Block Reference',
@@ -594,17 +594,17 @@ final List<_MenuBlockSection> _defaultMenuSections = [
       ),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Referensi #2',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
           key: GlobalKey(),
           attr: Attribute.blockQuote,
           title: 'Quote',
           iconAssetName: Assets.CIRCLE_FORMAT_QUOTE,
           desc: 'Buat tulisan quote',
           shortcutChar: '>'),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.codeBlock,
         title: 'Code',
@@ -613,17 +613,17 @@ final List<_MenuBlockSection> _defaultMenuSections = [
       ),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Referensi #3',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Tanggal Sekarang',
         iconAssetName: Assets.CIRCLE_DATE,
         desc: 'Menambahkan tanggal sekarang',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Jam Sekarang',
@@ -632,31 +632,31 @@ final List<_MenuBlockSection> _defaultMenuSections = [
       ),
     ],
   ),
-  _MenuBlockSection(
+  MenuBlockCreationSection(
     'Format Sisipan',
     defaultItems: [
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Gambar',
         iconAssetName: Assets.CIRCLE_IMAGE,
         desc: 'Menambahkan file gambar',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'GIF',
-        iconAssetName: Assets.CIRCLE_GIF,
+        iconAssetName: Assets.INSERT_GIF,
         desc: 'Menambahkan GIF',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Embed Link',
-        iconAssetName: Assets.CIRCLE_GIF,
+        iconAssetName: Assets.INSERT_GIF,
         desc: 'Menambahkan rangkuman tautan',
       ),
-      _MenuBlockItem(
+      MenuBlockCreationItem(
         key: GlobalKey(),
         attr: Attribute.header,
         title: 'Divider',

@@ -105,8 +105,8 @@ Widget defaultToggleStyleButtonBuilder(
   final isEnabled = onPressed != null;
   final iconColor = isEnabled
       ? isToggled == true
-          ? SymColors.light_textQuaternary
-          : SymColors.light_iconPrimary
+          ? SymColors.light_iconPrimary
+          : SymColors.light_textQuaternary
       : SymColors.light_line;
 
   return SymToolbarIconButton(

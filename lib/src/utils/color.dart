@@ -128,6 +128,7 @@ class SymColors {
   SymColors._();
 
   static const Color light_bluePrimary = Color(0xFF4267B2);
+  static const Color light_primary = Color(0xFFB26941);
   static const Color light_bgWhite = Color(0xFFFFFFFF);
   static const Color light_line = Color(0xFFE0E0E0);
   static const Color light_textPrimary = Color(0xFF212121);

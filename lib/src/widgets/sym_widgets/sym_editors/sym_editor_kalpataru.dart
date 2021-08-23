@@ -43,8 +43,7 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
     //   return const Scaffold(body: Center(child: SymText('Loading...'),),);
     // }
     return AdaptiveLayoutBuilder(
-        onMobile: _buildEditor(true), onDesktop: _buildEditor(false)
-    );
+        onMobile: _buildEditor(true), onDesktop: _buildEditor(false));
   }
 
   Widget _buildEditor(bool isMobile) {
@@ -65,7 +64,11 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
             editorType: SymEditorTypeKalpataru(_titleController, isMobile),
           ),
         ),
-        if (isMobile) SymToolbar.basic(controller: widget._controller!,)
+        if (isMobile)
+          SymToolbar.basic(
+            context: context,
+            controller: widget._controller!,
+          )
       ],
     );
   }

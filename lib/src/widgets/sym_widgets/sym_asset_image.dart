@@ -5,16 +5,14 @@ import 'package:flutter_quill/src/utils/app_constant.dart';
 class SymAssetImage extends StatelessWidget {
   const SymAssetImage(
     this.assetName, {
-    this.size = _defaultImageSize,
+    this.size,
     this.color,
     this.fit = BoxFit.none,
     Key? key,
   }) : super(key: key);
 
-  static const Size _defaultImageSize = Size(40, 40);
-
   final String assetName;
-  final Size size;
+  final Size? size;
   final Color? color;
   final BoxFit fit;
 
@@ -23,8 +21,8 @@ class SymAssetImage extends StatelessWidget {
     return Image.asset(
       assetName,
       package: PACKAGE_NAME,
-      width: size.width,
-      height: size.width,
+      width: size?.width,
+      height: size?.height,
       color: color,
       fit: fit,
     );

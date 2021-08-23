@@ -9,8 +9,22 @@ import 'package:flutter_quill/utils/color.dart';
 import 'widgets/button_menu.dart';
 import 'kalpataru_create_card_page.dart';
 
-class DemoSymbolicPage extends StatelessWidget {
+class DemoSymbolicPage extends StatefulWidget {
+  @override
+  _DemoSymbolicPageState createState() => _DemoSymbolicPageState();
+}
+
+class _DemoSymbolicPageState extends State<DemoSymbolicPage> {
   final buttonSize = 40.0;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // JUST FOR QUICK TESTING
+    WidgetsBinding.instance
+        ?.addPostFrameCallback((_) => _openEmptyKalpataru(context));
+  }
 
   @override
   Widget build(BuildContext context) {
