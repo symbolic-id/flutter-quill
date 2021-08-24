@@ -7,7 +7,7 @@ class SymAssetImage extends StatelessWidget {
     this.assetName, {
     this.size,
     this.color,
-    this.fit = BoxFit.none,
+    this.fit = BoxFit.scaleDown,
     Key? key,
   }) : super(key: key);
 

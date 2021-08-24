@@ -71,6 +71,9 @@ class _SymToggleStyleButtonState extends State<SymToggleStyleButton> {
   }
 
   void _didChangeEditingValue() {
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _isToggled = _getIsToggled(_selectionStyle.attributes);
     });

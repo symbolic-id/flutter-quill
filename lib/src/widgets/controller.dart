@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_quill/models/documents/nodes/leaf.dart';
 import 'package:flutter_quill/src/models/documents/nodes/line.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:tuple/tuple.dart';
@@ -266,5 +267,40 @@ class QuillController extends ChangeNotifier {
         extentOffset: math.min(selection.extentOffset, end));
   }
 
-  void showMenuBlockCreation() {}
+  void deleteCurrentLine() {
+    final line = document.getLineFromTextIndex(selection.baseOffset);
+
+    final isEmbed = (line.children.first as Leaf).value is Embeddable;
+    final textIndex = line.offset;
+    int textLength;
+    if (!isEmbed) {
+      textLength = line.length + 1;
+    } else {
+      textLength = 1;
+    }
+
+    /* SOMEHOW IT DOESN'T WORK LIKE ON THE SymMenuBlockOption */
+    if (textLength < document.length) {
+      document.delete(textIndex, line.length);
+
+      final lastCursorIndex = selection.baseOffset;
+
+      if (lastCursorIndex > textIndex) {
+        var newCursorIndex = lastCursorIndex - textLength;
+
+        if (newCursorIndex < 0) {
+          newCursorIndex = 0;
+        }
+
+        updateSelection(
+            TextSelection(
+                baseOffset: newCursorIndex, extentOffset: newCursorIndex),
+            ChangeSource.LOCAL);
+      }
+    } else {
+      print('replaceText: ${line.length}');
+      replaceText(
+          0, line.length - 1, '\n', const TextSelection.collapsed(offset: 0));
+    }
+  }
 }

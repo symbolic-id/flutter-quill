@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_toolbar/sym_bottom_menu_block_creation.dart';
+import 'package:flutter_quill/src/widgets/sym_widgets/sym_toolbar/sym_bottom_menu_block_option.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_toolbar/sym_toolbar_button/sym_toggle_style_button.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_toolbar/sym_toolbar_button/sym_toolbar_button.dart';
 import 'package:flutter_quill/utils/assets.dart';
@@ -34,7 +35,9 @@ class SymToolbar extends StatelessWidget implements PreferredSizeWidget {
             SymBottomMenuBlockCreation.show(context, controller);
           }),
       divider,
-      SymToolbarButton(iconAssetName: Assets.MORE_VERT, onPressed: () {}),
+      SymToolbarButton(iconAssetName: Assets.MORE_VERT, onPressed: () {
+        SymBottomMenuBlockOption.show(context, controller);
+      }),
       divider,
       SymToggleStyleButton(
           attribute: Attribute.bold,

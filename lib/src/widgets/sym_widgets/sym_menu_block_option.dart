@@ -12,6 +12,41 @@ import '../common_widgets/gap.dart';
 import 'sym_text.dart';
 import '../text_line.dart';
 
+class MenuBlockOptionItem {
+  MenuBlockOptionItem({
+    required this.title,
+    required this.iconAssetName,
+    required this.type,
+  });
+
+  final _BlockOptionType type;
+  final String title;
+  final String iconAssetName;
+}
+
+class MenuBlockOptionSection {
+  MenuBlockOptionSection(this.title, this.items);
+
+  final String title;
+  final List<MenuBlockOptionItem> items;
+}
+
+abstract class _BlockOptionType {}
+
+class BlockOptionTypeAction extends _BlockOptionType {
+  BlockOptionTypeAction(this.type);
+
+  final BlockActionItem type;
+}
+
+enum BlockActionItem { DELETE, COPY, DUPLICATE, INDENT_LEFT, INDENT_RIGHT }
+
+class BlockOptionTypeAttribute extends _BlockOptionType {
+  BlockOptionTypeAttribute(this.attr);
+
+  final Attribute attr;
+}
+
 class SymMenuBlockOption extends StatefulWidget {
   const SymMenuBlockOption({
     required this.renderEditableTextLine,
@@ -291,7 +326,8 @@ class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
         actionListener.onDuplicate();
       }),
       if (!widget.isEmbeddable)
-        _itemMenuContent(Assets.INDENT_LEFT_INACTIVE, 'Indent kiri', maxMenuWidth,
+        _itemMenuContent(
+            Assets.INDENT_LEFT_INACTIVE, 'Indent kiri', maxMenuWidth,
             enabled: (indentLevel ?? 0) > 0, onTap: () {
           if (indentLevel == 1) {
             widget.controller.formatLine(
@@ -381,4 +417,70 @@ class MenuBlockOptionTurnIntoListener {
   });
 
   final Function(Attribute) turnInto;
+}
+
+/* DEFAULT MENU ITEM */
+
+List<MenuBlockOptionSection> defaultMenuBlockOptionSections(bool isEmbed) {
+  return [
+    MenuBlockOptionSection('Aksi', [
+      MenuBlockOptionItem(
+          title: 'Hapus blok',
+          iconAssetName: Assets.TRASH,
+          type: BlockOptionTypeAction(BlockActionItem.DELETE)),
+      MenuBlockOptionItem(
+          title: 'Salin teks',
+          iconAssetName: Assets.COPY,
+          type: BlockOptionTypeAction(BlockActionItem.COPY)),
+      MenuBlockOptionItem(
+          title: 'Duplikat blok',
+          iconAssetName: Assets.DUPLICATE,
+          type: BlockOptionTypeAction(BlockActionItem.DUPLICATE)),
+      if (!isEmbed)
+        MenuBlockOptionItem(
+            title: 'Indent kiri',
+            iconAssetName: Assets.INDENT_LEFT_INACTIVE,
+            type: BlockOptionTypeAction(BlockActionItem.INDENT_LEFT)),
+      if (!isEmbed)
+        MenuBlockOptionItem(
+            title: 'Indent kanan',
+            iconAssetName: Assets.INDENT_RIGHT_ACTIVE,
+            type: BlockOptionTypeAction(BlockActionItem.INDENT_RIGHT)),
+    ]),
+    if (!isEmbed)
+      MenuBlockOptionSection('Change Section Into', [
+        MenuBlockOptionItem(
+            title: 'Text Biasa',
+            iconAssetName: Assets.H1,
+            type: BlockOptionTypeAttribute(Attribute.h1)),
+        MenuBlockOptionItem(
+            title: 'Judul Sedang',
+            iconAssetName: Assets.H2,
+            type: BlockOptionTypeAttribute(Attribute.h2)),
+        MenuBlockOptionItem(
+            title: 'Judul Kecil',
+            iconAssetName: Assets.H3,
+            type: BlockOptionTypeAttribute(Attribute.h3)),
+        MenuBlockOptionItem(
+            title: 'Bullet List',
+            iconAssetName: Assets.BULLET_LIST,
+            type: BlockOptionTypeAttribute(Attribute.ul)),
+        MenuBlockOptionItem(
+            title: 'Numbering List',
+            iconAssetName: Assets.NUMBERING_LIST,
+            type: BlockOptionTypeAttribute(Attribute.ol)),
+        MenuBlockOptionItem(
+            title: 'To-Do List',
+            iconAssetName: Assets.TODO_LIST,
+            type: BlockOptionTypeAttribute(Attribute.checked)),
+        MenuBlockOptionItem(
+            title: 'Block Code',
+            iconAssetName: Assets.FORMAT_INLINECODE_INACTIVE,
+            type: BlockOptionTypeAttribute(Attribute.codeBlock)),
+        MenuBlockOptionItem(
+            title: 'Blockquote',
+            iconAssetName: Assets.FORMAT_INLINECODE_INACTIVE,
+            type: BlockOptionTypeAttribute(Attribute.blockQuote)),
+      ]),
+  ];
 }
