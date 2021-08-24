@@ -29,12 +29,22 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
   final FocusNode _focusNode = FocusNode();
   final _titleController = TextEditingController();
 
+  ValueNotifier<bool> contentFocused = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
     final doc = Document();
     widget._controller = QuillController(
         document: doc, selection: const TextSelection.collapsed(offset: 0));
+
+    _focusNode.addListener(_onFocusChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_onFocusChanged);
+    super.dispose();
   }
 
   @override
@@ -65,11 +75,24 @@ class _SymEditorKalpataruState extends State<SymEditorKalpataru> {
           ),
         ),
         if (isMobile)
-          SymToolbar.basic(
-            context: context,
-            controller: widget._controller!,
+          ValueListenableBuilder(
+            valueListenable: contentFocused,
+            builder: (context, bool isContentFocused, child) {
+              return Visibility(
+                visible: isContentFocused,
+                child: child!,
+              );
+            },
+            child: SymToolbar.basic(
+              context: context,
+              controller: widget._controller!,
+            ),
           )
       ],
     );
+  }
+
+  void _onFocusChanged() {
+    contentFocused.value = _focusNode.hasFocus;
   }
 }

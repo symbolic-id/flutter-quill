@@ -31,7 +31,7 @@ class SymToolbar extends StatelessWidget implements PreferredSizeWidget {
       SymToolbarButton(
           iconAssetName: Assets.CIRCLE_ADD,
           onPressed: () {
-            SymBottomMenuBlockCreation.show(context);
+            SymBottomMenuBlockCreation.show(context, controller);
           }),
       divider,
       SymToolbarButton(iconAssetName: Assets.MORE_VERT, onPressed: () {}),

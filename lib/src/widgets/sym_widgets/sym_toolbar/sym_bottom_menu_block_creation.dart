@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_quill/flutter_quill.dart';
 
 import '../../../../src/utils/iterator_ext.dart';
 import '../../../../utils/assets.dart';
@@ -9,7 +10,7 @@ import '../sym_menu_block_creation.dart';
 import '../sym_text.dart';
 
 class SymBottomMenuBlockCreation {
-  SymBottomMenuBlockCreation._(this.context) {
+  SymBottomMenuBlockCreation._(this.context, this.controller) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -18,11 +19,13 @@ class SymBottomMenuBlockCreation {
     );
   }
 
-  factory SymBottomMenuBlockCreation.show(BuildContext context) {
-    return SymBottomMenuBlockCreation._(context);
+  factory SymBottomMenuBlockCreation.show(
+      BuildContext context, QuillController controller) {
+    return SymBottomMenuBlockCreation._(context, controller);
   }
 
   final BuildContext context;
+  final QuillController controller;
 
   Widget get _layout {
     final children = Container(
@@ -122,7 +125,14 @@ class SymBottomMenuBlockCreation {
     return Material(
         child: InkWell(
       key: key,
-      onTap: () {},
+      onTap: () {
+        Navigator.pop(context);
+        WidgetsBinding.instance!.addPostFrameCallback((_) {
+          final fromLine = controller.document
+              .getLineFromTextIndex(controller.selection.extentOffset);
+          controller.insertLine(fromLine, item.attr);
+        });
+      },
       child: Ink(
         color: SymColors.light_bgWhite,
         child: Container(
