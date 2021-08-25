@@ -254,8 +254,10 @@ class QuillEditor extends StatefulWidget {
       this.onSingleLongTapMoveUpdate,
       this.onSingleLongTapEnd,
       this.embedBuilder = _defaultEmbedBuilder,
+      this.customStyleBuilder,
       this.padding,
-      this.editorType});
+      this.editorType,
+      Key? key});
 
   factory QuillEditor.basic({
     required QuillController controller,
@@ -316,6 +318,7 @@ class QuillEditor extends StatefulWidget {
       onSingleLongTapEnd;
 
   final EmbedBuilder embedBuilder;
+  final CustomStyleBuilder? customStyleBuilder;
 
   final SymEditorType? editorType;
 
@@ -422,6 +425,7 @@ class _QuillEditorState extends State<QuillEditor>
         widget.enableInteractiveSelection,
         widget.scrollPhysics,
         widget.embedBuilder,
+        widget.customStyleBuilder,
         editorType: widget.editorType,
       ),
     );
@@ -1181,72 +1185,6 @@ class RenderEditableContainerBox extends RenderBox
     throw 'No child';
   }
 
-  RenderEditableTextLine? getRenderEditableTextLineAtGlobalOffset(
-      Offset globalOffset) {
-    assert(firstChild != null);
-    final localOffset = globalToLocal(globalOffset);
-
-    final closestChild = childAtOffset(localOffset);
-
-    if (closestChild is RenderEditableTextLine) {
-      return closestChild;
-    } else if (closestChild is RenderEditableTextBlock) {
-      final closestChildInBlock =
-          closestChild.childAtOffset(closestChild.globalToLocal(globalOffset));
-      if (closestChildInBlock is RenderEditableTextLine) {
-        return closestChildInBlock;
-      }
-    }
-    return null;
-  }
-
-  RenderEditableContainerBox? _renderEditableTextBlockAtGlobalOffset(
-      Offset globalOffset) {
-    assert(firstChild != null);
-    final localOffset = globalToLocal(globalOffset);
-
-    final closestChild = childAtOffset(localOffset);
-
-    if (closestChild is RenderEditableTextBlock) {
-      return closestChild;
-    }
-    return null;
-  }
-
-  void selectLine(Offset globalOffset, bool isSelected) {
-    getRenderEditableTextLineAtGlobalOffset(globalOffset)
-        ?.setLineSelected(isSelected);
-  }
-
-  /* get last text index (offset) in a line by global offset */
-  int? getLastTextIndexInEditableTextLineFromGlobalOffset(Offset globalOffset) {
-    assert(firstChild != null);
-
-    final line = getLineFromGlobalOffset(globalOffset);
-
-    if (line != null) {
-      final lastTextIndex = line.documentOffset + line.length - 1;
-
-      line.nextLine;
-
-      return lastTextIndex;
-    }
-    return null;
-  }
-
-  Line? getLineFromGlobalOffset(Offset globalOffset) {
-    return getRenderEditableTextLineAtGlobalOffset(globalOffset)?.line;
-  }
-
-  Block? getBlockFromGlobalOffset(Offset globalOffset) {
-    final blockContainer =
-        _renderEditableTextBlockAtGlobalOffset(globalOffset)?._container;
-    if (blockContainer is Block) {
-      return blockContainer;
-    }
-    return null;
-  }
-
   @override
   void setupParentData(RenderBox child) {
     if (child.parentData is EditableContainerParentData) {
@@ -1263,7 +1201,6 @@ class RenderEditableContainerBox extends RenderBox
     assert(_resolvedPadding != null);
 
     var mainAxisExtent = _resolvedPadding!.top;
-    if (this is RenderEditableTextBlock) {}
     var child = firstChild;
     final innerConstraints =
         BoxConstraints.tightFor(width: constraints.maxWidth)
@@ -1358,4 +1295,73 @@ class RenderEditableContainerBox extends RenderBox
     return defaultComputeDistanceToFirstActualBaseline(baseline)! +
         _resolvedPadding!.top;
   }
+
+
+  RenderEditableTextLine? getRenderEditableTextLineAtGlobalOffset(
+      Offset globalOffset) {
+    assert(firstChild != null);
+    final localOffset = globalToLocal(globalOffset);
+
+    final closestChild = childAtOffset(localOffset);
+
+    if (closestChild is RenderEditableTextLine) {
+      return closestChild;
+    } else if (closestChild is RenderEditableTextBlock) {
+      final closestChildInBlock =
+      closestChild.childAtOffset(closestChild.globalToLocal(globalOffset));
+      if (closestChildInBlock is RenderEditableTextLine) {
+        return closestChildInBlock;
+      }
+    }
+    return null;
+  }
+
+  RenderEditableContainerBox? _renderEditableTextBlockAtGlobalOffset(
+      Offset globalOffset) {
+    assert(firstChild != null);
+    final localOffset = globalToLocal(globalOffset);
+
+    final closestChild = childAtOffset(localOffset);
+
+    if (closestChild is RenderEditableTextBlock) {
+      return closestChild;
+    }
+    return null;
+  }
+
+  void selectLine(Offset globalOffset, bool isSelected) {
+    getRenderEditableTextLineAtGlobalOffset(globalOffset)
+        ?.setLineSelected(isSelected);
+  }
+
+  /* get last text index (offset) in a line by global offset */
+  int? getLastTextIndexInEditableTextLineFromGlobalOffset(Offset globalOffset) {
+    assert(firstChild != null);
+
+    final line = getLineFromGlobalOffset(globalOffset);
+
+    if (line != null) {
+      final lastTextIndex = line.documentOffset + line.length - 1;
+
+      line.nextLine;
+
+      return lastTextIndex;
+    }
+    return null;
+  }
+
+  Line? getLineFromGlobalOffset(Offset globalOffset) {
+    return getRenderEditableTextLineAtGlobalOffset(globalOffset)?.line;
+  }
+
+  Block? getBlockFromGlobalOffset(Offset globalOffset) {
+    final blockContainer =
+        _renderEditableTextBlockAtGlobalOffset(globalOffset)?._container;
+    if (blockContainer is Block) {
+      return blockContainer;
+    }
+    return null;
+  }
+
+
 }

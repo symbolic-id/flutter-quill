@@ -31,6 +31,7 @@ class TextLine extends StatelessWidget {
     required this.styles,
     required this.readOnly,
     this.textDirection,
+    this.customStyleBuilder,
     Key? key,
   }) : super(key: key);
 
@@ -39,6 +40,7 @@ class TextLine extends StatelessWidget {
   final EmbedBuilder embedBuilder;
   final DefaultStyles styles;
   final bool readOnly;
+  final CustomStyleBuilder? customStyleBuilder;
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +157,24 @@ class TextLine extends StatelessWidget {
     }
 
     textStyle = textStyle.merge(toMerge);
+    textStyle = _applyCustomAttributes(textStyle, line.style.attributes);
 
+    return textStyle;
+  }
+
+  TextStyle _applyCustomAttributes(
+      TextStyle textStyle, Map<String, Attribute> attributes) {
+    if (customStyleBuilder == null) {
+      return textStyle;
+    }
+    attributes.keys.forEach((key) {
+      final attr = attributes[key];
+      if (attr != null) {
+        /// Custom Attribute
+        final customAttr = customStyleBuilder!.call(attr);
+        textStyle = textStyle.merge(customAttr);
+      }
+    });
     return textStyle;
   }
 
@@ -229,6 +248,7 @@ class TextLine extends StatelessWidget {
       res = res.merge(TextStyle(backgroundColor: backgroundColor));
     }
 
+    res = _applyCustomAttributes(res, textNode.style.attributes);
     return TextSpan(
         text: textNode.value.replaceAll(
             SymRegex.BLOCK_IDENTIFIER_INSIDE_DOUBLE_SQR_BRACKET, ''),
@@ -1034,7 +1054,7 @@ class RenderEditableTextLine extends RenderEditableBox
       }
     }
 
-    return false;
+    return _children.first.hitTest(result, position: position);
   }
 
   @override

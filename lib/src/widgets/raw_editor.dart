@@ -39,34 +39,35 @@ import 'text_selection.dart';
 
 class RawEditor extends StatefulWidget {
   const RawEditor(
-      Key key,
-      this.controller,
-      this.focusNode,
-      this.scrollController,
-      this.scrollable,
-      this.scrollBottomInset,
-      this.padding,
-      this.readOnly,
-      this.placeholder,
-      this.onLaunchUrl,
-      this.toolbarOptions,
-      this.showSelectionHandles,
-      bool? showCursor,
-      this.cursorStyle,
-      this.textCapitalization,
-      this.maxHeight,
-      this.minHeight,
-      this.customStyles,
-      this.expands,
-      this.autoFocus,
-      this.selectionColor,
-      this.selectionCtrls,
-      this.keyboardAppearance,
-      this.enableInteractiveSelection,
-      this.scrollPhysics,
-      this.embedBuilder,
-      {this.editorType})
-      : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
+    Key key,
+    this.controller,
+    this.focusNode,
+    this.scrollController,
+    this.scrollable,
+    this.scrollBottomInset,
+    this.padding,
+    this.readOnly,
+    this.placeholder,
+    this.onLaunchUrl,
+    this.toolbarOptions,
+    this.showSelectionHandles,
+    bool? showCursor,
+    this.cursorStyle,
+    this.textCapitalization,
+    this.maxHeight,
+    this.minHeight,
+    this.customStyles,
+    this.expands,
+    this.autoFocus,
+    this.selectionColor,
+    this.selectionCtrls,
+    this.keyboardAppearance,
+    this.enableInteractiveSelection,
+    this.scrollPhysics,
+    this.embedBuilder,
+    this.customStyleBuilder,
+    {this.editorType}
+  )   : assert(maxHeight == null || maxHeight > 0, 'maxHeight cannot be null'),
         assert(minHeight == null || minHeight >= 0, 'minHeight cannot be null'),
         assert(maxHeight == null || minHeight == null || maxHeight >= minHeight,
             'maxHeight cannot be null'),
@@ -98,6 +99,7 @@ class RawEditor extends StatefulWidget {
   final bool enableInteractiveSelection;
   final ScrollPhysics? scrollPhysics;
   final EmbedBuilder embedBuilder;
+  final CustomStyleBuilder? customStyleBuilder;
   final SymEditorType? editorType;
 
   @override
@@ -271,49 +273,13 @@ class RawEditorState extends EditorState
   /// Updates the checkbox positioned at [offset] in document
   /// by changing its attribute according to [value].
   void _handleCheckboxTap(int offset, bool value) {
+    print("_handleCheckboxTap readonly: ${widget.readOnly}");
     if (!widget.readOnly) {
       if (value) {
         widget.controller.formatText(offset, 0, Attribute.checked);
       } else {
         widget.controller.formatText(offset, 0, Attribute.unchecked);
       }
-    }
-  }
-
-  Future<void> _handleBlockOptionButtonTap(
-      int textIndex, GlobalKey key, bool isEmbed) async {
-    if (!widget.readOnly) {
-      final box =
-          key.currentContext!.findRenderObject() as RenderEditableTextLine;
-
-      final boxOffset = box.localToGlobal(Offset.zero);
-
-      FocusScope.of(context).unfocus();
-
-      WidgetsBinding.instance!.addPostFrameCallback((_) {
-        getRenderEditor()!.selectLine(boxOffset, true);
-      });
-
-      await Navigator.push(
-        context,
-        PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) {
-              animation = Tween(begin: 0.0, end: 1.0).animate(animation);
-              secondaryAnimation =
-                  Tween(begin: 1.0, end: 0.0).animate(animation);
-              return FadeTransition(
-                opacity: animation,
-                child: SymMenuBlockOption(
-                  renderEditableTextLine: box,
-                  controller: widget.controller,
-                  isEmbeddable: isEmbed,
-                  textIndex: textIndex,
-                ),
-              );
-            },
-            fullscreenDialog: false,
-            opaque: false),
-      );
     }
   }
 
@@ -327,29 +293,31 @@ class RawEditorState extends EditorState
       } else if (node is Block) {
         final attrs = node.style.attributes;
         final editableTextBlock = EditableTextBlock(
-          node,
-          _textDirection,
-          widget.scrollBottomInset,
-          _getVerticalSpacingForBlock(node, _styles),
-          widget.controller.selection,
-          widget.selectionColor,
-          _styles,
-          widget.enableInteractiveSelection,
-          _hasFocus,
-          attrs.containsKey(Attribute.codeBlock.key)
-              ? const EdgeInsets.all(16)
-              : null,
-          widget.embedBuilder,
-          _cursorCont,
-          indentLevelCounts,
-          _handleCheckboxTap,
-          widget.readOnly,
-          onBlockButtonAddTap: (selectionIndex) {
-            _showMenuBlockCreation(selectionIndex: selectionIndex);
-          },
-          onBlockButtonOptionTap: (textOffset, btnKey, isEmbed) {
-            _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
-          },
+            block: node,
+            textDirection: _textDirection,
+            scrollBottomInset: widget.scrollBottomInset,
+            verticalSpacing: _getVerticalSpacingForBlock(node, _styles),
+            textSelection: widget.controller.selection,
+            color: widget.selectionColor,
+            styles: _styles,
+            enableInteractiveSelection: widget.enableInteractiveSelection,
+            hasFocus: _hasFocus,
+            contentPadding: attrs.containsKey(Attribute.codeBlock.key)
+                ? const EdgeInsets.all(16)
+                : null,
+            embedBuilder: widget.embedBuilder,
+            cursorCont: _cursorCont,
+            indentLevelCounts: indentLevelCounts,
+            onCheckboxTap: _handleCheckboxTap,
+            readOnly: widget.readOnly,
+            customStyleBuilder: widget.customStyleBuilder,
+            isMobile: widget.editorType?.isMobile == true,
+            onBlockButtonAddTap: (selectionIndex) {
+              _showMenuBlockCreation(selectionIndex: selectionIndex);
+            },
+            onBlockButtonOptionTap: (textOffset, btnKey, isEmbed) {
+              _handleBlockOptionButtonTap(textOffset, btnKey, isEmbed);
+            },
         );
         result.add(editableTextBlock);
       } else {
@@ -365,6 +333,7 @@ class RawEditorState extends EditorState
       line: node,
       textDirection: _textDirection,
       embedBuilder: widget.embedBuilder,
+      customStyleBuilder: widget.customStyleBuilder,
       styles: _styles!,
       readOnly: widget.readOnly,
     );
@@ -402,16 +371,6 @@ class RawEditorState extends EditorState
         MediaQuery.of(context).devicePixelRatio,
         _cursorCont);
     return editableTextLine;
-  }
-
-  double _getIntentWidth(Line line) {
-    final attrs = line.style.attributes;
-
-    final indent = attrs[Attribute.indent.key];
-    if (indent != null && indent.value != null) {
-      return 16.0 * indent.value;
-    }
-    return 0;
   }
 
   Tuple2<double, double> _getVerticalSpacingForLine(
@@ -476,7 +435,11 @@ class RawEditorState extends EditorState
     );
 
     _keyboardListener = KeyboardListener(
-        handleCursorMovement, handleShortcut, handleDelete, menuCallback);
+        handleCursorMovement,
+        handleShortcut,
+        handleDelete,
+        menuCallback
+    );
 
     if (defaultTargetPlatform == TargetPlatform.windows ||
         defaultTargetPlatform == TargetPlatform.macOS ||
@@ -650,21 +613,22 @@ class RawEditorState extends EditorState
       _selectionOverlay = null;
 
       _selectionOverlay = EditorTextSelectionOverlay(
-          textEditingValue,
-          false,
-          context,
-          widget,
-          _toolbarLayerLink,
-          _startHandleLayerLink,
-          _endHandleLayerLink,
-          getRenderEditor(),
-          widget.selectionCtrls,
-          this,
-          DragStartBehavior.start,
-          null,
-          _clipboardStatus,
-          quillController: widget.controller,
-      isMobile: widget.editorType?.isMobile ?? false);
+        textEditingValue,
+        false,
+        context,
+        widget,
+        _toolbarLayerLink,
+        _startHandleLayerLink,
+        _endHandleLayerLink,
+        getRenderEditor(),
+        widget.selectionCtrls,
+        this,
+        DragStartBehavior.start,
+        null,
+        _clipboardStatus,
+        quillController: widget.controller,
+        isMobile: widget.editorType?.isMobile ?? false
+      );
       _selectionOverlay!.handlesVisible = _shouldShowSelectionHandles();
       _selectionOverlay!.showHandles();
     }
@@ -728,34 +692,6 @@ class RawEditorState extends EditorState
           );
         }
       }
-    });
-  }
-
-  void _showMenuBlockCreation({int? selectionIndex}) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
-      _menuCreation = OverlayEntry(
-          builder: (context) => SymMenuBlockCreation(
-                widget.controller,
-                getRenderEditor()!,
-                toolbarLayerLink: _toolbarLayerLink,
-                selectionIndex: selectionIndex,
-                onDismiss: () {
-                  _menuCreation?.remove();
-                  _menuCreation = null;
-                  widget.focusNode.requestFocus();
-                },
-                onSelected: (attribute) {
-                  widget.focusNode.requestFocus();
-                  _menuCreation?.remove();
-                  _menuCreation = null;
-                  final fromLine = widget.controller.document
-                      .getLineFromTextIndex(selectionIndex ??
-                          widget.controller.selection.extentOffset);
-                  widget.controller.insertLine(fromLine, attribute,
-                      fromSlashCommand: selectionIndex == null);
-                },
-              ));
-      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
     });
   }
 
@@ -846,6 +782,82 @@ class RawEditorState extends EditorState
 
   @override
   bool get wantKeepAlive => widget.focusNode.hasFocus;
+
+
+  Future<void> _handleBlockOptionButtonTap(
+      int textIndex, GlobalKey key, bool isEmbed) async {
+    if (!widget.readOnly) {
+      final box =
+      key.currentContext!.findRenderObject() as RenderEditableTextLine;
+
+      final boxOffset = box.localToGlobal(Offset.zero);
+
+      FocusScope.of(context).unfocus();
+
+      WidgetsBinding.instance!.addPostFrameCallback((_) {
+        getRenderEditor()!.selectLine(boxOffset, true);
+      });
+
+      await Navigator.push(
+        context,
+        PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) {
+              animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+              secondaryAnimation =
+                  Tween(begin: 1.0, end: 0.0).animate(animation);
+              return FadeTransition(
+                opacity: animation,
+                child: SymMenuBlockOption(
+                  renderEditableTextLine: box,
+                  controller: widget.controller,
+                  isEmbeddable: isEmbed,
+                  textIndex: textIndex,
+                ),
+              );
+            },
+            fullscreenDialog: false,
+            opaque: false),
+      );
+    }
+  }
+
+  double _getIntentWidth(Line line) {
+    final attrs = line.style.attributes;
+
+    final indent = attrs[Attribute.indent.key];
+    if (indent != null && indent.value != null) {
+      return 16.0 * indent.value;
+    }
+    return 0;
+  }
+
+  void _showMenuBlockCreation({int? selectionIndex}) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      _menuCreation = OverlayEntry(
+          builder: (context) => SymMenuBlockCreation(
+            widget.controller,
+            getRenderEditor()!,
+            toolbarLayerLink: _toolbarLayerLink,
+            selectionIndex: selectionIndex,
+            onDismiss: () {
+              _menuCreation?.remove();
+              _menuCreation = null;
+              widget.focusNode.requestFocus();
+            },
+            onSelected: (attribute) {
+              widget.focusNode.requestFocus();
+              _menuCreation?.remove();
+              _menuCreation = null;
+              final fromLine = widget.controller.document
+                  .getLineFromTextIndex(selectionIndex ??
+                  widget.controller.selection.extentOffset);
+              widget.controller.insertLine(fromLine, attribute,
+                  fromSlashCommand: selectionIndex == null);
+            },
+          ));
+      Overlay.of(context, rootOverlay: true)!.insert(_menuCreation!);
+    });
+  }
 }
 
 class _Editor extends MultiChildRenderObjectWidget {

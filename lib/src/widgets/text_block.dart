@@ -51,24 +51,27 @@ const List<String> romanNumbers = [
 
 class EditableTextBlock extends StatelessWidget {
   EditableTextBlock(
-      this.block,
-      this.textDirection,
-      this.scrollBottomInset,
-      this.verticalSpacing,
-      this.textSelection,
-      this.color,
-      this.styles,
-      this.enableInteractiveSelection,
-      this.hasFocus,
-      this.contentPadding,
-      this.embedBuilder,
-      this.cursorCont,
-      this.indentLevelCounts,
-      this.onCheckboxTap,
-      this.readOnly,
-      {required this.onBlockButtonAddTap,
+      {required this.block,
+      required this.textDirection,
+      required this.scrollBottomInset,
+      required this.verticalSpacing,
+      required this.textSelection,
+      required this.color,
+      required this.styles,
+      required this.enableInteractiveSelection,
+      required this.hasFocus,
+      required this.contentPadding,
+      required this.embedBuilder,
+      required this.cursorCont,
+      required this.indentLevelCounts,
+      required this.onCheckboxTap,
+      required this.readOnly,
+      required this.onBlockButtonAddTap,
       required this.onBlockButtonOptionTap,
-      this.lineHoveredCallback});
+      this.isMobile = false,
+      this.customStyleBuilder,
+      this.lineHoveredCallback,
+      Key? key});
 
   final Block block;
   final TextDirection textDirection;
@@ -81,10 +84,12 @@ class EditableTextBlock extends StatelessWidget {
   final bool hasFocus;
   final EdgeInsets? contentPadding;
   final EmbedBuilder embedBuilder;
+  final CustomStyleBuilder? customStyleBuilder;
   final CursorCont cursorCont;
   final Map<int, int> indentLevelCounts;
   final Function(int, bool) onCheckboxTap;
   final bool readOnly;
+  final bool isMobile;
   final void Function(int?) onBlockButtonAddTap;
   final Function(int, GlobalKey, bool) onBlockButtonOptionTap;
   Function(bool, RenderEditableTextLine)? lineHoveredCallback;
@@ -128,14 +133,14 @@ class EditableTextBlock extends StatelessWidget {
       final editableTextLine = EditableTextLine(
         editableTextLineKey,
         line,
-        kIsWeb && !readOnly
+        !isMobile && !readOnly
             ? SymBlockButton.typeAdd(
                 editableTextLineKey, block.offset + line.offset,
                 (textOffset, _) {
                 onBlockButtonAddTap(textOffset);
               })
             : null,
-        kIsWeb && !readOnly
+        !isMobile && !readOnly
             ? SymBlockButton.typeOption(
                 editableTextLineKey, block.offset + line.offset,
                 (textOffset, btnKey) {
@@ -149,6 +154,7 @@ class EditableTextBlock extends StatelessWidget {
           line: line,
           textDirection: textDirection,
           embedBuilder: embedBuilder,
+          customStyleBuilder: customStyleBuilder,
           styles: styles!,
           readOnly: readOnly,
         ),
@@ -231,10 +237,6 @@ class EditableTextBlock extends StatelessWidget {
 
   double _getIndentWidth() {
     final attrs = block.style.attributes;
-    var text = block.toPlainText();
-    if (text.length > 10) {
-      text = text.substring(0, 9);
-    }
 
     final indent = attrs[Attribute.indent.key];
     var extraIndent = 0.0;
