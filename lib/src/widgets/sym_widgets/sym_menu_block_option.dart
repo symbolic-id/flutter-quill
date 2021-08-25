@@ -74,77 +74,16 @@ class _SymMenuBlockOptionState extends State<SymMenuBlockOption> {
     widget.renderEditableTextLine.setLineSelected(true);
     final textIndex = widget.textIndex;
     actionListener = MenuBlockOptionActionListener(onDelete: () {
-      int textLength;
-
-      /*
-            Applying linebreak length (+ 1) on the text length
-            but embeddable (image) considered only contain
-            a linebreak
-          */
-      if (!widget.isEmbeddable) {
-        textLength = widget.controller.document
-                .getTextInLineFromTextIndex(textIndex)
-                .length +
-            1;
-      } else {
-        textLength = 1;
-      }
-
-      if (textLength != widget.controller.document.length) {
-        widget.controller.document.delete(textIndex, textLength);
-
-        final lastCursorIndex = widget.controller.selection.baseOffset;
-
-        if (lastCursorIndex > textIndex) {
-          var newCursorIndex = lastCursorIndex - textLength;
-
-          if (newCursorIndex < 0) {
-            newCursorIndex = 0;
-          }
-
-          widget.controller.updateSelection(
-              TextSelection(
-                  baseOffset: newCursorIndex, extentOffset: newCursorIndex),
-              ChangeSource.LOCAL);
-        }
-      } else {
-        widget.controller.replaceText(
-            0,
-            widget.controller.document
-                .getTextInLineFromTextIndex(textIndex)
-                .length,
-            '\n',
-            const TextSelection(baseOffset: 0, extentOffset: 0));
-      }
+      widget.controller.deleteSelectedLine(textIndex);
     }, onCopy: () async {
-      final text =
-          widget.controller.document.getTextInLineFromTextIndex(textIndex);
-      await Clipboard.setData(ClipboardData(text: text));
+      await widget.controller.copyPlainTextSelectedLine(textIndex);
     }, onDuplicate: () {
-      final selectedLine = widget.renderEditableTextLine.line;
-
-      final selectedBlock =
-          selectedLine.parent is Block ? selectedLine.parent as Block : null;
-      var newLineIndex = selectedLine.documentOffset + selectedLine.length;
-
-      if (selectedLine.nextLine == null) {
-        newLineIndex--;
-      }
-
-      widget.controller.document.duplicateLine(newLineIndex, selectedLine,
-          selectedBlock?.style.attributes.entries.first.value);
+      widget.controller.duplicateSelectedLine(textIndex);
     });
 
     turnIntoListener = MenuBlockOptionTurnIntoListener(
       turnInto: (attribute) {
-        for (final attr in Attribute.blockKeysExceptIndent) {
-          if (attr != attribute) {
-            widget.controller.document
-                .format(textIndex, 0, Attribute.clone(attr, null));
-          }
-        }
-
-        widget.controller.document.format(textIndex, 0, attribute);
+        widget.controller.turnSelectedLineInto(attribute, textIndex);
       },
     );
   }

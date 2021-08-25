@@ -122,21 +122,23 @@ class SymBottomMenuBlockOption {
             if (type is BlockOptionTypeAction) {
               switch (type.type) {
                 case BlockActionItem.DELETE:
-                  controller.deleteCurrentLine();
+                  controller.deleteSelectedLine();
                   break;
                 case BlockActionItem.COPY:
-                // TODO: Handle this case.
+                  controller.copyPlainTextSelectedLine();
                   break;
                 case BlockActionItem.DUPLICATE:
-                // TODO: Handle this case.
+                  controller.duplicateSelectedLine();
                   break;
                 case BlockActionItem.INDENT_LEFT:
-                // TODO: Handle this case.
+
                   break;
                 case BlockActionItem.INDENT_RIGHT:
-                // TODO: Handle this case.
+
                   break;
               }
+            } else if (type is BlockOptionTypeAttribute) {
+              controller.turnSelectedLineInto(type.attr);
             }
           });
         },

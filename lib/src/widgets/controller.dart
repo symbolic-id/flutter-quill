@@ -1,7 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_quill/models/documents/nodes/leaf.dart';
+import 'package:flutter_quill/src/models/documents/nodes/block.dart';
 import 'package:flutter_quill/src/models/documents/nodes/line.dart';
 import 'package:flutter_quill/src/widgets/sym_widgets/sym_title_widgets/sym_title_kalpataru.dart';
 import 'package:tuple/tuple.dart';
@@ -267,11 +269,14 @@ class QuillController extends ChangeNotifier {
         extentOffset: math.min(selection.extentOffset, end));
   }
 
-  void deleteCurrentLine() {
-    final line = document.getLineFromTextIndex(selection.baseOffset);
+  void deleteSelectedLine([int? selectedTextIndex]) {
+    final line = document
+        .getLineFromTextIndex(selectedTextIndex ?? selection.baseOffset);
 
-    final isEmbed = (line.children.first as Leaf).value is Embeddable;
-    final textIndex = line.offset;
+    final isEmbed = line.children.isNotEmpty
+        ? (line.children.first as Leaf).value is Embeddable
+        : false;
+    final textIndex = selectedTextIndex ?? line.offset;
     int textLength;
     if (!isEmbed) {
       textLength = line.length + 1;
@@ -279,7 +284,6 @@ class QuillController extends ChangeNotifier {
       textLength = 1;
     }
 
-    /* SOMEHOW IT DOESN'T WORK LIKE ON THE SymMenuBlockOption */
     if (textLength < document.length) {
       document.delete(textIndex, line.length);
 
@@ -298,9 +302,39 @@ class QuillController extends ChangeNotifier {
             ChangeSource.LOCAL);
       }
     } else {
-      print('replaceText: ${line.length}');
       replaceText(
           0, line.length - 1, '\n', const TextSelection.collapsed(offset: 0));
     }
+  }
+
+  Future<void> copyPlainTextSelectedLine([int? selectedTextIndex]) async {
+    final text = document
+        .getTextInLineFromTextIndex(selectedTextIndex ?? selection.baseOffset);
+    await Clipboard.setData(ClipboardData(text: text));
+  }
+
+  void duplicateSelectedLine([int? selectedTextIndex]) {
+    final line = document
+        .getLineFromTextIndex(selectedTextIndex ?? selection.baseOffset);
+
+    final selectedBlock = line.parent is Block ? line.parent as Block : null;
+    var newLineIndex = line.documentOffset + line.length;
+
+    if (line.nextLine == null) {
+      newLineIndex--;
+    }
+
+    document.duplicateLine(newLineIndex, line,
+        selectedBlock?.style.attributes.entries.first.value);
+  }
+
+  void turnSelectedLineInto(Attribute? attribute, [int? selectedTextIndex]) {
+    final textIndex = selectedTextIndex ?? selection.baseOffset;
+    for (final attr in Attribute.blockKeysExceptIndent) {
+      if (attr != attribute) {
+        document.format(textIndex, 0, Attribute.clone(attr, null));
+      }
+    }
+    document.format(textIndex, 0, attribute);
   }
 }
