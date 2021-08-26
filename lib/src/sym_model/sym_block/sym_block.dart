@@ -1,10 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
-import '../note_card/note_card.dart';
+import '../note_card/sym_note_card.dart';
 
-part 'block.g.dart';
+part 'sym_block.g.dart';
 
 @JsonSerializable()
-class Block {
+class SymBlock {
   String id;
   @JsonKey(name: 'block_type')
   String blocktype;
@@ -31,27 +31,28 @@ class Block {
   int originalOwnerId;
   List<String> channels;
 
-  Block(
+  SymBlock(
       {required this.id,
-        required this.blocktype,
-        required this.cardId,
-        required this.content,
-        required this.createdAt,
-        required this.deckId,
-        required this.orderPosition,
-        required this.potentialWords,
-        required this.tags,
-        required this.forwardlinksCount,
-        required this.updatedAt,
-        required this.currentOwnerId,
-        required this.originalOwnerId,
-        required this.type,
-        required this.channels});
+      required this.blocktype,
+      required this.cardId,
+      required this.content,
+      required this.createdAt,
+      required this.deckId,
+      required this.orderPosition,
+      required this.potentialWords,
+      required this.tags,
+      required this.forwardlinksCount,
+      required this.updatedAt,
+      required this.currentOwnerId,
+      required this.originalOwnerId,
+      required this.type,
+      required this.channels});
 
-  factory Block.fromJson(Map<String, dynamic> json) => _$BlockFromJson(json);
+  factory SymBlock.fromJson(Map<String, dynamic> json) =>
+      _$SymBlockFromJson(json);
 
-  factory Block.emptyBlock(String id, NoteCard card) {
-    return Block(
+  factory SymBlock.emptyBlock(String id, SymNoteCard card) {
+    return SymBlock(
       id: id,
       blocktype: "content",
       cardId: card.id,
@@ -70,7 +71,7 @@ class Block {
     );
   }
 
-  Map<String, dynamic> toJson() => _$BlockToJson(this);
+  Map<String, dynamic> toJson() => _$SymBlockToJson(this);
 
   static const _KeyString keyString = const _KeyString();
 
@@ -99,20 +100,36 @@ class _KeyString {
   static const String _channels = 'channels';
 
   String get id => _id;
+
   String get blockType => _blockType;
+
   String get cardId => _cardId;
+
   String get content => _content;
+
   String get createdAt => _createdAt;
+
   String get deckId => _deckId;
+
   String get order_position => _order_position;
+
   String get potentialWords => _potentialWords;
+
   String get tags => _tags;
+
   String get forwardlinksCount => _forwardlinksCount;
+
   String get inline_tag => _inline_tag;
+
   String get title => _title;
+
   String get type => _type;
+
   String get updated_at => _updated_at;
+
   String get currentOwnerId => _currentOwnerId;
+
   String get originalOwnerId => _originalOwnerId;
+
   String get channels => _channels;
 }

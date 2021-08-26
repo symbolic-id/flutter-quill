@@ -1,8 +1,9 @@
 import '../sym_block/sym_block.dart';
-import 'note_card.dart';
+import 'sym_note_card.dart';
 
-class SymNoteCardEntity extends NoteCard {
+class SymNoteCardEntity extends SymNoteCard {
   final List<SymBlock> blocks;
+
   SymNoteCardEntity({
     required String id,
     required String? adoptedAt,
@@ -26,28 +27,29 @@ class SymNoteCardEntity extends NoteCard {
     required String? image,
     required this.blocks,
   }) : super(
-    id: id,
-    adoptedAt: adoptedAt,
-    adoptedStatus: adoptedStatus,
-    channels: channels,
-    updatedAt: updatedAt,
-    type: type,
-    title: title,
-    tags: tags,
-    ownedStatus: ownedStatus,
-    originalOwnerId: originalOwnerId,
-    orderPosition: orderPosition,
-    isPremium: isPremium,
-    emoji: emoji,
-    deckId: deckId,
-    currentOwnerId: currentOwnerId,
-    createdAt: createdAt,
-    forwardlinksCount: forwardlinksCount,
-    backlinksCount: backlinksCount,
-    blocksCount: blocksCount,
-  );
+          id: id,
+          adoptedAt: adoptedAt,
+          adoptedStatus: adoptedStatus,
+          channels: channels,
+          updatedAt: updatedAt,
+          type: type,
+          title: title,
+          tags: tags,
+          ownedStatus: ownedStatus,
+          originalOwnerId: originalOwnerId,
+          orderPosition: orderPosition,
+          isPremium: isPremium,
+          emoji: emoji,
+          deckId: deckId,
+          currentOwnerId: currentOwnerId,
+          createdAt: createdAt,
+          forwardlinksCount: forwardlinksCount,
+          backlinksCount: backlinksCount,
+          blocksCount: blocksCount,
+        );
 
-  static SymNoteCardEntity fromNoteCard(NoteCard card, List<SymBlock> blocks) {
+  static SymNoteCardEntity fromNoteCard(
+      SymNoteCard card, List<SymBlock> blocks) {
     return SymNoteCardEntity(
         id: card.id,
         adoptedAt: card.adoptedAt,
@@ -75,6 +77,13 @@ class SymNoteCardEntity extends NoteCard {
   factory SymNoteCardEntity.fromJson(Map<String, dynamic> json) {
     final blocks = json[SymBlock.objectAlias] as List<SymBlock>;
 
-    return fromNoteCard(NoteCard.fromJson(json), blocks);
+    return fromNoteCard(SymNoteCard.fromJson(json), blocks);
+  }
+
+  @override
+  Map<String, dynamic> toJson() {
+
+    return super.toJson()
+      ..addAll({'blocks': blocks.map((e) => e.toJson()).toList()});
   }
 }

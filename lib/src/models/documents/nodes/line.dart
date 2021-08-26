@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
+import 'package:flutter_quill/src/sym_utils/sym_uuid_creator.dart';
 import 'package:flutter_quill/src/utils/sym_regex.dart';
 import 'package:uuid/uuid.dart';
 
@@ -21,8 +22,7 @@ import 'node.dart';
 /// or text nodes are allowed.
 class Line extends Container<Leaf?> {
   Line() : super() {
-    const uuid = Uuid();
-    _generatedLineId = uuid.v5(Uuid.NAMESPACE_NIL, uuid.v1());
+    _generatedLineId = SymUUIDCreator.instance.create();
   }
 
   late String _generatedLineId;

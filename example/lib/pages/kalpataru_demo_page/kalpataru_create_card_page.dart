@@ -5,9 +5,55 @@ import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:flutter_quill/utils/adaptive_layout_builder.dart';
 
+Map<String, dynamic> _dummyEmptyNoteCardEntityJson() {
+  final currentTime = SymTimestampCreator.now();
+
+  SymUUIDCreator.instance.userId = 1;
+  SymChannelsCreator.instance.init(userId: 1, deckId: null);
+  return {
+    'id': SymUUIDCreator.instance.create(),
+    'created_at': currentTime,
+    'current_owner_id': 1,
+    'original_owner_id': 1,
+    'title': 'Test Yoo',
+    'channels': SymChannelsCreator.instance.getChannels(),
+    'updated_at': currentTime,
+    'adopted_at': null,
+    'adopted_status': false,
+    'blocks_count': 0,
+    'backlinks_count': 0,
+    'forwardlinks_count': 0,
+    'deck_id': null,
+    'emoji': null,
+    'is_premium': false,
+    'order_position': 0,
+    'owned_status': false,
+    'tags': [],
+    'type': 'card',
+    'image': null,
+    'blocks' : [{
+      'id': SymUUIDCreator.instance.create(),
+      'blocktype': SymBlockType.basic,
+      'card_id': 'card-Test',
+      'content': '',
+      'created_at': currentTime,
+      'deck_id': null,
+      'order_position': 0,
+      'potentialWords': [],
+      'tags': [],
+      'forwardlinks_count': 0,
+      'updated_at': currentTime,
+      'current_owner_id': 1,
+      'original_owner_id': 1,
+      'type': 'block',
+      'channels': SymChannelsCreator.instance.getChannels(),
+    }]
+  };
+}
+
 class KalpataruCreateCardPage {
   static void open(BuildContext context) {
-    final editor = SymEditorKalpataru();
+    final editor = SymEditorKalpataru(_dummyEmptyNoteCardEntityJson());
     ScreenAdaptor.onScreen(context,
         onMobile: () => _openMobile(context, editor),
         onDesktop: () => _showDialog(context, editor));
@@ -40,47 +86,3 @@ class KalpataruCreateCardPage {
         });
   }
 }
-
-// class _KalpataruCreateCardPageState extends State<KalpataruCreateCardPage> {
-//
-//   late SymEditorKalpataru editor;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     editor = SymEditorKalpataru();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Dialog(
-//       insetPadding:
-//       EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.1),
-//       clipBehavior: Clip.antiAlias,
-//       shape: const RoundedRectangleBorder(
-//           borderRadius: BorderRadius.only(topLeft: Radius.circular(37))),
-//       child: Column(
-//         children: [
-//           Align(
-//             alignment: Alignment.topRight,
-//             child: IconButton(
-//               onPressed: () {
-//                 debugPrint('LL:: title : ${editor.getTitle()}');
-//                 debugPrint('LL:: content : ${editor.getContent()}');
-//               },
-//               icon: Icon(Icons.save),
-//             ),
-//           ),
-//           Expanded(
-//             child: Container(
-//               height: double.infinity,
-//               width: MediaQuery.of(context).size.width,
-//               color: Colors.white,
-//               child: editor,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }

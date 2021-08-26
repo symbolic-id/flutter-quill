@@ -1,9 +1,9 @@
 import 'sym_block.dart';
-import '../note_card/note_card.dart';
+import '../note_card/sym_note_card.dart';
 
-class NoteCardSingleBlockEntity extends NoteCard {
+class SymNoteCardSingleBlockEntity extends SymNoteCard {
   final SymBlock block;
-  NoteCardSingleBlockEntity({
+  SymNoteCardSingleBlockEntity({
     required String id,
     required String? adoptedAt,
     required bool adoptedStatus,
@@ -47,14 +47,14 @@ class NoteCardSingleBlockEntity extends NoteCard {
     blocksCount: blocksCount,
   );
 
-  factory NoteCardSingleBlockEntity.fromJson(Map<String, dynamic> json) {
+  factory SymNoteCardSingleBlockEntity.fromJson(Map<String, dynamic> json) {
     final block = SymBlock.fromJson(json['card']);
 
-    return fromNoteCard(NoteCard.fromJson(json), block);
+    return fromNoteCard(SymNoteCard.fromJson(json), block);
   }
 
-  static NoteCardSingleBlockEntity fromNoteCard(NoteCard card, SymBlock block) {
-    return NoteCardSingleBlockEntity(
+  static SymNoteCardSingleBlockEntity fromNoteCard(SymNoteCard card, SymBlock block) {
+    return SymNoteCardSingleBlockEntity(
         id: card.id,
         adoptedAt: card.adoptedAt,
         adoptedStatus: card.adoptedStatus,

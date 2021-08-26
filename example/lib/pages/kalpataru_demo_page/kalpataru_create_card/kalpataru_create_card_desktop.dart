@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_quill/flutter_quill.dart';
@@ -21,9 +23,11 @@ class KalpataruCreateCardDesktop extends StatelessWidget {
           Align(
             alignment: Alignment.topRight,
             child: IconButton(
-              onPressed: () {
-                debugPrint('LL:: title : ${editor.getTitle()}');
-                debugPrint('LL:: content : ${editor.getContent()}');
+              onPressed: () async {
+                final noteCardEntity = await editor.getNoteCardEntity();
+                var encoder = const JsonEncoder.withIndent('  ');
+                var prettyPrint = encoder.convert(noteCardEntity);
+                print(prettyPrint);
               },
               icon: Icon(Icons.save),
             ),

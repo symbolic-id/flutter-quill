@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter_quill/src/utils/delta_markdown/markdown_converter.dart';
+import '../../utils/delta_markdown/markdown_converter.dart';
 import 'package:tuple/tuple.dart';
 
 import '../quill_delta.dart';
@@ -228,6 +228,22 @@ class Document {
     }
     final block = res.node as Block;
     return block.queryChild(res.offset, true).node as Line;
+  }
+
+  List<Line> getAllLine() {
+    final lines = <Line>[];
+    for (final node in _root.children) {
+      if (node is Line) {
+        final line = node;
+        lines.add(line);
+      } else if (node is Block) {
+        node.children.forEach((line) {
+          lines.add(line as Line);
+        });
+      }
+    }
+
+    return lines;
   }
 
   void compose(Delta delta, ChangeSource changeSource) {

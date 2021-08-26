@@ -27,10 +27,13 @@ dependencies:
   charcode: ^1.2.0
   uuid: ^3.0.4
   diff_match_patch: ^0.4.1
+  json_serializable: ^4.1.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^2.0.5
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

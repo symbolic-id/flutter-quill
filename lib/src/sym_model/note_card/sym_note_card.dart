@@ -1,9 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'note_card.g.dart';
+part 'sym_note_card.g.dart';
 
 @JsonSerializable()
-class NoteCard {
+class SymNoteCard {
   String id;
   @JsonKey(name: _KeyString._adoptedAt)
   String? adoptedAt;
@@ -39,7 +39,7 @@ class NoteCard {
   List<String> channels;
   String? image;
 
-  NoteCard(
+  SymNoteCard(
       {required this.id,
         required this.createdAt,
         required this.currentOwnerId,
@@ -61,7 +61,7 @@ class NoteCard {
         this.type = objectAlias,
         this.image = null});
 
-  factory NoteCard.fromJson(Map<String, dynamic> json) =>
+  factory SymNoteCard.fromJson(Map<String, dynamic> json) =>
       _$SymNoteCardFromJson(json);
 
   Map<String, dynamic> toJson() => _$SymNoteCardToJson(this);

@@ -10,4 +10,6 @@ class SymRegex {
 
   static final TEXTS_INSIDE_BRACKET = RegExp(r'(?<=\().+?(?=\))'); // match 'image_url.com' inside '**Markdown ![desc](image_url.com) **Markdown'
   static final TEXTS_INSIDE_DOUBLE_SQUARE_BRACKET = RegExp(r'(?<=\[\[\^).{36,43}(?=\]\])'); // match 'space-52aa7567-9e89-4d68-92d9-754d75e7680f' inside '**Markdown**[[^space-52aa7567-9e89-4d68-92d9-754d75e7680f]]'
+
+  static final LAST_LINE_BREAK = RegExp(r'\n$'); // match last '\n' inside '*Markdown*\nAny Word\n'
 }
